@@ -1,0 +1,34 @@
+# ===== 依赖 / 构建产物 =====
+node_modules/
+__pycache__/
+*.pyc
+
+# ===== 备份 / 归档 / 调试垃圾 =====
+backups/
+_archive/
+_stale_backup/
+_bak*/
+.bak_*/
+*.bak*
+*.part
+*.log
+shots_bar/
+*.png
+
+# ===== 密钥 / 凭据 / 会话（绝不入库）=====
+eccang_creds.json
+joybuy_config.json
+joybuy_state.json
+joybuy_compass_session.json
+jb_token_dump.json
+probe_login_result.json
+*_session.json
+.playwright-auth*
+playwright-auth.js
+
+# ===== WorkBuddy 会话数据 =====
+.workbuddy/
+
+# ===== 原始数据转储（可重新采集）=====
+joybuy_raw/
+_jb_token_dump.json

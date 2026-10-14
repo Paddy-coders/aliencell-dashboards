@@ -1,0 +1,292 @@
+[
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/campaignmanagement/detail\",\"path\":\"/admanagement/campaignmanagement/detail\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{\"Action\":0,\"FolderType\":14},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{\"Pager\":{\"PageIndex\":1,\"PageSize\":50000},\"Sorter\":{\"FieldName\":\"Name\",\"Order\":\"ASC\"},\"Attributes\":[\"PortfolioID\",\"Name\"],\"Filter\":{\"AttributeFilters\":[],\"IsDropDown\":1}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{\"GridViewConfigId\":\"200_201_001\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:12\",\"Content\":{\"Attributes\":[\"CampaignID\",\"PortfolioID\",\"State\",\"Name\",\"PortfolioName\",\"BiddingStrategy\",\"CampaignType\",\"SponsoredType\",\"TargetingType\",\"DailyBudget\",\"BudgetType\",\"StartDate\",\"EndDate\",\"OutOfBudgetDate\",\"Report.Impressions\",\"Report.Clicks\",\"Report.ClickRate\",\"Report.Cost\",\"Report.CPC\",\"Report.Orders\",\"Report.SalesAmount\",\"Report.ACoS\",\"Report.ACoTS\",\"Report.ASoTS\",\"Report.ROAS\",\"Report.OrdersRate\",\"ServingStatus\",\"CampaignID_Str\",\"BiddingAdjustmentExtraData\",\"IsHasLog\",\"OptimizeRuleName\",\"OptimizeRuleID\",\"HasAdScheduleHint\",\"AdScheduleDateTime\",\"OrgBudget\",\"OptimizeRuleColor\",\"OptimizeRuleAdGroupCnt\",\"OptimizeRuleTargetCnt\",\"CreateEmpName\",\"AdScheduleColor\",\"ScheduleTemplateName\",\"ScheduleAdGroupCnt\",\"ScheduleTargetCnt\",\"ScheduleAdPosCnt\",\"BiddingAdjustments\",\"AdFormat\",\"LandingPage\",\"IsHasRemark\",\"Tactic\",\"BrandCampaignAdFormat\",\"IsTotal\",\"OrgState\",\"BidOptimization\",\"BidMultiplierType\",\"BidMultiplier\",\"AdFormat\",\"RuleCount\",\"Report.SelfOrders\",\"Report.OtherOrders\",\"Report.SalesQty\",\"Report.SelfSalesQty\",\"Report.OtherSalesQty\",\"Report.SelfSalesAmount\",\"Report.OtherSalesAmount\",\"Report.ViewImpressions\",\"Report.VCPM\",\"Report.CPA\",\"Report.NewOrders\",\"Report.NewSalesQty\",\"Report.NewSalesAmount\",\"Report.NewOrdersPercentage\",\"Report.NewSalesQtyPercentage\",\"Report.NewSalesAmountPercentage\",\"IsMultiAdGroupsEnabled\",\"BrandEntityId\",\"Report.JumpRate\",\"Report.TopOfSearchImpressionShare\",\"FolderName\",\"Goal\",\"Report.BrandedSearches\",\"Report.DPVViews\",\"Report.DPVClicks\",\"Report.ViewableImpressions\",\"Report.VideoUnmutes\",\"Report.VideoThirdQuartileViews\",\"Report.VideoMidpointViews\",\"Report.VideoFirstQuartileViews\",\"Report.VideoCompleteViews\",\"Report.Video5SecondViews\",\"Report.Video5SecondViewRate\",\"Report.VTR\",\"Report.VCTR\",\"SiteOption\",\"ShopperCohortBiddingItems\",\"IsIncreaseBiddingForShopperCohort\"],\"Filter\":{\"AttributeFilters\":[{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\">=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\"<=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"State\",\"Operator\":\"=\",\"Value\":\"enabled\"}]},\"Pager\":{\"PageIndex\":1,\"PageSize\":50},\"Sorter\":{}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:13\",\"Content\":{\"GridViewConfigId\":\"200_205_015\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:19\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:19\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/campaignmanagement/detail?id=22010039657137\",\"path\":\"/admanagement/campaignmanagement/detail?id=22010039657137\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:19\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:25\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:25\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/campaignmanagement/detail?campaignId=22010039657137\",\"path\":\"/admanagement/campaignmanagement/detail?campaignId=22010039657137\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:25\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/adgroupmanagement\",\"path\":\"/admanagement/adgroupmanagement\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"Action\":0,\"FolderType\":14},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"Pager\":{\"PageIndex\":1,\"PageSize\":50000},\"Sorter\":{\"FieldName\":\"Name\",\"Order\":\"ASC\"},\"Attributes\":[\"PortfolioID\",\"Name\"],\"Filter\":{\"AttributeFilters\":[],\"IsDropDown\":1}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"GridViewConfigId\":\"200_201_001\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"Attributes\":[\"CampaignID\",\"PortfolioID\",\"State\",\"Name\",\"PortfolioName\",\"BiddingStrategy\",\"CampaignType\",\"SponsoredType\",\"TargetingType\",\"DailyBudget\",\"BudgetType\",\"StartDate\",\"EndDate\",\"OutOfBudgetDate\",\"Report.Impressions\",\"Report.Clicks\",\"Report.ClickRate\",\"Report.Cost\",\"Report.CPC\",\"Report.Orders\",\"Report.SalesAmount\",\"Report.ACoS\",\"Report.ACoTS\",\"Report.ASoTS\",\"Report.ROAS\",\"Report.OrdersRate\",\"ServingStatus\",\"CampaignID_Str\",\"BiddingAdjustmentExtraData\",\"IsHasLog\",\"OptimizeRuleName\",\"OptimizeRuleID\",\"HasAdScheduleHint\",\"AdScheduleDateTime\",\"OrgBudget\",\"OptimizeRuleColor\",\"OptimizeRuleAdGroupCnt\",\"OptimizeRuleTargetCnt\",\"CreateEmpName\",\"AdScheduleColor\",\"ScheduleTemplateName\",\"ScheduleAdGroupCnt\",\"ScheduleTargetCnt\",\"ScheduleAdPosCnt\",\"BiddingAdjustments\",\"AdFormat\",\"LandingPage\",\"IsHasRemark\",\"Tactic\",\"BrandCampaignAdFormat\",\"IsTotal\",\"OrgState\",\"BidOptimization\",\"BidMultiplierType\",\"BidMultiplier\",\"AdFormat\",\"RuleCount\",\"Report.SelfOrders\",\"Report.OtherOrders\",\"Report.SalesQty\",\"Report.SelfSalesQty\",\"Report.OtherSalesQty\",\"Report.SelfSalesAmount\",\"Report.OtherSalesAmount\",\"Report.ViewImpressions\",\"Report.VCPM\",\"Report.CPA\",\"Report.NewOrders\",\"Report.NewSalesQty\",\"Report.NewSalesAmount\",\"Report.NewOrdersPercentage\",\"Report.NewSalesQtyPercentage\",\"Report.NewSalesAmountPercentage\",\"IsMultiAdGroupsEnabled\",\"BrandEntityId\",\"Report.JumpRate\",\"Report.TopOfSearchImpressionShare\",\"FolderName\",\"Goal\",\"Report.BrandedSearches\",\"Report.DPVViews\",\"Report.DPVClicks\",\"Report.ViewableImpressions\",\"Report.VideoUnmutes\",\"Report.VideoThirdQuartileViews\",\"Report.VideoMidpointViews\",\"Report.VideoFirstQuartileViews\",\"Report.VideoCompleteViews\",\"Report.Video5SecondViews\",\"Report.Video5SecondViewRate\",\"Report.VTR\",\"Report.VCTR\",\"SiteOption\",\"ShopperCohortBiddingItems\",\"IsIncreaseBiddingForShopperCohort\"],\"Filter\":{\"AttributeFilters\":[{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\">=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\"<=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"State\",\"Operator\":\"=\",\"Value\":\"enabled\"}]},\"Pager\":{\"PageIndex\":1,\"PageSize\":50},\"Sorter\":{}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:31\",\"Content\":{\"GridViewConfigId\":\"200_205_015\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:37\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:37\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/adgroupmanagement?campaignId=22010039657137\",\"path\":\"/admanagement/adgroupmanagement?campaignId=22010039657137\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:37\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/targetingmanagement\",\"path\":\"/admanagement/targetingmanagement\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{\"Action\":0,\"FolderType\":14},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{\"Pager\":{\"PageIndex\":1,\"PageSize\":50000},\"Sorter\":{\"FieldName\":\"Name\",\"Order\":\"ASC\"},\"Attributes\":[\"PortfolioID\",\"Name\"],\"Filter\":{\"AttributeFilters\":[],\"IsDropDown\":1}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{\"GridViewConfigId\":\"200_201_001\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:43\",\"Content\":{\"Attributes\":[\"CampaignID\",\"PortfolioID\",\"State\",\"Name\",\"PortfolioName\",\"BiddingStrategy\",\"CampaignType\",\"SponsoredType\",\"TargetingType\",\"DailyBudget\",\"BudgetType\",\"StartDate\",\"EndDate\",\"OutOfBudgetDate\",\"Report.Impressions\",\"Report.Clicks\",\"Report.ClickRate\",\"Report.Cost\",\"Report.CPC\",\"Report.Orders\",\"Report.SalesAmount\",\"Report.ACoS\",\"Report.ACoTS\",\"Report.ASoTS\",\"Report.ROAS\",\"Report.OrdersRate\",\"ServingStatus\",\"CampaignID_Str\",\"BiddingAdjustmentExtraData\",\"IsHasLog\",\"OptimizeRuleName\",\"OptimizeRuleID\",\"HasAdScheduleHint\",\"AdScheduleDateTime\",\"OrgBudget\",\"OptimizeRuleColor\",\"OptimizeRuleAdGroupCnt\",\"OptimizeRuleTargetCnt\",\"CreateEmpName\",\"AdScheduleColor\",\"ScheduleTemplateName\",\"ScheduleAdGroupCnt\",\"ScheduleTargetCnt\",\"ScheduleAdPosCnt\",\"BiddingAdjustments\",\"AdFormat\",\"LandingPage\",\"IsHasRemark\",\"Tactic\",\"BrandCampaignAdFormat\",\"IsTotal\",\"OrgState\",\"BidOptimization\",\"BidMultiplierType\",\"BidMultiplier\",\"AdFormat\",\"RuleCount\",\"Report.SelfOrders\",\"Report.OtherOrders\",\"Report.SalesQty\",\"Report.SelfSalesQty\",\"Report.OtherSalesQty\",\"Report.SelfSalesAmount\",\"Report.OtherSalesAmount\",\"Report.ViewImpressions\",\"Report.VCPM\",\"Report.CPA\",\"Report.NewOrders\",\"Report.NewSalesQty\",\"Report.NewSalesAmount\",\"Report.NewOrdersPercentage\",\"Report.NewSalesQtyPercentage\",\"Report.NewSalesAmountPercentage\",\"IsMultiAdGroupsEnabled\",\"BrandEntityId\",\"Report.JumpRate\",\"Report.TopOfSearchImpressionShare\",\"FolderName\",\"Goal\",\"Report.BrandedSearches\",\"Report.DPVViews\",\"Report.DPVClicks\",\"Report.ViewableImpressions\",\"Report.VideoUnmutes\",\"Report.VideoThirdQuartileViews\",\"Report.VideoMidpointViews\",\"Report.VideoFirstQuartileViews\",\"Report.VideoCompleteViews\",\"Report.Video5SecondViews\",\"Report.Video5SecondViewRate\",\"Report.VTR\",\"Report.VCTR\",\"SiteOption\",\"ShopperCohortBiddingItems\",\"IsIncreaseBiddingForShopperCohort\"],\"Filter\":{\"AttributeFilters\":[{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\">=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\"<=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"State\",\"Operator\":\"=\",\"Value\":\"enabled\"}]},\"Pager\":{\"PageIndex\":1,\"PageSize\":50},\"Sorter\":{}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:44\",\"Content\":{\"GridViewConfigId\":\"200_205_015\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:49\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:49\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/targetingmanagement?adGroupId=501750541660021\",\"path\":\"/admanagement/targetingmanagement?adGroupId=501750541660021\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:49\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:55\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:55\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/keywordmanagement\",\"path\":\"/admanagement/keywordmanagement\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:55\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:56\",\"Content\":{\"Action\":0,\"FolderType\":14},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:56\",\"Content\":{\"Pager\":{\"PageIndex\":1,\"PageSize\":50000},\"Sorter\":{\"FieldName\":\"Name\",\"Order\":\"ASC\"},\"Attributes\":[\"PortfolioID\",\"Name\"],\"Filter\":{\"AttributeFilters\":[],\"IsDropDown\":1}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:56\",\"Content\":{\"GridViewConfigId\":\"200_201_001\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:56\",\"Content\":{\"Attributes\":[\"CampaignID\",\"PortfolioID\",\"State\",\"Name\",\"PortfolioName\",\"BiddingStrategy\",\"CampaignType\",\"SponsoredType\",\"TargetingType\",\"DailyBudget\",\"BudgetType\",\"StartDate\",\"EndDate\",\"OutOfBudgetDate\",\"Report.Impressions\",\"Report.Clicks\",\"Report.ClickRate\",\"Report.Cost\",\"Report.CPC\",\"Report.Orders\",\"Report.SalesAmount\",\"Report.ACoS\",\"Report.ACoTS\",\"Report.ASoTS\",\"Report.ROAS\",\"Report.OrdersRate\",\"ServingStatus\",\"CampaignID_Str\",\"BiddingAdjustmentExtraData\",\"IsHasLog\",\"OptimizeRuleName\",\"OptimizeRuleID\",\"HasAdScheduleHint\",\"AdScheduleDateTime\",\"OrgBudget\",\"OptimizeRuleColor\",\"OptimizeRuleAdGroupCnt\",\"OptimizeRuleTargetCnt\",\"CreateEmpName\",\"AdScheduleColor\",\"ScheduleTemplateName\",\"ScheduleAdGroupCnt\",\"ScheduleTargetCnt\",\"ScheduleAdPosCnt\",\"BiddingAdjustments\",\"AdFormat\",\"LandingPage\",\"IsHasRemark\",\"Tactic\",\"BrandCampaignAdFormat\",\"IsTotal\",\"OrgState\",\"BidOptimization\",\"BidMultiplierType\",\"BidMultiplier\",\"AdFormat\",\"RuleCount\",\"Report.SelfOrders\",\"Report.OtherOrders\",\"Report.SalesQty\",\"Report.SelfSalesQty\",\"Report.OtherSalesQty\",\"Report.SelfSalesAmount\",\"Report.OtherSalesAmount\",\"Report.ViewImpressions\",\"Report.VCPM\",\"Report.CPA\",\"Report.NewOrders\",\"Report.NewSalesQty\",\"Report.NewSalesAmount\",\"Report.NewOrdersPercentage\",\"Report.NewSalesQtyPercentage\",\"Report.NewSalesAmountPercentage\",\"IsMultiAdGroupsEnabled\",\"BrandEntityId\",\"Report.JumpRate\",\"Report.TopOfSearchImpressionShare\",\"FolderName\",\"Goal\",\"Report.BrandedSearches\",\"Report.DPVViews\",\"Report.DPVClicks\",\"Report.ViewableImpressions\",\"Report.VideoUnmutes\",\"Report.VideoThirdQuartileViews\",\"Report.VideoMidpointViews\",\"Report.VideoFirstQuartileViews\",\"Report.VideoCompleteViews\",\"Report.Video5SecondViews\",\"Report.Video5SecondViewRate\",\"Report.VTR\",\"Report.VCTR\",\"SiteOption\",\"ShopperCohortBiddingItems\",\"IsIncreaseBiddingForShopperCohort\"],\"Filter\":{\"AttributeFilters\":[{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\">=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\"<=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"State\",\"Operator\":\"=\",\"Value\":\"enabled\"}]},\"Pager\":{\"PageIndex\":1,\"PageSize\":50},\"Sorter\":{}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:29:56\",\"Content\":{\"GridViewConfigId\":\"200_205_015\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:2\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:2\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/keywordmanagement?adGroupId=501750541660021\",\"path\":\"/admanagement/keywordmanagement?adGroupId=501750541660021\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:2\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/adkeywordmanagement\",\"path\":\"/admanagement/adkeywordmanagement\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{\"Action\":0,\"FolderType\":14},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{\"Pager\":{\"PageIndex\":1,\"PageSize\":50000},\"Sorter\":{\"FieldName\":\"Name\",\"Order\":\"ASC\"},\"Attributes\":[\"PortfolioID\",\"Name\"],\"Filter\":{\"AttributeFilters\":[],\"IsDropDown\":1}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{\"GridViewConfigId\":\"200_201_001\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:8\",\"Content\":{\"Attributes\":[\"CampaignID\",\"PortfolioID\",\"State\",\"Name\",\"PortfolioName\",\"BiddingStrategy\",\"CampaignType\",\"SponsoredType\",\"TargetingType\",\"DailyBudget\",\"BudgetType\",\"StartDate\",\"EndDate\",\"OutOfBudgetDate\",\"Report.Impressions\",\"Report.Clicks\",\"Report.ClickRate\",\"Report.Cost\",\"Report.CPC\",\"Report.Orders\",\"Report.SalesAmount\",\"Report.ACoS\",\"Report.ACoTS\",\"Report.ASoTS\",\"Report.ROAS\",\"Report.OrdersRate\",\"ServingStatus\",\"CampaignID_Str\",\"BiddingAdjustmentExtraData\",\"IsHasLog\",\"OptimizeRuleName\",\"OptimizeRuleID\",\"HasAdScheduleHint\",\"AdScheduleDateTime\",\"OrgBudget\",\"OptimizeRuleColor\",\"OptimizeRuleAdGroupCnt\",\"OptimizeRuleTargetCnt\",\"CreateEmpName\",\"AdScheduleColor\",\"ScheduleTemplateName\",\"ScheduleAdGroupCnt\",\"ScheduleTargetCnt\",\"ScheduleAdPosCnt\",\"BiddingAdjustments\",\"AdFormat\",\"LandingPage\",\"IsHasRemark\",\"Tactic\",\"BrandCampaignAdFormat\",\"IsTotal\",\"OrgState\",\"BidOptimization\",\"BidMultiplierType\",\"BidMultiplier\",\"AdFormat\",\"RuleCount\",\"Report.SelfOrders\",\"Report.OtherOrders\",\"Report.SalesQty\",\"Report.SelfSalesQty\",\"Report.OtherSalesQty\",\"Report.SelfSalesAmount\",\"Report.OtherSalesAmount\",\"Report.ViewImpressions\",\"Report.VCPM\",\"Report.CPA\",\"Report.NewOrders\",\"Report.NewSalesQty\",\"Report.NewSalesAmount\",\"Report.NewOrdersPercentage\",\"Report.NewSalesQtyPercentage\",\"Report.NewSalesAmountPercentage\",\"IsMultiAdGroupsEnabled\",\"BrandEntityId\",\"Report.JumpRate\",\"Report.TopOfSearchImpressionShare\",\"FolderName\",\"Goal\",\"Report.BrandedSearches\",\"Report.DPVViews\",\"Report.DPVClicks\",\"Report.ViewableImpressions\",\"Report.VideoUnmutes\",\"Report.VideoThirdQuartileViews\",\"Report.VideoMidpointViews\",\"Report.VideoFirstQuartileViews\",\"Report.VideoCompleteViews\",\"Report.Video5SecondViews\",\"Report.Video5SecondViewRate\",\"Report.VTR\",\"Report.VCTR\",\"SiteOption\",\"ShopperCohortBiddingItems\",\"IsIncreaseBiddingForShopperCohort\"],\"Filter\":{\"AttributeFilters\":[{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\">=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"Report.ReportDate\",\"Operator\":\"<=\",\"Value\":\"2026-08-20\"},{\"AttributeCode\":\"State\",\"Operator\":\"=\",\"Value\":\"enabled\"}]},\"Pager\":{\"PageIndex\":1,\"PageSize\":50},\"Sorter\":{}},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:9\",\"Content\":{\"GridViewConfigId\":\"200_205_015\"},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:14\",\"Content\":{},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:14\",\"Content\":{\"url\":\"https://home.eccang.com/entry/EDT7P8/ERP/selmuch-web#/admanagement/adkeywordmanagement?adGroupId=501750541660021\",\"path\":\"/admanagement/adkeywordmanagement?adGroupId=501750541660021\",\"ModuleID\":0},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  },
+  {
+    "url": "https://amz-ad.eccang.com/netapi/",
+    "method": "POST",
+    "body": "{\"RequestDate\":\"2026-8-20 11:30:14\",\"Content\":{\"IsNewVersion\":1},\"StoreSiteID\":586021,\"StoreID\":174010,\"MarketSiteID\":21,\"UniqueID\":0,\"EmployeeID\":0,\"PersonOrganizationID\":0,\"AccountType\":0,\"ToKen\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxOTU0MjIyODkiLCJleHAiOjE3ODcyNjc0MjIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.490jNBK6pOkbwi8dUfuZTkHuOk7BnAv9za_SSY7lUnE\"}"
+  }
+]

@@ -1,0 +1,606 @@
+URL: https://openplatform.joybuy.com/#/doc/apiAuthPackage?apiCateId=32&apiId=76&apiName=listOrders&apiCateName=%E8%AE%A2%E5%8D%95%E5%B1%A5%E7%BA%A6&gwType=0
+
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+mc5l5t625ku9dxd6l8wgx
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+订单履约
+listProducts
+putOrderShipments
+postOrderShipment
+getWayBillTraces
+listCarriers
+listOrders
+getOrder
+listOrderOaidAddresses
+Permission Package
+订单履约
+listOrders
+FBM
+订单列表查询
+User authorization required
+Version v0
+Updated:17/09/2026 16:15:10
+API Description
+Collapse
+This API provides JD POP order list query functionality, supporting SOP order type. It adopts an optional field mechanism, and the caller needs to explicitly specify the field names to be returned.
+Notes
+1. The field names to be returned must be explicitly specified;
+2. Self-operated order query is not supported;
+Prerequisites
+3. Authorization is required to call this API;
+Terminology
+4. Root parent order rootOrderId: An order can be split into multiple levels, and the parent-child order relationship after splitting forms a tree structure, where the root node of the tree is the root parent order no;
+5. Direct parent order no parentOrderId: The parent node of a certain node is the direct parent order no;
+6. Order type orderType: The classification identifier of orders by business model;
+7. Order flag orderFlag: A more fine-grained classification identifier than order type, an order may have multiple flags;
+APITools
+Collapse
+API Debugging Tool
+API Permission Query Tool
+API Log Troubleshooting Tool
+Signature Tool
+Request
+Request Address and Method
+Pre-release Environment Address
+	
+Production Environment Address
+	
+Call Method
+https://api-pre.joybuy.com/rest
+	
+https://api-eu.joybuy.com/rest
+	
+API invocation method， Click to view
+Common Request Parameters
+Collapse
+Name
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+X-JOS-App-Key
+	
+string
+	
+Yes
+	
+012D834080F3339C1FF301F8EC763E13
+	
+The appKey of the created application.
+
+
+X-JOS-Access-Token
+	
+string
+	
+No
+	
+7f1bcd13fc57d46bac21793a18e560
+	
+The authorization token issued by the platform to the application after user authorization succeeds. If this API document is labeled “User Authorization Required,” this parameter is required. If it is labeled “User Authorization Not Required,” this parameter is not required.
+
+
+X-JOS-Timestamp
+	
+long
+	
+Yes
+	
+1735660800000
+	
+Timestamp accurate to milliseconds. The JD API server allows a client request time deviation of up to 10 minutes.
+
+
+X-JOS-Sign
+	
+string
+	
+Yes
+	
+-
+	
+Signature. Click to view
+
+
+X-JOS-Sign-Method
+	
+string
+	
+No
+	
+md5
+	
+Signature encryption algorithm. Available options are md5, hmacmd5, and hmacsha256. The default is md5.
+
+
+X-JOS-Content-Type
+	
+string
+	
+No
+	
+application/json; charset=utf-8
+	
+Required when the request method is POST, PATCH, or PUT. Optional for GET and DELETE. Fixed value: application/json; charset=utf-8.
+
+
+X-JOS-Request-Identity
+	
+string
+	
+Yes
+	
+vender
+	
+When the API is a multi-business aggregation interface and supports multiple data dimensions, a business identity identifier must be passed in to ensure that data resources for the corresponding business scenario are returned. If the “API Data Dimension” label contains multiple options, this parameter is required. If the label contains only one option or there is no label, this parameter is not required. Available values include： vender: store-level data； supplier: supplier code-level data； userPin: supplier PIN-level data.
+
+
+X-JOS-Request-BizId
+	
+string
+	
+No
+	
+	
+When requesting POP merchant data, enter the venderId. When requesting supplier data, enter the venderCode.
+
+
+X-JOS-site
+	
+string
+	
+No
+	
+	
+UK-Site：UK Site；NL-Site：Netherlands Site；DE-Site：Germany Site；FR-Site：France Site
+
+
+X-JOS-timeZone
+	
+string
+	
+No
+	
+	
+Asia/Shanghai：Shanghai (China)；Asia/Tokyo：Tokyo (Japan)；Asia/Singapore：Singapore；Asia/Seoul：Seoul (Korea)
+
+
+X-JOS-currency
+	
+string
+	
+No
+	
+	
+CNY：CNY；USD：US Dollar；EUR：Euro；JPY：Japanese Yen；GBP：British Pound
+
+
+X-JOS-language
+	
+string
+	
+No
+	
+	
+zh_CN：Simplified Chinese；zh_HK：Traditional Chinese (Hong Kong & Macao)；zh_TW：Traditional Chinese (Taiwan)；en_US：English (US)；en_GB：English (UK)；fr_FR：French；de_DE：German；nl_NL：Dutch
+Request Parameters
+Name
+Expand
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+listOrdersRequest
+	
+object
+	
+Yes
+	
+	
+request parameters
+Response
+Response Parameters
+Name
+Expand
+	
+Type
+	
+Example
+	
+Description
+paginationData
+	
+object
+	
+	
+pagination info
+
+
+data
+	
+array
+	
+	
+response data object
+
+
+success
+	
+boolean
+	
+true
+	
+whether successful
+
+
+errorList
+	
+array
+	
+	
+error list
+Response Example
+JSON
+	{
+
+	  "Response": {
+
+	    "paginationData": {
+
+	      "totalItems": 100,
+
+	      "hasNextPage": true,
+
+	      "totalPages": 10,
+
+	      "pageSize": 10,
+
+	      "currentPage": 1
+
+	    },
+
+	    "data": [
+
+	      {
+
+	        "venderId": 312314,
+
+	        "shopId": 6324254,
+
+	        "orderId": 526234112,
+
+	        "parentOrderId": 778345342,
+
+	        "rootOrderId": 356762377,
+
+	        "orderType": 22,
+
+	        "orderTypeDesc": "Pop订单类型Sop",
+
+	        "orderStatus": "UN_PAID",
+
+	        "fulfillmentType": "FBM",
+
+	        "siteId": 1400,
+
+	        "shipmentType": 71,
+
+	        "promisePickTime": 1729298601130,
+
+	        "orderExt": "{\"country\":\"GB\",\"currency\":\"GBP\"}",
+
+	        "buyerRemark": "尽快发货",
+
+	        "orderTimeInfo": {
+
+	          "createdTime": 1729298601130,
+
+	          "modifiedTime": 1729698601130,
+
+	          "outboundTime": 1729698601130,
+
+	          "finishedTime": 1729898601130
+
+	        },
+
+	        "buyerAndSellerInfo": {
+
+	          "venderId": 312314
+
+	        },
+
+	        "orderFlag": {
+
+	          "tryBeforePayLater": true,
+
+	          "flagExtMap": "{}"
+
+	        },
+
+	        "skuItemList": [
+
+	          {
+
+	            "skuId": 100106323,
+
+	            "skuName": "UK Station - FBM - Large Bulk Items - Shelf Placement Materials - Do Not Interfere 5 Pcs/Box",
+
+	            "skuUuid": "1012_d3h1r1F1567552400663793664",
+
+	            "outerSkuId": "67345356",
+
+	            "productId": 100033886,
+
+	            "num": 3,
+
+	            "skuImg": "jfsintlxingyuntest-000-dsm/t1/4294967296/3473408/111387391109426/481845/6915838eEf0501936/fec071326b91ab10.jpg",
+
+	            "skuSpec": "Color/Colour:light-black,Size:S",
+
+	            "salesPrice": "0.05",
+
+	            "itemExt": "{\"EDIskuExtParam\":\"00000000000000000000\"}",
+
+	            "thirdCategoryId": 6316
+
+	          }
+
+	        ],
+
+	        "consigneeInfo": {
+
+	          "fullName": "张**",
+
+	          "mobile": "133*******1",
+
+	          "fullAddress": "北京市海淀区******",
+
+	          "addressLevel1": "Cardiff",
+
+	          "addressLevel2": "Margate",
+
+	          "postCode": "SW1A 1AA",
+
+	          "country": "DE",
+
+	          "oaid": "Qq1n94pda1EQrStSqtaqT3A4GGEDi63Mfrz1ay7EAcbCZo1a2YNR2PaCwwY5N6UJnTHYVykvsEbkG16Zd2urHXtJsqMLrSjnqvnDixd2A6Afmqzc9mgtZXiw2CJajYrWqXJtVcbhDXQGhqS3UYspUq6Mi9VEBmQzbeYgnfwwoc3MMGSF1vhPTXvfJe6QwGF"
+
+	        },
+
+	        "transportInfo": {
+
+	          "fullShipmentInfoList": [
+
+	            {
+
+	              "carrierId": 46,
+
+	              "waybillCodeList": [
+
+	                {
+
+	                  "waybillCode": "JDW200322177515"
+
+	                }
+
+	              ]
+
+	            }
+
+	          ]
+
+	        },
+
+	        "paymentInfo": {
+
+	          "paymentType": 4,
+
+	          "paymentConfirmTime": 1729298601130,
+
+	          "freightFee": "0.10",
+
+	          "currency": "GBP",
+
+	          "serviceFee": "0.12",
+
+	          "orderItemSum": "0.10",
+
+	          "orderSum": "0.10",
+
+	          "warehouseId": "0"
+
+	        }
+
+	      }
+
+	    ],
+
+	    "success": true
+
+	  }
+
+	}
+Exception Example
+JSON
+	{
+
+	  "Response": {
+
+	    "errorList": [
+
+	      {
+
+	        "code": "10201001002",
+
+	        "details": "订单状态不能为空",
+
+	        "message": "订单状态必填"
+
+	      }
+
+	    ],
+
+	    "success": false
+
+	  }
+
+	}
+Return Code
+Return Code
+	
+Return Message
+	
+Solution
+10201001002
+	
+order status cannot be empty
+	
+order status cannot be empty
+
+
+10201001003
+	
+Order status contains empty values
+	
+remove null values from order status
+
+
+10201001004
+	
+Order status is incorrect
+	
+Provide comma-separated values such as `UN_PAID`, `SUSPEND`, `UN_SHIPPED`, `SHIPPED`, `COMPLETED`, `CANCELLED`, `LOCKED`, and `UNKNOWN`.
+
+
+10201001005
+	
+Page size is less than 1 or too large
+	
+page must be between 1 and 300
+
+
+10201001006
+	
+Page size is less than 1 or too large
+	
+pageSize must be between 1 and 100
+
+
+10201001007
+	
+Unsupported sort field
+	
+sort field. createdTime: query by order created time, modifiedTime: query by order modified time
+
+
+10201001008
+	
+Unsupported sort order
+	
+sort order, ASC, DESC
+
+
+10201001009
+	
+Start time or end time is empty
+	
+start and end times are required
+
+
+10201001010
+	
+End time is earlier than start time
+	
+end time cannot be earlier than start time
+
+
+10201001011
+	
+The interval between end time and start time is greater than 3 month
+	
+the time span between end time and start time must not be greater than 3 months
+
+
+10201001017
+	
+Request parameter is empty
+	
+Request parameter cannot be empty
+
+
+10201001018
+	
+Vendor ID cannot be empty
+	
+Vendor ID cannot be empty
+
+
+10201001019
+	
+shopId is empty
+	
+shopId cannot be empty
+Common Q&A
+Problem
+	
+Solution
+type amount type description in paymentDetailInfoVo
+	
+Click to view
+
+
+How is the order list paginated.
+	
+`page` must be between 1 and 300, and `pageSize` must be between 1 and 100.
+
+
+What are the time range restrictions.
+	
+Both start and end times are required, the start must precede the end, and the range cannot exceed three months.
+
+
+How are multiple order statuses specified.
+	
+Provide comma-separated values such as `UN_PAID`, `SUSPEND`, `UN_SHIPPED`, `SHIPPED`, `COMPLETED`, `CANCELLED`, `LOCKED`, and `UNKNOWN`.
+How to obtain this API
+Permission package that has this API
+	
+Application types that can obtain/apply for this API permission package
+全流程控制
+	
+
+
+订单履约
+	
+物流仓储,ISV应用
+Request
+Request Address and Method
+Common Request Parameters
+Request Parameters
+Response
+Response Parameters
+Response Example
+Exception Example
+Return Code
+Common Q&A
+How to obtain this API

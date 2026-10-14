@@ -1,0 +1,553 @@
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+mc5l5t625ku9dxd6l8wgx
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Supply Chain
+Vender
+Product
+ProductOverview‌
+batchPutSkuState
+listProducts
+getQualificationPreSignedUrl
+getProductApplyDetail
+listProductPublishTemplates
+listSkuStocks
+postVideo
+batchDeleteVideo
+listSkus
+listMediaZoneCategories
+listSearchVideos
+listVideoUploadUrls
+patchVideo
+listProductApplies
+patchMediaZoneImage
+putProductStatus
+postQualification
+getMediaZoneImage
+getProduct
+batchPutSkuStock
+batchDeleteMediaZoneImage
+listMediaZoneImages
+listQualificationsCatecory
+batchDeleteQualificationFiles
+listQualificationCenterFiles
+postProductApply
+postMediaZoneImage
+Order
+API Documentation
+Product
+listSkuStocks
+listSkuStocks
+FBM
+GET
+sp-product/v0/sku-stocks
+SP-API
+User authorization required
+Version v0
+Updated:10/09/2026 20:57:38
+API Description
+Collapse
+Used for Joybuy POP merchants to query SKU inventory information, only supports POP mode.
+APITools
+Collapse
+API Debugging Tool
+API Permission Query Tool
+API Log Troubleshooting Tool
+Signature Tool
+Request
+Request Address and Method
+Pre-release Environment Address
+	
+Production Environment Address
+	
+Call Method
+https://api-pre.joybuy.com/rest
+	
+https://api-eu.joybuy.com/rest
+	
+API invocation method， Click to view
+Common Request Parameters
+Collapse
+Name
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+X-JOS-App-Key
+	
+string
+	
+Yes
+	
+012D834080F3339C1FF301F8EC763E13
+	
+The appKey of the created application.
+
+
+X-JOS-Access-Token
+	
+string
+	
+No
+	
+7f1bcd13fc57d46bac21793a18e560
+	
+The authorization token issued by the platform to the application after user authorization succeeds. If this API document is labeled “User Authorization Required,” this parameter is required. If it is labeled “User Authorization Not Required,” this parameter is not required.
+
+
+X-JOS-Timestamp
+	
+long
+	
+Yes
+	
+1735660800000
+	
+Timestamp accurate to milliseconds. The JD API server allows a client request time deviation of up to 10 minutes.
+
+
+X-JOS-Sign
+	
+string
+	
+Yes
+	
+-
+	
+Signature. Click to view
+
+
+X-JOS-Sign-Method
+	
+string
+	
+No
+	
+md5
+	
+Signature encryption algorithm. Available options are md5, hmacmd5, and hmacsha256. The default is md5.
+
+
+X-JOS-Content-Type
+	
+string
+	
+No
+	
+application/json; charset=utf-8
+	
+Required when the request method is POST, PATCH, or PUT. Optional for GET and DELETE. Fixed value: application/json; charset=utf-8.
+
+
+X-JOS-Request-Identity
+	
+string
+	
+Yes
+	
+vender
+	
+When the API is a multi-business aggregation interface and supports multiple data dimensions, a business identity identifier must be passed in to ensure that data resources for the corresponding business scenario are returned. If the “API Data Dimension” label contains multiple options, this parameter is required. If the label contains only one option or there is no label, this parameter is not required. Available values include：
+vender: store-level data；
+supplier: supplier code-level data；
+userPin: supplier PIN-level data.
+
+
+X-JOS-Request-BizId
+	
+string
+	
+No
+	
+	
+When requesting POP merchant data, enter the venderId. When requesting supplier data, enter the venderCode.
+
+
+X-JOS-site
+	
+string
+	
+No
+	
+	
+UK-Site：UK Site；NL-Site：Netherlands Site；DE-Site：Germany Site；FR-Site：France Site
+
+
+X-JOS-timeZone
+	
+string
+	
+No
+	
+	
+Asia/Shanghai：Shanghai (China)；Asia/Tokyo：Tokyo (Japan)；Asia/Singapore：Singapore；Asia/Seoul：Seoul (Korea)
+
+
+X-JOS-currency
+	
+string
+	
+No
+	
+	
+CNY：CNY；USD：US Dollar；EUR：Euro；JPY：Japanese Yen；GBP：British Pound
+
+
+X-JOS-language
+	
+string
+	
+No
+	
+	
+zh_CN：Simplified Chinese；zh_HK：Traditional Chinese (Hong Kong & Macao)；zh_TW：Traditional Chinese (Taiwan)；en_US：English (US)；en_GB：English (UK)；fr_FR：French；de_DE：German；nl_NL：Dutch
+Query Parameters
+Name
+Expand
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+listSkuStockRequest
+	
+object
+	
+Yes
+	
+	
+Inventory query request parameters
+
+
+bussinessModel
+	
+string
+	
+Yes
+	
+FBJ
+	
+Fulfillment model
+
+
+shopId
+	
+integer(int64)
+	
+Yes
+	
+1500001836
+	
+Shop ID
+
+
+skuIdList
+	
+array
+	
+Yes
+	
+	
+Supports querying up to 20 SKUs in a single request
+
+
+element
+	
+integer(int64)
+	
+Yes
+	
+10066400
+	
+skuId
+Response
+Response Parameters
+Name
+Expand
+	
+Type
+	
+Example
+	
+Description
+data
+	
+array
+	
+	
+SKU Stock List
+
+
+skuId
+	
+integer(int64)
+	
+12132
+	
+skuId
+
+
+warehouseId
+	
+integer(int64)
+	
+0
+	
+Warehouse ID (Partitioned warehouses are not supported in the initial phase）
+
+
+stockNum
+	
+integer(int64)
+	
+222
+	
+On-Hand Inventory
+
+
+orderBookingNum
+	
+integer(int64)
+	
+1
+	
+Order Reserved Inventory (Includes reservations for both paid and unpaid orders)
+
+
+noSaleNum
+	
+integer(int64)
+	
+1
+	
+Non-sellable inventory
+
+
+transferBookingNum
+	
+integer(int64)
+	
+1
+	
+Transfer preemption
+
+
+success
+	
+boolean
+	
+true
+	
+Whether it is successful
+
+
+errorList
+	
+array
+	
+	
+Collection of error messages
+
+
+code
+	
+string
+	
+10110001001
+	
+Code identifying the error type
+
+
+details
+	
+string
+	
+The request parameter is empty 请求参数为空
+	
+Additional information for locating or fixing the error
+
+
+message
+	
+string
+	
+The request parameter is empty 请求参数为空
+	
+Brief description of the error
+Response Example
+JSON
+	{
+
+	  "Response": {
+
+	    "data": [
+
+	      {
+
+	        "skuId": 12132,
+
+	        "warehouseId": 0,
+
+	        "stockNum": 222,
+
+	        "orderBookingNum": 1,
+
+	        "noSaleNum": 1,
+
+	        "transferBookingNum": 1
+
+	      }
+
+	    ],
+
+	    "success": true
+
+	  }
+
+	}
+Exception Example
+JSON
+	{
+
+	  "Response": {
+
+	    "errorList": [
+
+	      {
+
+	        "code": "10110001001",
+
+	        "details": "请求参数为空",
+
+	        "message": "按错误提示信息处理"
+
+	      }
+
+	    ],
+
+	    "success": false
+
+	  }
+
+	}
+Return Code
+Return Code
+	
+Return Message
+	
+Solution
+10110001001
+	
+the request parameter is empty
+	
+Handle according to the error prompt information
+
+
+10110001003
+	
+the sku id of the product must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10110001004
+	
+the fulfillment mode cannot be empty
+	
+Handle according to the error prompt information
+
+
+10110001005
+	
+the fulfillment mode is incorrect. It can only be FBJ or FBM
+	
+Handle according to the error prompt information
+
+
+10110001006
+	
+the shop id cannot be empty
+	
+Handle according to the error prompt information
+
+
+10110001007
+	
+the shop id must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10110001008
+	
+the sku inventory list cannot be empty
+	
+Handle according to the error prompt information
+
+
+10110001013
+	
+the number of sku ids in the list exceeds the limit of 20
+	
+Handle according to the error prompt information
+
+
+10110009001
+	
+RPC remote call exception
+	
+Please refresh and try again or contact the platform operator
+Common Q&A
+Problem
+	
+Solution
+Which fulfillment models are supported.
+	
+bussinessModel supports only FBJ and FBM.
+
+
+What is the maximum number of SKUs per query.
+	
+skuIdList is required and can contain at most 20 positive SKU IDs.
+
+
+Is the inventory result paginated.
+	
+The current implementation returns the inventory list without pagination information.
+How to obtain this API
+Permission package that has this API
+	
+Application types that can obtain/apply for this API permission package
+商品发布
+	
+物流仓储,ISV应用
+Request
+Request Address and Method
+Common Request Parameters
+Query Parameters
+Response
+Response Parameters
+Response Example
+Exception Example
+Return Code
+Common Q&A
+How to obtain this API

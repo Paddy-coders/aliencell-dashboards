@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell · JoyBuy 数据看板</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --card:#fff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-soft:#eef4ff; --ok:#16a34a; --warn:#d97706; --danger:#dc2626;
+    --jd:#e1251b; --shadow:0 1px 3px rgba(16,24,40,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6}
+  .wrap{max-width:1560px;margin:0 auto;padding:16px 18px 40px}
+  /* ---- 顶栏 ---- */
+  .topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .brand{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:700}
+  .logo-dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#e1251b,#f59e0b);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700}
+  .spacer{flex:1}
+  .badge{font-size:11px;padding:3px 9px;border-radius:20px;background:#eef1f6;color:#4a5568;font-weight:600;white-space:nowrap}
+  .badge.on{background:#dcfce7;color:#15803d}
+  .badge.off{background:#fee2e2;color:#b91c1c}
+  .badge.cur{background:var(--primary-soft);color:var(--primary)}
+  .badge.scope{background:#fff7ed;color:#b45309}
+  /* ---- 卡片 ---- */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:12px}
+  .card>h3{font-size:13.5px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card>h3 .sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+  /* ---- 筛选面板（与亚马逊看板同款下拉） ---- */
+  .filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+  .dd{position:relative;min-width:184px}
+  .dd-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+    padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;
+    font-family:inherit;font-size:13px;color:var(--text);transition:all .15s;user-select:none;text-align:left}
+  .dd-btn:hover{border-color:var(--primary)}
+  .dd-btn .dd-label{font-weight:600;white-space:nowrap}
+  .dd-btn .dd-summary{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:right}
+  .dd-btn .dd-summary.on{color:var(--primary);font-weight:700}
+  .dd-btn .dd-arrow{font-size:10px;color:var(--muted);transition:transform .15s}
+  .dd.open .dd-btn{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+  .dd.open .dd-btn .dd-arrow{transform:rotate(180deg)}
+  .dd-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:60;min-width:310px;max-width:540px;
+    background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,.14);padding:10px}
+  .dd.open .dd-panel{display:block}
+  .dd-tools{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+  .dd-hint{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .dd-search{width:100%;box-sizing:border-box;padding:6px 10px;border:1px solid var(--border);border-radius:6px;
+    font-family:inherit;font-size:12px;margin-bottom:8px;outline:none;color:var(--text)}
+  .dd-search:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+  .dd-list{max-height:250px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+  .dd-opt{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:13px}
+  .dd-opt:hover{background:#f1f5f9}
+  .dd-opt input{accent-color:var(--primary);flex:0 0 auto}
+  .dd-opt .opt-name{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dd-opt .opt-sub{color:var(--muted);font-size:11px;margin-left:auto;white-space:nowrap;padding-left:8px}
+  .dd-opt.sel{background:#eef4ff}
+  .dd-opt.dim{opacity:.42}
+  .btn{font-family:inherit;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:8px;border:1px solid var(--border);
+    background:#fff;color:var(--muted);cursor:pointer;transition:all .15s}
+  .btn:hover{border-color:var(--primary);color:var(--primary)}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  /* ---- KPI ---- */
+  /* KPI 固定 5 张（不再平铺全部指标）—— 每张的行内下拉可换成别的指标。
+     窄屏逐级降列，避免卡片被压得看不清数值。 */
+  .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:12px;position:relative}
+  @media(max-width:1080px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:11px 13px;position:relative}
+  .kpi.open{z-index:70}
+  .kpi .k{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* 卡片标题做成下拉触发按钮：看起来像标签，hover 才提示可点 */
+  .kpi-head{display:flex;align-items:center;gap:4px;width:100%;background:none;border:0;padding:0 0 3px;
+    font:inherit;cursor:pointer;text-align:left;color:inherit}
+  .kpi-head:hover .k{color:var(--primary)}
+  .kpi-head .k{flex:1;min-width:0}
+  .kpi-head .caret{font-size:9px;color:var(--muted);flex:0 0 auto;transition:transform .15s}
+  .kpi.open .kpi-head .caret{transform:rotate(180deg)}
+  .kpi .dd-panel{min-width:100%;max-width:300px;max-height:290px;overflow-y:auto}
+  .kpi:last-child .dd-panel{left:auto;right:0}
+  .kpi.open .dd-panel{display:block}
+  /* sticky：KPI 面板是可滚动的，底部按钮不固定就会被滚出视野（截图时就是这么发现的） */
+  .dd-foot{margin-top:6px;padding:6px 8px;border-top:1px solid var(--border);font-size:11.5px;
+    color:var(--primary);cursor:pointer;text-align:center;position:sticky;bottom:0;background:var(--card)}
+  .dd-foot:hover{background:#f1f5f9;border-radius:6px}
+  .dd-foot.info{cursor:default;color:var(--muted)}
+  .dd-foot.info:hover{background:none}
+  .kpi .v{font-size:20px;font-weight:700;letter-spacing:-.3px;line-height:1.25}
+  .kpi .d{font-size:11px;color:var(--muted);margin-top:2px}
+  .kpi .d.up{color:var(--ok)} .kpi .d.down{color:var(--danger)}
+  .kpi.scoped{background:#fffdf7;border-color:#f5e6c8}
+  /* ---- Tab ---- */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:9px;border:1px solid var(--border);
+    background:#fff;color:#4a5568;cursor:pointer;transition:all .15s}
+  .tab:hover{border-color:var(--primary);color:var(--primary)}
+  .tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+  .pane{display:none} .pane.active{display:block}
+  /* ---- 图表 ---- */
+  .chart-box{position:relative;height:290px}
+  .chart-box.short{height:250px}
+  /* ---- 表格 ---- */
+  .tbl-wrap{overflow:auto;max-height:560px;border:1px solid var(--border);border-radius:9px}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{padding:7px 10px;border-bottom:1px solid #eef1f6;white-space:nowrap}
+  th{background:#f7f9fc;font-weight:700;color:#4a5568;position:sticky;top:0;z-index:1;text-align:right}
+  th.l,td.l{text-align:left}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:hover{background:#fafbfd}
+  tfoot td{background:#f7f9fc;font-weight:700;border-top:2px solid var(--border);position:sticky;bottom:0}
+  .nm{max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+  .warnbar{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:9px 13px;font-size:12.5px;margin-bottom:12px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+  .empty{text-align:center;padding:34px 20px}
+  .empty h4{font-size:14px;margin-bottom:8px}
+  .empty p{color:var(--muted);font-size:12.5px;margin-bottom:6px}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;background:#eef1f6;color:#4a5568;margin-right:4px}
+  .pill.warn{background:#fef3c7;color:#92400e}
+  .bar{height:6px;border-radius:4px;background:#eef1f6;overflow:hidden;min-width:70px;display:inline-block;vertical-align:middle}
+  .bar>i{display:block;height:100%;background:var(--primary)}
+  .scope-tag{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:5px;background:#fef3c7;color:#92400e}
+</style>
+<style>
+/* note-fold: 解释块折叠 (2026-10-12) */
+.noteFold{margin-top:8px;border:1px solid var(--border);border-radius:8px;background:rgba(127,127,127,.045);}
+.noteFold>summary{cursor:pointer;list-style:none;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none;}
+.noteFold>summary::-webkit-details-marker{display:none;}
+.noteFold>summary::marker{content:'';}
+.noteFold>summary::before{content:'▸';font-size:11px;display:inline-block;transition:transform .15s;}
+.noteFold[open]>summary::before{transform:rotate(90deg);}
+.noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
+.noteFold[open]>summary::after{content:'收起';}
+.noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+</style>
+<script>
+/* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
+(function(){
+  function sync(){
+    var ds = document.querySelectorAll('details.noteFold');
+    for (var i = 0; i < ds.length; i++) {
+      var b = ds[i].querySelector('.note,.foot-note');
+      ds[i].style.display = (b && b.textContent.trim()) ? '' : 'none';
+    }
+  }
+  window.__syncNoteFold = sync;      // 供动态填充说明块的页面（JoyBuy）在填充后调用
+  function boot(){
+    sync();
+    // 说明块常由 JS 异步填充（如 JoyBuy 的 #filterNote/#footNote）：
+    // 填充前被判为空块而 display:none，填充后必须重跑，否则说明块永久消失。
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function(){ sync(); });
+      var ds = document.querySelectorAll('details.noteFold');
+      for (var i = 0; i < ds.length; i++) mo.observe(ds[i], { childList: true, characterData: true, subtree: true });
+    }
+    setTimeout(sync, 0); setTimeout(sync, 800);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  // 与 ad/product/daily/monthly/target/mapping 保持一致，勿单独改造本段。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand"><span class="logo-dot">A</span> Aliencell · JoyBuy 数据看板</div>
+    <span class="badge" id="winBadge">窗口 —</span>
+    <span class="spacer"></span>
+    <span class="badge cur" id="curBadge">币种 —</span>
+    <span class="badge" id="srcBadge">数据源 —</span>
+    <span class="badge" id="builtBadge">构建 —</span>
+  </div>
+
+  <div id="warnHost"></div>
+
+  <div class="card">
+    <h3>筛选条件
+      <span class="sub">单击=单选 · Ctrl/⌘+单击=多选 · 不选=全部 · 无数据选项自动隐藏 · 维度间联动收窄</span>
+      <span class="spacer"></span>
+      <button class="btn" id="btnReset">重置全部</button>
+    </h3>
+    <div class="filter-bar">
+      <div class="dd" id="ddSite">
+        <button class="dd-btn" onclick="toggleDD('ddSite')">
+          <span class="dd-label">🌍 国家</span>
+          <span class="dd-summary" id="ddSiteSum">全部</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-tools">
+            <button class="btn" onclick="setAll('site',true)">全部（不筛选）</button>
+            <span class="dd-hint" id="ddSiteHint">UK / DE / NL / FR</span>
+          </div>
+          <div class="dd-list" id="ddSiteList"></div>
+        </div>
+      </div>
+      <div class="dd" id="ddSeries">
+        <button class="dd-btn" onclick="toggleDD('ddSeries')">
+          <span class="dd-label">🏷️ 产品系列</span>
+          <span class="dd-summary" id="ddSeriesSum">全部</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-tools">
+            <button class="btn" onclick="setAll('series',true)">全部（不筛选）</button>
+          </div>
+          <input class="dd-search" id="ddSeriesSearch" type="text" placeholder="🔍 搜索产品系列…" oninput="setKw('series', this.value)">
+          <div class="dd-list" id="ddSeriesList"></div>
+        </div>
+      </div>
+      <div class="dd" id="ddName">
+        <button class="dd-btn" onclick="toggleDD('ddName')">
+          <span class="dd-label">📦 产品名</span>
+          <span class="dd-summary" id="ddNameSum">全部</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-tools">
+            <button class="btn" onclick="setAll('name',true)">全部（不筛选）</button>
+          </div>
+          <input class="dd-search" id="ddNameSearch" type="text" placeholder="🔍 搜索产品名…" oninput="setKw('name', this.value)">
+          <div class="dd-list" id="ddNameList"></div>
+        </div>
+      </div>
+      <div class="dd" id="ddBundle">
+        <button class="dd-btn" onclick="toggleDD('ddBundle')">
+          <span class="dd-label">🧩 套装</span>
+          <span class="dd-summary" id="ddBundleSum">全部</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-tools">
+            <button class="btn" onclick="setAll('bundle',true)">全部（不筛选）</button>
+            <span class="dd-hint">套餐/配件组合，来自后台规格</span>
+          </div>
+          <div class="dd-list" id="ddBundleList"></div>
+        </div>
+      </div>
+      <div class="dd" id="ddSku">
+        <button class="dd-btn" onclick="toggleDD('ddSku')">
+          <span class="dd-label">🔖 SKU</span>
+          <span class="dd-summary" id="ddSkuSum">全部</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-tools">
+            <button class="btn" onclick="setAll('sku',true)">全部（不筛选）</button>
+          </div>
+          <input class="dd-search" id="ddSkuSearch" type="text" placeholder="🔍 搜索 SKU / 产品名…" oninput="setKw('sku', this.value)">
+          <div class="dd-list" id="ddSkuList"></div>
+        </div>
+      </div>
+      <div class="dd" id="ddWeek">
+        <button class="dd-btn" onclick="toggleDD('ddWeek')">
+          <span class="dd-label">🗓 周数</span>
+          <span class="dd-summary" id="ddWeekSum">全部</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-tools">
+            <button class="btn" onclick="setAll('week',true)">全部（不筛选）</button>
+          </div>
+          <div class="dd-list" id="ddWeekList"></div>
+        </div>
+      </div>
+    </div>
+    <details class="noteFold">
+  <summary>📖 数据可用性提示（窗口 / 上架 / 空周）</summary>
+  <div class="note" id="filterNote"></div>
+</details>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-p="trend">概览趋势</button>
+    <button class="tab" data-p="product">商品 · 产品名</button>
+    <button class="tab" data-p="funnel">加购 / 收藏</button>
+    <button class="tab" data-p="traffic">店铺流量</button>
+    <button class="tab" data-p="channel">渠道来源</button>
+    <button class="tab" data-p="keyword">搜索词</button>
+    <button class="tab" data-p="daily">每日明细</button>
+  </div>
+
+  <div class="pane active" id="pane-trend">
+    <div class="grid2">
+      <div class="card"><h3>订单量 · 销售额 <span class="sub">按周（周六~周五）· 随筛选联动</span></h3><div class="chart-box"><canvas id="c1"></canvas></div></div>
+      <div class="card"><h3>商品流量 <span class="sub">商品访客数 / 浏览量 · 来自所选产品维度</span></h3><div class="chart-box"><canvas id="c2"></canvas></div></div>
+    </div>
+    <div class="card"><h3>周度汇总 <span class="sub">行=周 · 已按当前筛选聚合</span></h3><div class="tbl-wrap" id="tblWeeks"></div></div>
+  </div>
+
+  <div class="pane" id="pane-product">
+    <div class="card"><h3>产品系列汇总 <span class="sub">区间合计 · 随筛选联动</span></h3><div class="tbl-wrap" id="tblSeries"></div></div>
+    <div class="card"><h3>产品名汇总 <span class="sub">同一产品名已跨站点归并（SKU 各站独立编号）</span></h3><div class="tbl-wrap" id="tblName"></div></div>
+    <div class="card"><h3>SKU 明细 <span class="sub">区间合计</span></h3><div class="tbl-wrap" id="tblSku"></div></div>
+    <div class="note" id="skuNote"></div>
+  </div>
+
+  <div class="pane" id="pane-funnel">
+    <div class="card"><h3>加购趋势 <span class="sub">加购件数 / 加购访客数 · 随筛选联动</span></h3><div class="chart-box short"><canvas id="c4"></canvas></div></div>
+    <div class="card"><h3>加购明细 <span class="sub">按产品名</span></h3><div class="tbl-wrap" id="tblFunnel"></div></div>
+    <div class="card"><h3>收藏 <span class="scope-tag">站点级</span> <span class="sub">后台只在店铺维度提供「收藏商品数」，无法拆分到 SKU</span></h3><div class="tbl-wrap" id="tblFav"></div></div>
+  </div>
+
+  <div class="pane" id="pane-traffic">
+    <div class="card"><h3>店铺流量 vs 商品流量 <span class="sub">按周</span></h3><div class="chart-box"><canvas id="c3"></canvas></div></div>
+    <div class="card"><h3>店铺流量明细 <span class="scope-tag">站点级</span> <span class="sub">仅受「国家 / 周数」影响，产品维度不适用</span></h3><div class="tbl-wrap" id="tblTraffic"></div></div>
+  </div>
+
+  <div class="pane" id="pane-channel">
+    <div class="card"><h3>获客渠道 <span class="scope-tag">全窗口</span> <span class="sub">商品访客数占比 · 仅受「国家」影响</span></h3><div class="chart-box short"><canvas id="c5"></canvas></div></div>
+    <div class="card"><h3>渠道明细</h3><div class="tbl-wrap" id="tblChannel"></div></div>
+  </div>
+
+  <div class="pane" id="pane-keyword">
+    <div class="card"><h3>搜索词 <span class="scope-tag">全窗口</span> <span class="sub">客户实际搜索词 → 商品访客数 · 仅受「国家」影响</span></h3><div class="chart-box short"><canvas id="c6"></canvas></div></div>
+    <div class="card"><h3>搜索词明细</h3><div class="tbl-wrap" id="tblKeyword"></div></div>
+  </div>
+
+  <div class="pane" id="pane-daily">
+    <div class="card"><h3>每日明细 <span class="scope-tag">站点级</span> <span class="sub">仅受「国家 / 周数」影响</span></h3><div class="tbl-wrap" id="tblDaily"></div></div>
+  </div>
+  <details class="noteFold">
+  <summary>📖 数据源与口径说明</summary>
+  <div class="note" id="footNote"></div>
+</details>
+</div>
+
+<script>__CHARTJS__</script>
+<script>
+/* ==================================================================
+   Aliencell · JoyBuy 数据看板
+   数据由 build_joybuy_dashboard.py 注入（__PAYLOAD__）
+
+   筛选模型
+   --------
+   六个维度：国家(站点) / 产品系列 / 产品名 / 套装 / SKU / 周数。
+   每个维度用「选中数组」表示，**空数组 = 不过滤（全部）**。
+   联动：任一维度的候选选项 = 满足其余五个维度的行里出现过的值，
+   当前筛选下已无数据的候选**直接从列表里隐藏**（不再只置灰）。
+
+   指标中文口径（页面不出现英文缩写）
+   --------------------------------
+   UV = 访客数（去重的"人"）· PV = 浏览量（含同一人重复）· PDP = 商品详情页。
+   页面上统一写：商品访客数 / 商品浏览量 / 加购访客数 / 店铺访客数 / 店铺浏览量。
+
+   KPI 卡片
+   --------
+   固定 5 张（不再把全部指标平铺占满首屏）；点卡片标题可下拉换成任意其他指标。
+
+   为什么「产品维度」只作用于 SKU 级数据
+   ------------------------------------
+   后台只在 SKU 维度给得出 商品浏览/加购/订单，而店铺级访客数/浏览量和
+   「收藏商品数」最小粒度就是站点 × 日，拆不到 SKU。这类指标在本页标了
+   「站点级」标签，只响应国家/周数 —— 不假装它们会跟着产品系列变。
+   ================================================================== */
+var PAYLOAD = __PAYLOAD__;
+
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+
+  var SITES = (PAYLOAD.sites || []);
+  var WEEKS = (PAYLOAD.weeks || []);
+  var SKU_MAP = PAYLOAD.skuMap || {};
+  var SERIES_ORDER = PAYLOAD.seriesOrder || [];
+  var BUNDLE_ORDER = PAYLOAD.bundleOrder || ['标配'];
+
+  // 筛选状态：空数组 = 全部
+  var STORE = { site: [], series: [], name: [], bundle: [], sku: [], week: [] };
+  var KW = { series: '', name: '', sku: '' };     // 下拉面板内的搜索关键字
+
+  /* ---------------- 格式化 ---------------- */
+  function fmtNum(n, dp) {
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '—';
+    var d = dp === undefined ? 0 : dp;
+    return Number(n).toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function esc(s) {
+    return String(s === undefined || s === null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c];
+    });
+  }
+  function curSym(c) { return c === 'GBP' ? '£' : c === 'EUR' ? '€' : (c ? c + ' ' : ''); }
+  function siteMeta(code) {
+    for (var i = 0; i < SITES.length; i++) if (SITES[i].code === code) return SITES[i];
+    return { code: code, currency: '', flag: '' };
+  }
+  function D(code) { return (PAYLOAD.data && PAYLOAD.data[code]) || {}; }
+  function pct(a, b) { return b ? a / b * 100 : null; }
+  function pctTxt(v) { return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(2) + '%'; }
+
+  /* ---------------- 扁平化 SKU×周 行 ---------------- */
+  // 一次性把 4 个站点的 SKU×周 明细拉平并挂上 site，全站约 400 行，
+  // 之后所有筛选/选项计算都在这个数组上做（前端筛选够快，不必回后端）。
+  var ROWS = [];
+  SITES.forEach(function (s) {
+    (D(s.code).skuWeeks || []).forEach(function (r) {
+      ROWS.push({
+        site: s.code, week: r.week, skuId: r.skuId, series: r.series, name: r.name,
+        bundle: r.bundle || '标配',
+        pdpUv: r.pdpUv || 0, pdpPv: r.pdpPv || 0, atcUv: r.atcUv || 0, addToCart: r.addToCart || 0,
+        orders: r.orders || 0, units: r.units || 0, sales: r.sales || 0, buyers: r.buyers || 0,
+        stock: r.stock || 0, sessionDuration: r.sessionDuration || 0
+      });
+    });
+  });
+
+  function isAll(dim) { return !STORE[dim].length; }
+  function has(arr, v) { return !arr.length || arr.indexOf(v) >= 0; }
+
+  /** 每个筛选维度从一行里取哪个字段 —— 加维度只改这里，别再去写嵌套三元 */
+  var ROWKEY = {
+    site: function (r) { return r.site; },
+    series: function (r) { return r.series; },
+    name: function (r) { return r.name; },
+    bundle: function (r) { return r.bundle; },
+    sku: function (r) { return r.skuId; },
+    week: function (r) { return r.week; }
+  };
+
+  /** 按给定维度约束筛行；缺省某维度 = 不约束该维度 */
+  function filterRows(o) {
+    o = o || {};
+    return ROWS.filter(function (r) {
+      if (!has(o.site || [], r.site)) return false;
+      if (!has(o.week || [], r.week)) return false;
+      if (!has(o.series || [], r.series)) return false;
+      if (!has(o.name || [], r.name)) return false;
+      if (!has(o.bundle || [], r.bundle)) return false;
+      if (!has(o.sku || [], r.skuId)) return false;
+      return true;
+    });
+  }
+  /** 当前生效筛选下的行 */
+  function curRows() {
+    return filterRows({ site: STORE.site, week: STORE.week, series: STORE.series,
+                        name: STORE.name, bundle: STORE.bundle, sku: STORE.sku });
+  }
+  /** 排除某一维度后的行（用于算该维度的候选选项） */
+  function rowsExcept(dim) {
+    var o = { site: STORE.site, week: STORE.week, series: STORE.series,
+              name: STORE.name, bundle: STORE.bundle, sku: STORE.sku };
+    o[dim] = [];          // 本维度放开，其余维度保持约束
+    return filterRows(o);
+  }
+  function uniq(arr) {
+    var seen = {}, out = [];
+    arr.forEach(function (v) { if (v !== undefined && v !== null && v !== '' && !seen[v]) { seen[v] = 1; out.push(v); } });
+    return out;
+  }
+
+  /**
+   * 当前筛选下**实际要展示的周** —— 把开头连续「没有数据」的周去掉。
+   *
+   * 动机：后端窗口是按「首个有数据的周」收紧过的，但那是**四站并集**的起点。
+   * 单看某个站时它自己的起点更晚（UK W27 / DE·FR W32 / NL W33），
+   * 不做这一步就会看到一长串 0 —— 既拉长趋势图 X 轴，又容易被读成「流量一直为零」。
+   *
+   * ⚠️ 只裁**开头连续**的：中间 / 尾部的 0 周是真实的「这周没人来」，属于业务信息，必须留下。
+   * 判定口径 = 除「周数」以外的全部筛选（选 DE 就自动从 DE 的第一个有数据周开始）。
+   */
+  function activeWeeks() {
+    var rows = rowsExcept('week');
+    var hit = {};
+    rows.forEach(function (r) { hit[r.week] = 1; });
+    // 站点级指标（店铺访客数/浏览量、收藏商品数）只挂在「站点×周」上，SKU 行里没有，
+    // 所以还要把选中站点自己的周并进来，否则「有站点流量但没 SKU 明细」的周会被误裁。
+    var sites = STORE.site.length ? STORE.site : SITES.map(function (s) { return s.code; });
+    sites.forEach(function (c) {
+      (D(c).weeks || []).forEach(function (w) {
+        if ((w.uv || 0) || (w.pv || 0) || (w.pdpUv || 0) || (w.pdpPv || 0) ||
+            (w.atcUv || 0) || (w.addToCart || 0) || (w.orders || 0) || (w.units || 0) ||
+            (w.buyers || 0) || (w.sales || 0) || (w.favorites || 0) || (w.atcProducts || 0) ||
+            (w.visited || 0)) hit[w.key] = 1;
+      });
+    });
+    for (var i = 0; i < WEEKS.length; i++) {
+      if (hit[WEEKS[i].key]) return WEEKS.slice(i);
+    }
+    return [];
+  }
+
+  /**
+   * 图表 / 周度表 / 每日明细**实际画出来**的周。
+   * = activeWeeks()（起点已按当前筛选后移到「首个有数据的周」）∩「周数」筛选选中项。
+   *
+   * ❗为什么不能直接用 activeWeeks()：它是**排除周筛选**算出来的（这是故意的 ——
+   *   周数下拉的候选必须不受周筛选自身影响，否则选了一周后面板里就只剩那一周，没法再选）。
+   *   代价就是：用户在下拉里选了几周之后，图表仍按全部周铺 X 轴，未选中的周画成 0，
+   *   看上去像「周筛选没生效」。这里叠加周筛选，做到「选了哪几周就只画哪几周」。
+   */
+  function visibleWeeks() {
+    var aw = activeWeeks();
+    if (!STORE.week.length) return aw;
+    var sel = {};
+    STORE.week.forEach(function (k) { sel[k] = 1; });
+    return aw.filter(function (w) { return sel[w.key]; });
+  }
+
+  /* ---------------- 聚合 ---------------- */
+  var SUMK = ['uv', 'pv', 'pdpUv', 'pdpPv', 'atcUv', 'addToCart', 'buyers', 'orders', 'units', 'favorites', 'atcProducts', 'visited'];
+  var SKU_SUMK = ['pdpUv', 'pdpPv', 'atcUv', 'addToCart', 'orders', 'units', 'buyers'];
+
+  /** 聚合 SKU 级行。销售额按币种分开累计，绝不混算。 */
+  function aggRows(rows) {
+    var t = { pdpUv: 0, pdpPv: 0, atcUv: 0, addToCart: 0, orders: 0, units: 0, buyers: 0, byCur: {} };
+    var skus = {}, names = {}, series = {};
+    rows.forEach(function (r) {
+      SKU_SUMK.forEach(function (k) { t[k] += r[k] || 0; });
+      var cur = siteMeta(r.site).currency || '';
+      t.byCur[cur] = (t.byCur[cur] || 0) + (r.sales || 0);
+      skus[r.skuId] = 1; names[r.name] = 1; series[r.series] = 1;
+    });
+    t.skuCount = Object.keys(skus).length;
+    t.nameCount = Object.keys(names).length;
+    t.seriesCount = Object.keys(series).length;
+    t.weeks = uniq(rows.map(function (r) { return r.week; }));
+    t.salesText = salesText(t.byCur);
+    t.atcRate = t.pdpUv ? t.atcUv / t.pdpUv * 100 : null;
+    t.convRate = t.pdpUv ? t.orders / t.pdpUv * 100 : null;
+    t.aov = t.orders ? (sumCur(t.byCur) / t.orders) : 0;
+    return t;
+  }
+  function sumCur(m) { var s = 0; Object.keys(m).forEach(function (k) { s += m[k] || 0; }); return s; }
+  function salesText(m) {
+    var ks = Object.keys(m || {}).filter(function (k) { return m[k]; });
+    if (!ks.length) return '—';
+    if (ks.length === 1) return curSym(ks[0]) + fmtNum(m[ks[0]], 2);
+    return ks.map(function (k) { return curSym(k) + fmtNum(m[k], 2); }).join(' + ');
+  }
+
+  /** 合并选中站点的站点级周数据（uv/pv/收藏 等；销售额按币种） */
+  function siteWeeksMerged() {
+    var sites = STORE.site.length ? STORE.site : SITES.map(function (s) { return s.code; });
+    var AW = visibleWeeks();
+    var out = {};
+    AW.forEach(function (w) {
+      var t = { key: w.key, label: w.label, nDays: 0, byCur: {} };
+      SUMK.forEach(function (k) { t[k] = 0; });
+      ['visitDepth', 'sessionDuration', 'cancelRate'].forEach(function (k) { t[k] = 0; });
+      out[w.key] = t;
+    });
+    sites.forEach(function (c) {
+      var cur = siteMeta(c).currency || '';
+      (D(c).weeks || []).forEach(function (w) {
+        var t = out[w.key];
+        if (!t) return;
+        SUMK.forEach(function (k) { if (k !== 'gmv') t[k] += w[k] || 0; });
+        t.byCur[cur] = (t.byCur[cur] || 0) + (w.sales || 0);
+        ['visitDepth', 'sessionDuration', 'cancelRate'].forEach(function (k) { t[k] += w[k] || 0; });
+        t.nDays = Math.max(t.nDays, w.nDays || 0);
+        ['onSale', 'outOfStock', 'activeProducts'].forEach(function (k) { t[k] = (t[k] || 0) + (w[k] || 0); });
+      });
+    });
+    return AW.map(function (w) { return out[w.key]; });
+  }
+
+  /** 按周聚合 SKU 级行（用于趋势图与周度表） */
+  function weeklyFromRows(rows) {
+    var m = {};
+    rows.forEach(function (r) {
+      var t = m[r.week] || (m[r.week] = { pdpUv: 0, pdpPv: 0, atcUv: 0, addToCart: 0, orders: 0, units: 0, byCur: {} });
+      SKU_SUMK.forEach(function (k) { t[k] += r[k] || 0; });
+      var cur = siteMeta(r.site).currency || '';
+      t.byCur[cur] = (t.byCur[cur] || 0) + (r.sales || 0);
+    });
+    return visibleWeeks().map(function (w) {
+      var t = m[w.key] || { pdpUv: 0, pdpPv: 0, atcUv: 0, addToCart: 0, orders: 0, units: 0, byCur: {} };
+      t.key = w.key; t.label = w.label;
+      return t;
+    });
+  }
+
+  /* ---------------- 下拉筛选 ---------------- */
+  var DIMS = {
+    site: { el: 'ddSite', list: 'ddSiteList', sum: 'ddSiteSum', label: '国家' },
+    series: { el: 'ddSeries', list: 'ddSeriesList', sum: 'ddSeriesSum', label: '产品系列' },
+    name: { el: 'ddName', list: 'ddNameList', sum: 'ddNameSum', label: '产品名' },
+    bundle: { el: 'ddBundle', list: 'ddBundleList', sum: 'ddBundleSum', label: '套装' },
+    sku: { el: 'ddSku', list: 'ddSkuList', sum: 'ddSkuSum', label: 'SKU' },
+    week: { el: 'ddWeek', list: 'ddWeekList', sum: 'ddWeekSum', label: '周数' }
+  };
+
+  function toggleDD(id) {
+    var target = $(id);
+    var wasOpen = target.classList.contains('open');
+    Object.keys(DIMS).forEach(function (d) { $(DIMS[d].el).classList.remove('open'); });
+    if (!wasOpen) target.classList.add('open');
+  }
+  document.addEventListener('click', function (e) {
+    if (!(e.target.closest && e.target.closest('.dd'))) {
+      Object.keys(DIMS).forEach(function (d) { $(DIMS[d].el).classList.remove('open'); });
+    }
+    if (!(e.target.closest && e.target.closest('.kpi'))) closeKpiDD();
+  });
+
+  /** 某维度的候选选项（＝满足其余维度的行里出现过的值） */
+  function optionsFor(dim) {
+    var rows = rowsExcept(dim);
+    if (dim === 'site') return SITES.map(function (s) { return s.code; });
+    if (dim === 'week') return activeWeeks().map(function (w) { return w.key; });
+    if (dim === 'series') {
+      var s = uniq(rows.map(function (r) { return r.series; }));
+      return s.sort(function (a, b) {
+        var ia = SERIES_ORDER.indexOf(a), ib = SERIES_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
+    }
+    if (dim === 'bundle') {
+      return BUNDLE_ORDER.filter(function (b) {
+        return uniq(rows.map(function (r) { return r.bundle; })).indexOf(b) >= 0;
+      });
+    }
+    if (dim === 'name') {
+      // 产品名按商品访客数降序，运营最关心的排前面
+      var uv = {};
+      rows.forEach(function (r) { uv[r.name] = (uv[r.name] || 0) + r.pdpUv; });
+      return uniq(rows.map(function (r) { return r.name; })).sort(function (a, b) { return (uv[b] || 0) - (uv[a] || 0); });
+    }
+    if (dim === 'sku') {
+      var uv2 = {};
+      rows.forEach(function (r) { uv2[r.skuId] = (uv2[r.skuId] || 0) + r.pdpUv; });
+      return uniq(rows.map(function (r) { return r.skuId; })).sort(function (a, b) { return (uv2[b] || 0) - (uv2[a] || 0); });
+    }
+    return [];
+  }
+
+  function renderDD() {
+    Object.keys(DIMS).forEach(function (dim) {
+      var all = optionsFor(dim);
+      var sel = STORE[dim];
+      var selSet = {};
+      sel.forEach(function (v) { selSet[v] = 1; });
+
+      var kw = KW[dim] || '';
+      kw = (kw || '').trim().toLowerCase();
+
+      var rows = rowsExcept(dim);
+      var uvMap = {};
+      rows.forEach(function (r) {
+        var key = (ROWKEY[dim] || ROWKEY.week)(r);
+        uvMap[key] = (uvMap[key] || 0) + r.pdpUv;
+      });
+
+      var hiddenN = 0, shown = [];
+      var html = all.map(function (v) {
+        var label = v, sub = '';
+        if (dim === 'site') { label = siteMeta(v).flag + ' ' + v; sub = siteMeta(v).currency; }
+        if (dim === 'week') { var w = WEEKS.filter(function (x) { return x.key === v; })[0]; label = w ? w.label : v; sub = ''; }
+        if (dim === 'sku') {
+          var m = SKU_MAP[v] || {};
+          label = v + ' · ' + (m.name || '');
+          sub = (m.sites || []).join('/');
+        }
+        if (dim === 'name' || dim === 'series' || dim === 'bundle') sub = fmtNum(uvMap[v], 0);
+        if (kw && String(v).toLowerCase().indexOf(kw) < 0 && String(label).toLowerCase().indexOf(kw) < 0) return '';
+        // 当前（其余维度）筛选下本项已无数据 → **直接隐藏**，不再只置灰。
+        // 原因：置灰只是视觉弱化，候选里仍混着一大堆选不动的空项，越筛越长。
+        // 例外：本项已被选中时必须保留显示，否则用户没法点它取消
+        //       （正常情况 pruneOther 会先把它清掉，这里只是兜底）。
+        if (uvMap[v] === undefined && !selSet[v]) { hiddenN++; return ''; }
+        shown.push(v);
+        var on = sel.length === 0 || selSet[v];
+        return '<label class="dd-opt' + (on ? ' sel' : '') + '" onclick="pick(event,\'' + dim + '\',\'' + esc(v) + '\')">' +
+          '<input type="checkbox"' + (on ? ' checked' : '') + '>' +
+          '<span class="opt-name">' + esc(label) + '</span>' +
+          (sub ? '<span class="opt-sub">' + esc(sub) + '</span>' : '') + '</label>';
+      }).join('');
+      // 隐藏了就说一声，否则候选数突然变少会被当成 bug
+      if (hiddenN) html += '<div class="dd-foot info">已按当前筛选隐藏 ' + hiddenN + ' 项（无数据）</div>';
+      $(DIMS[dim].list).innerHTML = html || '<div class="note" style="padding:8px">无匹配项</div>';
+      // 站点下拉右上角的范围提示也要联动 —— 选完产品维度后 UK 可能已被隐藏，
+      // 那里还写死 "UK / DE / NL / FR" 会让人以为 UK 有数据。搜索时不动它（避免显示半截）。
+      if (dim === 'site' && !kw && $('ddSiteHint')) $('ddSiteHint').textContent = shown.join(' / ') || '无';
+
+      var sumEl = $(DIMS[dim].sum);
+      if (sel.length === 0) { sumEl.textContent = '全部'; sumEl.className = 'dd-summary'; }
+      else if (sel.length === 1) {
+        sumEl.textContent = dim === 'site' ? sel[0] : (dim === 'week' ? (WEEKS.filter(function (x) { return x.key === sel[0]; })[0] || {}).label || sel[0] : sel[0]);
+        sumEl.className = 'dd-summary on';
+      } else {
+        sumEl.textContent = '已选 ' + sel.length + ' 项';
+        sumEl.className = 'dd-summary on';
+      }
+    });
+  }
+
+  /** 点击选项：空选中态下点一个 = 反选该值（其余全选）；否则切换；恢复全选则清空回「全部」 */
+  // ⚠️ 页面里的下拉按钮/搜索框用的是内联 onclick/oninput，只能访问全局名字。
+  // 而本文件所有逻辑都包在 IIFE 里（且 'use strict'），不显式挂到 window 上就会
+  // 报 "toggleDD is not defined" —— 症状是下拉点了没反应，很难一眼看出。
+  window.toggleDD = toggleDD;
+  window.setKw = function (dim, v) { KW[dim] = v; renderDD(); };
+
+  window.pick = function (ev, dim, val) {
+    ev.preventDefault();
+    var multi = ev.ctrlKey || ev.metaKey;
+    var all = optionsFor(dim);
+    var sel = STORE[dim].slice();
+
+    // 与亚马逊看板一致的交互：
+    //   普通单击 = 单选替换（选中项只有它）；若它本来就是唯一选中项 → 取消，回到「全部」
+    //   Ctrl/⌘+单击 = 多选追加/取消
+    // 注意「空数组 = 全部」是本模型的基础，所以从「全部」状态点某一项，
+    // 必须是「只选它」，而不是「把它排除掉」—— 后者看起来像反选，实际会让人以为点反了。
+    var i = sel.indexOf(val);
+    if (multi) {
+      if (sel.length === 0) sel = [val];
+      else if (i >= 0) sel.splice(i, 1);
+      else sel.push(val);
+    } else {
+      sel = (sel.length === 1 && i === 0) ? [] : [val];
+    }
+    if (sel.length === all.length) sel = [];
+    STORE[dim] = sel;
+    // 联动收窄：其他维度里已失效的选中值剔除（数量记下来，页面上给个说明）
+    DROPPED = pruneOther(dim);
+    renderDD(); render();
+  };
+
+  window.setAll = function (dim, on) {
+    // 本模型里「什么都不选」就等于「全部」——所以「全选」和「清空」是同一个动作：
+    // 把该维度恢复为「不过滤」。留一个按钮即可，避免出现点了没反应的假控件。
+    STORE[dim] = [];
+    DROPPED = 0;
+    renderDD(); render();
+  };
+
+  /** 某维度选择变化后，把其他维度里已经不可能出现的选中值去掉，避免出现空集。
+   *  返回剔除掉的个数 —— 需求③把无数据候选隐藏后，用户看不到「那个选项没数据」了，
+   *  如果这时还静默把他的选中项取消，就像在丢他的操作，所以要把数量显示出来。 */
+  var DROPPED = 0;
+  function pruneOther(dim) {
+    var dropped = 0;
+    Object.keys(DIMS).forEach(function (d) {
+      if (d === dim) return;
+      if (!STORE[d].length) return;
+      var opts = optionsFor(d);
+      var kept = STORE[d].filter(function (v) { return opts.indexOf(v) >= 0; });
+      dropped += STORE[d].length - kept.length;
+      STORE[d] = kept;
+    });
+    return dropped;
+  }
+
+  /* ---------------- 空态 ---------------- */
+  function isEmpty() { return !ROWS.length; }
+  function renderEmpty() {
+    $('kpis').innerHTML = '';
+    var html = '<div class="card empty">' +
+      '<h4>JoyBuy 看板已就绪，尚未接入 SKU×周 明细</h4>' +
+      '<p>产品维度筛选依赖 SKU × 周 矩阵，采集时<b>不要</b>加 <code>--no-weekly</code>。</p>' +
+      '<ol style="text-align:left;display:inline-block;color:#4a5568">' +
+      '<li>启动已登录的调试浏览器：<code>node joybuy_browser.js --keep</code></li>' +
+      '<li>采集：<code>node joybuy_compass_fetch.js --days 120</code></li>' +
+      '<li>生成 SKU→产品名映射：<code>python build_joybuy_sku_map.py</code></li>' +
+      '<li>重建看板：<code>python build_joybuy_dashboard.py</code></li>' +
+      '</ol></div>';
+    $('pane-trend').innerHTML = html;
+    ['product', 'funnel', 'traffic', 'channel', 'keyword', 'daily'].forEach(function (p) {
+      $('pane-' + p).innerHTML = '<div class="card empty"><p>暂无数据</p></div>';
+    });
+    $('srcBadge').textContent = '数据源 未接入';
+    $('srcBadge').className = 'badge off';
+  }
+
+  /* ---------------- KPI（固定 5 张 · 可下拉替换指标） ----------------
+     原来 12 张平铺会把首屏占满、重点指标被淹没。现在只显示 5 张，
+     每张标题点开可换成任意其他指标。槽位状态在会话内保留（筛选变化不影响）。 */
+  // 指标注册表：所有能放进 KPI 卡片的指标都在这里。以后加指标只改这个数组。
+  function kpiCatalog(t, st) {
+    return [
+      { id: 'orders',    k: '订单量',     v: fmtNum(t.orders),    d: t.weeks.length + ' 周 · ' + t.skuCount + ' SKU' },
+      { id: 'sales',     k: '销售额',     v: t.salesText,         d: isMultiCur(t.byCur) ? '分币种，不混算' : (firstCur(t.byCur) || '—') },
+      { id: 'units',     k: '销售件数',   v: fmtNum(t.units),     d: t.aov ? ('客单价 ' + curSym(firstCur(t.byCur)) + fmtNum(t.aov, 2)) : '按当前筛选' },
+      { id: 'pdpUv',     k: '商品访客数', v: fmtNum(t.pdpUv),     d: '各商品访客之和' },
+      { id: 'pdpPv',     k: '商品浏览量', v: fmtNum(t.pdpPv),     d: '各商品浏览之和' },
+      { id: 'atcUv',     k: '加购访客数', v: fmtNum(t.atcUv),     d: '看过商品并加购的访客' },
+      { id: 'addToCart', k: '加购件数',   v: fmtNum(t.addToCart), d: '加购访客数 ' + fmtNum(t.atcUv) },
+      { id: 'atcRate',   k: '加购率',     v: pctTxt(t.atcRate),   d: '加购访客数 ÷ 商品访客数' },
+      { id: 'convRate',  k: '转化率',     v: pctTxt(t.convRate),  d: '订单量 ÷ 商品访客数' },
+      { id: 'skuCount',  k: 'SKU 数',     v: fmtNum(t.skuCount),  d: '筛选后命中' },
+      { id: 'nameCount', k: '产品名数',   v: fmtNum(t.nameCount), d: t.seriesCount + ' 个系列' },
+      { id: 'favorites', k: '收藏商品数', v: fmtNum(st.favorites), d: '站点级 · 不受产品维度筛选', scoped: 1 },
+      { id: 'shopUv',    k: '店铺访客数', v: fmtNum(st.uv),       d: '站点级 · 不受产品维度筛选', scoped: 1 }
+    ];
+  }
+
+  var KPI_DEFAULT = ['orders', 'sales', 'units', 'pdpUv', 'pdpPv'];
+  var KPI_SLOTS = KPI_DEFAULT.slice();
+
+  function renderKpis() {
+    var rows = curRows();
+    var t = aggRows(rows);
+    var sw = siteWeeksMerged();
+    var wset = STORE.week.length ? STORE.week : null;
+    var st = { favorites: 0, uv: 0, pv: 0 };
+    sw.forEach(function (w) { if (!wset || wset.indexOf(w.key) >= 0) { st.favorites += w.favorites || 0; st.uv += w.uv || 0; st.pv += w.pv || 0; } });
+
+    var cat = kpiCatalog(t, st);
+    var byId = {};
+    cat.forEach(function (m) { byId[m.id] = m; });
+    var used = {};
+    KPI_SLOTS.forEach(function (id) { used[id] = 1; });
+
+    $('kpis').innerHTML = KPI_SLOTS.map(function (id, i) {
+      var m = byId[id] || cat[0];
+      // 面板列出全部指标；已被别的卡片占用的置灰（两张卡片显示同一指标没有意义）
+      var opts = cat.map(function (x) {
+        var busy = used[x.id] && x.id !== id;
+        return '<label class="dd-opt' + (x.id === id ? ' sel' : '') + (busy ? ' dim' : '') + '"' +
+          (busy ? '' : ' onclick="pickKpi(' + i + ',\'' + x.id + '\')"') + '>' +
+          '<input type="checkbox"' + (x.id === id ? ' checked' : '') + (busy ? ' disabled' : '') + '>' +
+          '<span class="opt-name">' + esc(x.k) + '</span>' +
+          (busy ? '<span class="opt-sub">已显示</span>' : '') + '</label>';
+      }).join('') + '<div class="dd-foot" onclick="resetKpi()">恢复默认 5 项</div>';
+
+      return '<div class="kpi' + (m.scoped ? ' scoped' : '') + '" data-slot="' + i + '">' +
+        '<button class="kpi-head" onclick="toggleKpiDD(' + i + ')">' +
+        '<span class="k">' + esc(m.k) + '</span><i class="caret">▼</i></button>' +
+        '<div class="v">' + m.v + '</div>' +
+        '<div class="d">' + esc(m.d) + '</div>' +
+        '<div class="dd-panel">' + opts + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  /** 打开/关闭某张 KPI 卡片的指标选择面板 */
+  window.toggleKpiDD = function (i) {
+    var el = document.querySelector('.kpi[data-slot="' + i + '"]');
+    if (!el) return;
+    var was = el.classList.contains('open');
+    closeKpiDD();
+    if (!was) el.classList.add('open');
+  };
+  function closeKpiDD() {
+    Array.prototype.forEach.call(document.querySelectorAll('.kpi.open'), function (x) { x.classList.remove('open'); });
+  }
+  /** 把第 i 张卡片换成指标 id */
+  window.pickKpi = function (i, id) {
+    var other = KPI_SLOTS.indexOf(id);
+    if (other >= 0 && other !== i) return;   // 已被别的卡片占用
+    KPI_SLOTS[i] = id;
+    renderKpis();
+  };
+  window.resetKpi = function () {
+    KPI_SLOTS = KPI_DEFAULT.slice();
+    renderKpis();
+  };
+  function isMultiCur(m) { return Object.keys(m).filter(function (k) { return m[k]; }).length > 1; }
+  function firstCur(m) { return Object.keys(m).filter(function (k) { return m[k]; })[0] || ''; }
+
+  /* ---------------- 图表 ---------------- */
+  var charts = {};
+  function mkChart(id, cfg) {
+    var el = $(id);
+    if (!el) return;
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(el.getContext('2d'), cfg);
+  }
+  var AXIS = { grid: { color: '#eef1f6' }, ticks: { color: '#6b7688', font: { size: 11 } } };
+  var LEGEND = { labels: { color: '#4a5568', boxWidth: 12, font: { size: 11 } } };
+  function baseOpts(dual, fullLabels) {
+    // animation:false —— 每次筛选都会重画 6 张图，带动画既卡顿又让截图/自动化不稳定
+    var o = { responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: 'index', intersect: false }, plugins: { legend: LEGEND, tooltip: {} } };
+    // 横轴只放周号（"W27"）：13 个 "W27 (06-27~07-03)" 会挤成一团谁也读不清。
+    // 传 fullLabels 就把完整区间挪到 tooltip 标题（周度表里仍然显示完整区间）。
+    if (fullLabels) {
+      o.plugins.tooltip = { callbacks: { title: function (it) {
+        return fullLabels[it[0].dataIndex] || it[0].label;
+      } } };
+    }
+    o.scales = Object.assign({ x: AXIS }, dual ? {
+      y: Object.assign({ position: 'left', beginAtZero: true }, AXIS),
+      y1: Object.assign({ position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } }, AXIS)
+    } : { y: Object.assign({ beginAtZero: true }, AXIS) });
+    return o;
+  }
+  var C = { blue: '#2563eb', purple: '#7c3aed', orange: '#f59e0b', green: '#16a34a', red: '#e1251b', teal: '#0d9488', pink: '#db2777' };
+
+  function renderCharts() {
+    var rows = curRows();
+    var W = weeklyFromRows(rows);
+    // 横轴用周号，完整区间只进 tooltip（见 baseOpts）
+    var labels = W.map(function (w) { return w.key; });
+    var labelFull = W.map(function (w) { return w.label; });
+    var sw = siteWeeksMerged();
+    var wset = STORE.week.length ? STORE.week : null;
+    var swF = sw.filter(function (w) { return !wset || wset.indexOf(w.key) >= 0; });
+    var swByKey = {};
+    sw.forEach(function (w) { swByKey[w.key] = w; });
+
+    // c1 订单量 + 销售额 / 件数
+    var ds1 = [{ label: '订单量', data: W.map(function (w) { return w.orders || 0; }), backgroundColor: 'rgba(37,99,235,.75)', yAxisID: 'y', borderRadius: 4, order: 2 }];
+    var multiCur = isMultiCur((function () { var m = {}; rows.forEach(function (r) { var c = siteMeta(r.site).currency || ''; m[c] = (m[c] || 0) + (r.sales || 0); }); return m; })());
+    if (!multiCur) {
+      ds1.push({ label: '销售额', type: 'line', data: W.map(function (w) { var s = 0; Object.keys(w.byCur).forEach(function (k) { s += w.byCur[k] || 0; }); return +s.toFixed(2); }), borderColor: C.red, backgroundColor: 'rgba(225,37,27,.1)', yAxisID: 'y1', tension: .3, pointRadius: 3, order: 1 });
+    } else {
+      ds1.push({ label: '销售件数', type: 'line', data: W.map(function (w) { return w.units || 0; }), borderColor: C.red, backgroundColor: 'rgba(225,37,27,.1)', yAxisID: 'y1', tension: .3, pointRadius: 3, order: 1 });
+    }
+    mkChart('c1', { type: 'bar', data: { labels: labels, datasets: ds1 }, options: baseOpts(true, labelFull) });
+
+    // c2 商品流量（直接来自所选产品维度）
+    mkChart('c2', {
+      type: 'line', data: {
+        labels: labels, datasets: [
+          { label: '商品访客数', data: W.map(function (w) { return w.pdpUv || 0; }), borderColor: C.orange, backgroundColor: 'rgba(245,158,11,.12)', tension: .3, fill: true, pointRadius: 2 },
+          { label: '商品浏览量', data: W.map(function (w) { return w.pdpPv || 0; }), borderColor: C.teal, tension: .3, pointRadius: 2 },
+          { label: '加购件数', data: W.map(function (w) { return w.addToCart || 0; }), borderColor: C.purple, tension: .3, pointRadius: 2 }
+        ]
+      }, options: baseOpts(false, labelFull)
+    });
+
+    // c3 店铺 vs 商品（站点级）
+    mkChart('c3', {
+      type: 'bar', data: {
+        labels: labels, datasets: [
+          { label: '店铺访客数', data: W.map(function (w) { var s = swByKey[w.key]; return s ? s.uv : 0; }), backgroundColor: 'rgba(37,99,235,.8)', borderRadius: 4 },
+          { label: '商品访客数', data: W.map(function (w) { return w.pdpUv || 0; }), backgroundColor: 'rgba(245,158,11,.8)', borderRadius: 4 }
+        ]
+      }, options: baseOpts(false, labelFull)
+    });
+
+    // c4 加购
+    mkChart('c4', {
+      type: 'line', data: {
+        labels: labels, datasets: [
+          { label: '加购件数', data: W.map(function (w) { return w.addToCart || 0; }), borderColor: C.purple, backgroundColor: 'rgba(124,58,237,.1)', tension: .3, fill: true },
+          { label: '加购访客数', data: W.map(function (w) { return w.atcUv || 0; }), borderColor: C.green, tension: .3 }
+        ]
+      }, options: baseOpts(false, labelFull)
+    });
+
+    // c5 渠道
+    var ch = channelsMerged();
+    mkChart('c5', {
+      type: 'bar', data: {
+        labels: ch.map(function (x) { return x.channel; }),
+        datasets: [{ label: '商品访客数', data: ch.map(function (x) { return x.pdpUv; }), backgroundColor: 'rgba(37,99,235,.8)', borderRadius: 4 }]
+      }, options: Object.assign(baseOpts(false), { indexAxis: 'y' })
+    });
+
+    // c6 搜索词
+    var kw = keywordsMerged().slice(0, 12);
+    mkChart('c6', {
+      type: 'bar', data: {
+        labels: kw.map(function (x) { return x.keyword; }),
+        datasets: [{ label: '商品访客数', data: kw.map(function (x) { return x.pdpUv; }), backgroundColor: 'rgba(13,148,136,.8)', borderRadius: 4 }]
+      }, options: Object.assign(baseOpts(false), { indexAxis: 'y' })
+    });
+  }
+
+  /* ---------------- 渠道 / 搜索词 合并（仅按国家） ---------------- */
+  function selSites() { return STORE.site.length ? STORE.site : SITES.map(function (s) { return s.code; }); }
+  function channelsMerged() {
+    var agg = {};
+    selSites().forEach(function (c) {
+      (D(c).channels || []).forEach(function (r) {
+        var t = agg[r.channel] || (agg[r.channel] = { channel: r.channel, pdpUv: 0, crw: 0 });
+        t.pdpUv += r.pdpUv || 0;
+        t.crw += (r.cr || 0) * (r.pdpUv || 0);
+      });
+    });
+    var arr = Object.keys(agg).map(function (k) { return agg[k]; });
+    var tot = arr.reduce(function (a, x) { return a + x.pdpUv; }, 0);
+    arr.forEach(function (x) { x.share = tot ? x.pdpUv / tot * 100 : 0; x.cr = x.pdpUv ? x.crw / x.pdpUv : 0; });
+    return arr.sort(function (a, b) { return b.pdpUv - a.pdpUv; });
+  }
+  function keywordsMerged() {
+    var agg = {};
+    selSites().forEach(function (c) {
+      (D(c).keywords || []).forEach(function (r) {
+        var k = r.keyword.toLowerCase();
+        var t = agg[k] || (agg[k] = { keyword: r.keyword, pdpUv: 0, crw: 0, sites: [] });
+        t.pdpUv += r.pdpUv || 0;
+        t.crw += (r.cr || 0) * (r.pdpUv || 0);
+        if (t.sites.indexOf(c) < 0) t.sites.push(c);
+      });
+    });
+    var arr = Object.keys(agg).map(function (k) { return agg[k]; });
+    var tot = arr.reduce(function (a, x) { return a + x.pdpUv; }, 0);
+    arr.forEach(function (x) { x.share = tot ? x.pdpUv / tot * 100 : 0; x.cr = x.pdpUv ? x.crw / x.pdpUv : 0; });
+    return arr.sort(function (a, b) { return b.pdpUv - a.pdpUv; });
+  }
+
+  /* ---------------- 表格 ---------------- */
+  function tableHtml(cols, rows, foot) {
+    var head = '<thead><tr>' + cols.map(function (c) {
+      // 表头默认走转义（列名都是模板里写死的，但保持默认安全更稳）；
+      // 需要嵌入 <span class="scope-tag"> 这类标签的列显式写 raw:1。
+      return '<th class="' + (c.l ? 'l' : '') + '">' + (c.raw ? c.t : esc(c.t)) + '</th>';
+    }).join('') + '</tr></thead>';
+    var body = '<tbody>' + (rows.length ? rows.map(function (r) {
+      return '<tr>' + cols.map(function (c) {
+        return '<td class="' + (c.l ? 'l' : 'num') + '">' + c.f(r) + '</td>';
+      }).join('') + '</tr>';
+    }).join('') : '<tr><td class="l" colspan="' + cols.length + '" style="padding:22px;text-align:center;color:#6b7688">当前筛选条件下没有数据</td></tr>') + '</tbody>';
+    var tfoot = '';
+    if (foot) tfoot = '<tfoot><tr>' + cols.map(function (c, i) {
+      return '<td class="' + (c.l ? 'l' : 'num') + '">' + (c.foot ? c.foot() : (i === 0 ? '合计' : '')) + '</td>';
+    }).join('') + '</tr></tfoot>';
+    return '<table>' + head + body + tfoot + '</table>';
+  }
+
+  function renderTables() {
+    var rows = curRows();
+    var W = weeklyFromRows(rows);
+
+    /* 周度汇总 */
+    var swByKey = {};
+    siteWeeksMerged().forEach(function (w) { swByKey[w.key] = w; });
+    var wkCols = [
+      { t: '周', l: true, f: function (r) { return esc(r.label); } },
+      { t: '订单量', f: function (r) { return fmtNum(r.orders); }, foot: function () { return fmtNum(W.reduce(function (a, x) { return a + (x.orders || 0); }, 0)); } },
+      { t: '销售额', f: function (r) { return salesText(r.byCur); }, foot: function () { var m = {}; W.forEach(function (x) { Object.keys(x.byCur).forEach(function (k) { m[k] = (m[k] || 0) + x.byCur[k]; }); }); return salesText(m); } },
+      { t: '件数', f: function (r) { return fmtNum(r.units); } },
+      { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv); } },
+      { t: '商品浏览量', f: function (r) { return fmtNum(r.pdpPv); } },
+      { t: '加购件数', f: function (r) { return fmtNum(r.addToCart); } },
+      { t: '加购率', f: function (r) { return pctTxt(r.pdpUv ? r.atcUv / r.pdpUv * 100 : null); } },
+      { t: '转化率', f: function (r) { return pctTxt(r.pdpUv ? r.orders / r.pdpUv * 100 : null); } },
+      { t: '店铺访客数 <span class="scope-tag">站点</span>', raw: 1, f: function (r) { var s = swByKey[r.key]; return fmtNum(s ? s.uv : 0); } },
+      { t: '收藏 <span class="scope-tag">站点</span>', raw: 1, f: function (r) { var s = swByKey[r.key]; return fmtNum(s ? s.favorites : 0); } }
+    ];
+    $('tblWeeks').innerHTML = tableHtml(wkCols, W, true);
+
+    /* 系列汇总 / 产品名汇总 / SKU 明细 */
+    function groupBy(keyFn, label) {
+      var agg = {};
+      rows.forEach(function (r) {
+        var k = keyFn(r);
+        var t = agg[k] || (agg[k] = { label: k, pdpUv: 0, pdpPv: 0, atcUv: 0, addToCart: 0, orders: 0, units: 0, byCur: {}, skus: {}, names: {}, sites: {} });
+        ['pdpUv', 'pdpPv', 'atcUv', 'addToCart', 'orders', 'units'].forEach(function (x) { t[x] += r[x] || 0; });
+        var cur = siteMeta(r.site).currency || '';
+        t.byCur[cur] = (t.byCur[cur] || 0) + (r.sales || 0);
+        t.skus[r.skuId] = 1; t.names[r.name] = 1; t.sites[r.site] = 1;
+      });
+      return Object.keys(agg).map(function (k) {
+        var t = agg[k];
+        t.nSku = Object.keys(t.skus).length;
+        t.nName = Object.keys(t.names).length;
+        t.siteList = Object.keys(t.sites).sort();
+        t.atcRate = t.pdpUv ? t.atcUv / t.pdpUv * 100 : null;
+        t.convRate = t.pdpUv ? t.orders / t.pdpUv * 100 : null;
+        return t;
+      }).sort(function (a, b) { return b.pdpUv - a.pdpUv; });
+    }
+
+    function groupCols(firstLabel, extraCols) {
+      var cols = [{ t: firstLabel, l: true, f: function (r) { return esc(r.label); } }];
+      cols = cols.concat(extraCols || []);
+      cols = cols.concat([
+        { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv); } },
+        { t: '商品浏览量', f: function (r) { return fmtNum(r.pdpPv); } },
+        { t: '加购件数', f: function (r) { return fmtNum(r.addToCart); } },
+        { t: '订单量', f: function (r) { return fmtNum(r.orders); } },
+        { t: '件数', f: function (r) { return fmtNum(r.units); } },
+        { t: '销售额', f: function (r) { return salesText(r.byCur); } },
+        { t: '加购率', f: function (r) { return pctTxt(r.atcRate); } },
+        { t: '转化率', f: function (r) { return pctTxt(r.convRate); } }
+      ]);
+      return cols;
+    }
+
+    var series = groupBy(function (r) { return r.series; });
+    $('tblSeries').innerHTML = tableHtml(groupCols('产品系列', [
+      { t: '产品名数', f: function (r) { return fmtNum(r.nName); } },
+      { t: 'SKU 数', f: function (r) { return fmtNum(r.nSku); } }
+    ]), series, true);
+
+    var names = groupBy(function (r) { return r.name; });
+    names.forEach(function (n) {
+      // 该产品名对应的系列（唯一）与站点
+      var s = {}, sites = {};
+      rows.forEach(function (r) { if (r.name === n.label) { s[r.series] = 1; sites[r.site] = 1; } });
+      n.seriesTxt = Object.keys(s).join('/');
+      n.siteTxt = Object.keys(sites).sort().join('/');
+    });
+    $('tblName').innerHTML = tableHtml(groupCols('产品名', [
+      { t: '产品系列', f: function (r) { return esc(r.seriesTxt || ''); } },
+      { t: '站点', f: function (r) { return (r.siteTxt || '').split('/').map(function (c) { return '<span class="pill">' + esc(c) + '</span>'; }).join(''); } },
+      { t: 'SKU 数', f: function (r) { return fmtNum(r.nSku); } }
+    ]), names, true);
+
+    var skuAgg = {};
+    rows.forEach(function (r) {
+      var t = skuAgg[r.skuId] || (skuAgg[r.skuId] = { skuId: r.skuId, name: r.name, series: r.series, color: r.color, pdpUv: 0, pdpPv: 0, atcUv: 0, addToCart: 0, orders: 0, units: 0, byCur: {}, sites: {}, weeks: {} });
+      ['pdpUv', 'pdpPv', 'atcUv', 'addToCart', 'orders', 'units'].forEach(function (x) { t[x] += r[x] || 0; });
+      var cur = siteMeta(r.site).currency || '';
+      t.byCur[cur] = (t.byCur[cur] || 0) + (r.sales || 0);
+      t.sites[r.site] = 1; t.weeks[r.week] = 1;
+      if (r.stock) t.stock = r.stock;
+    });
+    var skuRows = Object.keys(skuAgg).map(function (k) {
+      var t = skuAgg[k];
+      t.siteTxt = Object.keys(t.sites).sort();
+      t.nWeek = Object.keys(t.weeks).length;
+      t.atcRate = t.pdpUv ? t.atcUv / t.pdpUv * 100 : null;
+      t.convRate = t.pdpUv ? t.orders / t.pdpUv * 100 : null;
+      var m = SKU_MAP[t.skuId] || {};
+      t.review = !!m.review;
+      return t;
+    }).sort(function (a, b) { return b.pdpUv - a.pdpUv; });
+
+    $('tblSku').innerHTML = tableHtml([
+      { t: 'SKU', l: true, f: function (r) { return esc(r.skuId); } },
+      { t: '产品名', l: true, f: function (r) { return esc(r.name) + (r.review ? ' <span class="pill warn">待确认</span>' : ''); } },
+      { t: '产品系列', f: function (r) { return esc(r.series); } },
+      { t: '变体', f: function (r) { return esc(r.color || '—'); } },
+      { t: '站点', f: function (r) { return r.siteTxt.map(function (c) { return '<span class="pill">' + esc(c) + '</span>'; }).join(''); } },
+      { t: '周数', f: function (r) { return fmtNum(r.nWeek); } },
+      { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv); } },
+      { t: '商品浏览量', f: function (r) { return fmtNum(r.pdpPv); } },
+      { t: '加购件数', f: function (r) { return fmtNum(r.addToCart); } },
+      { t: '订单量', f: function (r) { return fmtNum(r.orders); } },
+      { t: '件数', f: function (r) { return fmtNum(r.units); } },
+      { t: '销售额', f: function (r) { return salesText(r.byCur); } },
+      { t: '加购率', f: function (r) { return pctTxt(r.atcRate); } },
+      { t: '转化率', f: function (r) { return pctTxt(r.convRate); } }
+    ], skuRows, true);
+
+    /* 加购明细（按产品名） */
+    var funnel = groupBy(function (r) { return r.name; }).sort(function (a, b) { return b.addToCart - a.addToCart; });
+    $('tblFunnel').innerHTML = tableHtml([
+      { t: '产品名', l: true, f: function (r) { return esc(r.label); } },
+      { t: '加购件数', f: function (r) { return fmtNum(r.addToCart); } },
+      { t: '加购访客数', f: function (r) { return fmtNum(r.atcUv); } },
+      { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv); } },
+      { t: '加购率', f: function (r) { return pctTxt(r.atcRate); } },
+      { t: '订单量', f: function (r) { return fmtNum(r.orders); } },
+      { t: '转化率', f: function (r) { return pctTxt(r.convRate); } }
+    ], funnel, true);
+
+    /* 收藏（站点级按周） */
+    var sw = siteWeeksMerged();
+    var wset = STORE.week.length ? STORE.week : null;
+    var favRows = sw.filter(function (w) { return !wset || wset.indexOf(w.key) >= 0; });
+    $('tblFav').innerHTML = tableHtml([
+      { t: '周', l: true, f: function (r) { return esc(r.label); } },
+      { t: '收藏商品数', f: function (r) { return fmtNum(r.favorites); } },
+      { t: '有访商品数', f: function (r) { return fmtNum(r.visited); } },
+      { t: '加购商品数', f: function (r) { return fmtNum(r.atcProducts); } },
+      { t: '在售商品数', f: function (r) { return fmtNum(r.onSale); } }
+    ], favRows, true);
+
+    /* 店铺流量（站点级按周） */
+    $('tblTraffic').innerHTML = tableHtml([
+      { t: '周', l: true, f: function (r) { return esc(r.label); } },
+      { t: '店铺访客数', f: function (r) { return fmtNum(r.uv); } },
+      { t: '店铺浏览量', f: function (r) { return fmtNum(r.pv); } },
+      { t: '人均浏览', f: function (r) { return r.uv ? (r.pv / r.uv).toFixed(2) : '—'; } },
+      { t: '会话时长(秒)', f: function (r) { return fmtNum(r.sessionDuration, 1); } },
+      { t: '收藏商品数', f: function (r) { return fmtNum(r.favorites); } },
+      { t: '订单量', f: function (r) { return fmtNum(r.orders); } },
+      { t: '销售额', f: function (r) { return salesText(r.byCur); } }
+    ], favRows, true);
+
+    /* 渠道 */
+    var ch = channelsMerged();
+    $('tblChannel').innerHTML = tableHtml([
+      { t: '渠道', l: true, f: function (r) { return esc(r.channel); } },
+      { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv, 1); }, foot: function () { return fmtNum(ch.reduce(function (a, x) { return a + x.pdpUv; }, 0), 1); } },
+      { t: '占比', f: function (r) { return '<span class="bar" style="width:80px"><i style="width:' + Math.min(100, r.share) + '%"></i></span> ' + r.share.toFixed(1) + '%'; } },
+      { t: '浏览量 → 订单转化率', f: function (r) { return pctTxt(r.cr); } }
+    ], ch);
+
+    /* 搜索词 */
+    var kws = keywordsMerged();
+    var ktot = kws.reduce(function (a, x) { return a + x.pdpUv; }, 0);
+    var kwCols = [
+      { t: '搜索词', l: true, f: function (r) { return esc(r.keyword); } },
+      { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv, 1); }, foot: function () { return fmtNum(ktot, 1); } },
+      { t: '占比', f: function (r) { return '<span class="bar" style="width:80px"><i style="width:' + Math.min(100, r.share) + '%"></i></span> ' + r.share.toFixed(1) + '%'; } },
+      { t: '来自站点', f: function (r) { return r.sites.map(function (c) { return '<span class="pill">' + esc(c) + '</span>'; }).join(''); } },
+      { t: '浏览量 → 订单转化率', f: function (r) { return pctTxt(r.cr); } }
+    ];
+    $('tblKeyword').innerHTML = tableHtml(kwCols, kws);
+
+    /* 每日明细（站点级） */
+    var sites = selSites();
+    var dmap = {};
+    sites.forEach(function (c) {
+      (D(c).days || []).forEach(function (d) {
+        var t = dmap[d.date] || (dmap[d.date] = { date: d.date, uv: 0, pv: 0, pdpUv: 0, pdpPv: 0, atcUv: 0, addToCart: 0, orders: 0, units: 0, favorites: 0, byCur: {} });
+        SUMK.forEach(function (k) { if (k !== 'gmv') t[k] += d[k] || 0; });
+        var cur = siteMeta(c).currency || '';
+        t.byCur[cur] = (t.byCur[cur] || 0) + (d.sales || 0);
+      });
+    });
+    var dayRows = Object.keys(dmap).sort().reverse().map(function (k) { return dmap[k]; });
+    // 日明细同样只展示「当前筛选下有效周」里的日期 —— 否则趋势图已经收窄到 W32 起，
+    // 下面的逐日表却还列着 7 月的 0 值行，两张表对不上。
+    // visibleWeeks() 已叠加周筛选，所以这里不用再单独判一次 STORE.week（否则等于判两遍）。
+    var awSet = {};
+    visibleWeeks().forEach(function (w) { awSet[w.key] = 1; });
+    dayRows = dayRows.filter(function (r) { return awSet[weekKeyOf(r.date)]; });
+    $('tblDaily').innerHTML = tableHtml([
+      { t: '日期', l: true, f: function (r) { return esc(r.date); } },
+      { t: '店铺访客数', f: function (r) { return fmtNum(r.uv); } },
+      { t: '店铺浏览量', f: function (r) { return fmtNum(r.pv); } },
+      { t: '商品访客数', f: function (r) { return fmtNum(r.pdpUv); } },
+      { t: '商品浏览量', f: function (r) { return fmtNum(r.pdpPv); } },
+      { t: '加购件数', f: function (r) { return fmtNum(r.addToCart); } },
+      { t: '收藏商品数', f: function (r) { return fmtNum(r.favorites); } },
+      { t: '订单量', f: function (r) { return fmtNum(r.orders); } },
+      { t: '件数', f: function (r) { return fmtNum(r.units); } },
+      { t: '销售额', f: function (r) { return salesText(r.byCur); } }
+    ], dayRows, true);
+  }
+
+  /**
+   * 日期 → 周 key。
+   * 直接拿后端给的周区间（WEEKS[i].start/end，都是 YYYY-MM-DD）做区间命中，
+   * 不在前端重算 ISO 周号 —— 自己算 ISO 周在「跨年 / 1月1日落在周中」时会错一周，
+   * 而后端（Python isocalendar）才是唯一口径。字符串比较即可，无需建 Date 对象。
+   */
+  function weekKeyOf(iso) {
+    for (var i = 0; i < WEEKS.length; i++) {
+      if (iso >= WEEKS[i].start && iso <= WEEKS[i].end) return WEEKS[i].key;
+    }
+    return '';
+  }
+
+  /* ---------------- 筛选说明 ---------------- */
+  function renderFilterNote() {
+    var rows = curRows();
+    var t = aggRows(rows);
+    var parts = [];
+    parts.push('命中 <b>' + t.skuCount + '</b> 个 SKU · <b>' + t.nameCount + '</b> 个产品名 · <b>' + t.seriesCount + '</b> 个系列 · <b>' + t.weeks.length + '</b> 周');
+    if (DROPPED) parts.push('<span class="pill warn">自动取消</span>有 ' + DROPPED + ' 个已选项与新筛选无交集，已自动取消');
+    if (STORE.bundle.length) parts.push('套装：' + esc(STORE.bundle.join(' / ')));
+    var prodFiltered = STORE.series.length || STORE.name.length || STORE.sku.length;
+    if (prodFiltered) parts.push('已按产品维度收窄 —— 标「站点级」的指标（店铺访客数/浏览量、收藏商品数）不受影响');
+    // ⚠️ 两种「起点晚」含义完全不同，必须分开讲，否则会被误读：
+    //   ① 商品上架日 —— 早于此的商品 UV/加购/订单/销售额是**真实的 0**（商品还没上架）；
+    //     已用站点级 popOnSaleProducts 首日>0 交叉验证过（UK 07-01↔W27 / DE 08-05↔W32 /
+    //     NL 08-10↔W33 / FR 08-07↔W32，全部吻合到周内）。
+    //   ② 店铺流量记录起点 —— trend 接口会裁掉开头的全 0 天，所以是「接口没返回」，
+    //     推测当时本就为 0。不能说成「无数据」，那会让人以为漏采了真实流量。
+    // 只在「选了具体站点」时才在这里提示 —— 默认全选时顶部警示条已经把 4 站的日期列全了，
+    // 再重复一遍只是噪音。
+    var gStart = (PAYLOAD.range || {}).startDate || '';
+    var late = [], listed = [];
+    (STORE.site.length ? STORE.site : []).forEach(function (code) {
+      var d = D(code);
+      // ⚠️ 这里必须用 rawCoverStart（接口实际返回的第一天），不能用 cover.start：
+      //    cover.start 是**裁剪边界**（各站都落在某个周六），拿它比较会把 DE/FR 也判成
+      //    「接口不返回更早日期」，而事实是接口返回了、只是那段全 0 被裁掉了。
+      var cvr = d.rawCoverStart || '';
+      if (gStart && cvr && cvr > gStart) late.push(code + ' ' + String(cvr).slice(5) + ' 起');
+      if (d.listedSince && gStart && d.listedSince > gStart) listed.push(code + ' ' + String(d.listedSince).slice(5));
+    });
+    if (listed.length) parts.push('<span class="pill warn">商品上架</span>' + esc(listed.join('、')) +
+      ' —— 早于上架日的周次商品指标为 0 是真实的 0（商品还没上架）');
+    if (late.length) parts.push('<span class="pill warn">店铺流量</span>' + esc(late.join('、')) +
+      '才有记录（接口不返回更早日期，推测当时本就为 0）');
+    $('filterNote').innerHTML = parts.join(' ｜ ');
+  }
+
+  /* ---------------- 渲染入口 ---------------- */
+  /**
+   * 顶部「窗口」标签 = 当前筛选下**实际展示**的日期范围。
+   * 原来固定读 PAYLOAD.windowLabel（数据源全量窗口），于是选了 DE 之后图表已从 W32（08-01）
+   * 起画，顶部却仍写着 06-27 —— 又是一处「空周范围」的残留，跟图表自相矛盾。
+   * 未做任何筛选时它正好等于全量窗口，所以默认视图的行为不变；原始窗口挪进 title。
+   *
+   * ⚠ 2026-09-28 补：**不能直接拿首尾周桶的 start/end**。周桶是周六~周五，而最后一个桶
+   *   几乎总是在进行中（自动化每周一 15:30 跑，当周才过到周一），它的 end 落在未来 →
+   *   会写出「窗口 2026-06-27 ~ 2026-10-02」这种把覆盖期说长的标签（数据其实只到 09-27）。
+   *   这里再夹一次到「实际有数据的日期」(range.startDate / range.endDate)。
+   */
+  function renderWinBadge() {
+    var el = $('winBadge');
+    if (!el) return;
+    var full = PAYLOAD.windowLabel || '—';
+    el.title = '数据源窗口：' + full;
+    var vw = visibleWeeks();
+    if (!vw.length) { el.textContent = '窗口 ' + full; return; }
+    var rg = PAYLOAD.range || {};
+    var s = vw[0].start || '', e = vw[vw.length - 1].end || '';
+    if (rg.startDate && s && s < rg.startDate) s = rg.startDate;
+    if (rg.endDate && e && e > rg.endDate) e = rg.endDate;
+    el.textContent = (s && e) ? ('窗口 ' + s + ' ~ ' + e) : ('窗口 ' + full);
+  }
+
+  function render() {
+    if (isEmpty()) { renderEmpty(); return; }
+    renderWinBadge();
+    renderFilterNote();
+    renderKpis();
+    renderCharts();
+    renderTables();
+  }
+
+  function init() {
+    var p = PAYLOAD;
+    renderWinBadge();   // 「窗口」标签跟随筛选（未筛选时 = 数据源全量窗口）
+    $('curBadge').textContent = '币种 ' + SITES.map(function (s) { return s.code + '=' + s.currency; }).join(' / ');
+    var hasData = ROWS.length > 0;
+    $('srcBadge').textContent = '数据源 ' + (hasData ? 'Data Compass 已接入' : '未接入');
+    $('srcBadge').className = 'badge ' + (hasData ? 'on' : 'off');
+    $('builtBadge').textContent = '构建 ' + (p.builtAt || '—');
+
+    var wh = '';
+    (p.warnings || []).forEach(function (w) { wh += '<div class="warnbar">⚠ ' + esc(w) + '</div>'; });
+    $('warnHost').innerHTML = wh;
+
+    var setCnt = Object.keys(SKU_MAP).length;
+    $('footNote').innerHTML =
+      '数据源：商家后台 Data Compass（流量 / 加购 / 收藏 / 渠道 / 搜索词）· 开放平台 SP-API（商品 / 库存 / 售后）。' +
+      '周口径：<b>周六~周五</b>为一周，周号取该周<b>周五</b>所在 ISO 周。' +
+      '已映射 SKU ' + setCnt + ' 个 · 产品名 ' + uniq(ROWS.map(function (r) { return r.name; })).length + ' 个。' +
+      '「套装」维度来自后台规格（如 Air Assist / +蜂窝板+旋转轴）；标「标配」表示后台规格未区分套装，' +
+      '不代表不含 Air Assist。' +
+      '多站点视图<b>不混算销售额</b>（UK=GBP，DE/NL/FR=EUR）。' +
+      '<b>商品访客数/浏览量</b> 是各商品相加（同一访客浏览多个商品会重复计数），' +
+      '所以比站点级「商品详情页访客数」大、换算出的加购率/转化率会偏低；' +
+      '「店铺访客数/浏览量、收藏商品数」是站点级，只跟国家/周数走。' +
+      '<b>商品上架日</b>（UK 07-01 / DE 08-05 / FR 08-07 / NL 08-10）之前的周次，' +
+      '商品指标为 0 是真实的 0，不是数据缺失。' +
+      '<b>窗口起点</b>：已按「首个有数据的周」收紧（' + esc(p.windowLabel || '—') +
+      '），更早的周四个站点全部为 0 已从前端移除；' +
+      '单独看某个站点时，看板会再自动从<b>该站自己的首个有数据周</b>开始（如选 DE 即从它上架那周起），' +
+      '但中间 / 尾部真实的「这周没人来」仍然保留 —— 只裁开头连续为 0 的那一段。';
+
+    if (isEmpty()) { renderEmpty(); return; }
+
+    $('btnReset').addEventListener('click', function () {
+      STORE = { site: [], series: [], name: [], bundle: [], sku: [], week: [] };
+      DROPPED = 0;
+      KW.series = KW.name = KW.sku = '';
+      ['ddSeriesSearch', 'ddNameSearch', 'ddSkuSearch'].forEach(function (i) { if ($(i)) $(i).value = ''; });
+      renderDD(); render();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (x) { x.classList.remove('active'); });
+        Array.prototype.forEach.call(document.querySelectorAll('.pane'), function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        $('pane-' + b.getAttribute('data-p')).classList.add('active');
+        render();
+      });
+    });
+    var hash = (location.hash || '').replace('#', '').split('&')[0].split('?')[0];
+    if (hash && $('pane-' + hash)) {
+      Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (x) {
+        x.classList.toggle('active', x.getAttribute('data-p') === hash);
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.pane'), function (x) { x.classList.remove('active'); });
+      $('pane-' + hash).classList.add('active');
+    }
+
+    renderDD();
+    render();
+  }
+  init();
+})();
+</script>
+
+</body>
+</html>

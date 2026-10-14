@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 月度数据看板</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#ffffff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --shadow:0 1px 3px rgba(16,24,40,.08);
+    --up:#dc2626; --down:#059669; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:14px 20px 10px; overflow:hidden; display:flex; flex-direction:column; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:12px; flex:none; }
+  .header h1 { font-size:18px; font-weight:700; }
+  .header .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.5; }
+  /* 数据完整性提示（2026-09-24）：源数据延迟时告诉用户"当月合计为什么偏低" */
+  .note-ok { color:#2f855a; font-weight:600; }
+  .note-calib { color:#2b6cb0; background:#ebf5ff; border:1px solid #bcdcff; border-radius:6px; padding:2px 8px; font-weight:600; }
+  .note-warn { color:#b26a00; background:#fff7e6; border:1px solid #ffe0a3; border-radius:6px; padding:2px 8px; font-weight:600; }
+  .badge { display:inline-block; background:#eef4ff; color:var(--primary); border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:12px 16px; margin-bottom:10px; flex:none; }
+  .card-table { flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:6px; }
+  .card-table .toolbar { flex:none; }
+  .card-table .table-wrap { flex:1; min-height:0; }
+  .card-table .note { flex:none; margin-top:6px; }
+  .footer { flex:none; }
+  .card-title { font-size:14px; font-weight:600; margin-bottom:10px; }
+  /* ---- KPI 卡片 ---- */
+  .kpis { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin-bottom:10px; flex:none; }
+  .kpi { position:relative; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow); }
+  .kpi-edit { position:absolute; top:6px; right:8px; font-size:11px; color:#b6c0d0; cursor:pointer; border:none; background:none; padding:2px 4px; border-radius:4px; z-index:10; }
+  .kpi-edit:hover { color:var(--primary); background:#f0f4ff; }
+  .kpi-dropdown { position:absolute; top:28px; right:8px; z-index:999; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(16,24,40,.14); padding:8px; min-width:220px; max-height:300px; overflow-y:auto; display:none; }
+  .kpi-dropdown.open { display:block; }
+  .kpi-dropdown .dd-opt { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .kpi-dropdown .dd-opt:hover { background:#f1f5f9; }
+  .kpi-dropdown .dd-opt .opt-name { font-weight:500; }
+  .kpi-label { font-size:12px; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:5px; }
+  .kpi-value { font-size:22px; font-weight:700; margin-top:6px; letter-spacing:-.3px; }
+  .kpi-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+  /* ---- 下拉筛选 ---- */
+  .filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+  .dd { position:relative; min-width:170px; }
+  .dd-btn { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer;
+    font-size:13px; color:var(--text); transition:all .15s; user-select:none; }
+  .dd-btn:hover { border-color:var(--primary); }
+  .dd-btn .dd-label { font-weight:600; white-space:nowrap; }
+  .dd-btn .dd-summary { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:right; }
+  .dd-btn .dd-arrow { font-size:10px; color:var(--muted); transition:transform .15s; }
+  .dd.open .dd-btn .dd-arrow { transform:rotate(180deg); }
+  .dd-panel { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:50; min-width:320px; max-width:640px;
+    background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(16,24,40,.14); padding:10px; }
+  .dd.open .dd-panel { display:block; }
+  .dd-panel .dd-tools { display:flex; gap:6px; margin-bottom:8px; align-items:center; flex-wrap:wrap; }
+  .dd-panel .dd-hint { margin-left:auto; font-size:11px; color:#999; white-space:nowrap; }
+  .dd-search { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; margin-bottom:8px; outline:none; }
+  .dd-search:focus { border-color:var(--primary); }
+  .dd-panel .dd-list { max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:2px; }
+  .dd-opt { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .dd-opt:hover { background:#f1f5f9; }
+  .dd-opt .opt-name { font-weight:500; }
+  .dd-opt .opt-sub { color:var(--muted); font-size:11px; margin-left:auto; text-align:right; }
+  .dd-opt.sel { background:#eef4ff; }
+  .dd-opt.dim { opacity:.42; }
+  .dd-opt.dim .opt-name, .dd-opt.dim .opt-sub { cursor:default; }
+  .dd-opt input { accent-color:var(--primary); }
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:3px 12px; border-radius:6px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); }
+  /* ---- 表格 ---- */
+  .toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+  .table-wrap { overflow:auto; border:1px solid var(--border); border-radius:8px; }
+  table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+  th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:right; white-space:nowrap; }
+  th { background:#f8fafc; font-weight:600; color:var(--muted); position:sticky; top:0; z-index:2; }
+  td:first-child, th:first-child { text-align:left; }
+  .frozen { position:sticky; left:0; background:#fff; z-index:1; box-shadow:2px 0 0 var(--border); }
+  thead .frozen { background:#f8fafc; z-index:3; }
+  tr.total-row td { background:#f0f4ff; font-weight:700; border-top:2px solid var(--border); }
+  tr.total-row .frozen { background:#f0f4ff; }
+  .cell-na { color:#b6c0d0; }
+  .m-day { font-size:11px; color:var(--muted); font-weight:500; }
+  .m-flag { display:inline-block; font-size:10px; border-radius:4px; padding:1px 6px; font-weight:600; margin-left:6px; }
+  .m-flag.partial { background:#fef3c7; color:#92400e; }
+  .m-flag.ongoing { background:#dcfce7; color:#166534; }
+  .empty { text-align:center; padding:36px; color:var(--muted); font-size:14px; }
+  .footer { text-align:center; color:var(--muted); font-size:12px; margin-top:4px; flex:none; }
+  .note { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.7; }
+  @media (max-width: 900px) { .kpis { grid-template-columns:repeat(2, 1fr); } }
+</style>
+<style>
+/* note-fold: 解释块折叠 (2026-10-12) */
+.noteFold{margin-top:8px;border:1px solid var(--border);border-radius:8px;background:rgba(127,127,127,.045);}
+.noteFold>summary{cursor:pointer;list-style:none;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none;}
+.noteFold>summary::-webkit-details-marker{display:none;}
+.noteFold>summary::marker{content:'';}
+.noteFold>summary::before{content:'▸';font-size:11px;display:inline-block;transition:transform .15s;}
+.noteFold[open]>summary::before{transform:rotate(90deg);}
+.noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
+.noteFold[open]>summary::after{content:'收起';}
+.noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+</style>
+<script>
+/* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
+(function(){
+  function sync(){
+    var ds = document.querySelectorAll('details.noteFold');
+    for (var i = 0; i < ds.length; i++) {
+      var b = ds[i].querySelector('.note,.foot-note');
+      ds[i].style.display = (b && b.textContent.trim()) ? '' : 'none';
+    }
+  }
+  window.__syncNoteFold = sync;      // 供动态填充说明块的页面（JoyBuy）在填充后调用
+  function boot(){
+    sync();
+    // 说明块常由 JS 异步填充（如 JoyBuy 的 #filterNote/#footNote）：
+    // 填充前被判为空块而 display:none，填充后必须重跑，否则说明块永久消失。
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function(){ sync(); });
+      var ds = document.querySelectorAll('details.noteFold');
+      for (var i = 0; i < ds.length; i++) mo.observe(ds[i], { childList: true, characterData: true, subtree: true });
+    }
+    setTimeout(sync, 0); setTimeout(sync, 800);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+
+<div class="header">
+  <div>
+    <h1>🗓️ Aliencell 月度数据看板</h1>
+    <div class="sub">业务报告 + 广告数据 · 自然月维度 · 平台: Amazon + JoyBuy · 更新: <span id="genTime">__GEN_TIME__</span> &nbsp;|&nbsp; <span id="dataNote">__DATA_NOTE__</span></div>
+  </div>
+  <span class="badge" id="rangeBadge">—</span>
+</div>
+
+<div class="kpis" id="kpiRow"></div>
+
+<div class="card">
+  <div class="card-title">🔎 筛选</div>
+  <div class="filter-bar">
+    <div class="dd" id="ddChannel">
+      <button class="dd-btn" onclick="toggleDD('ddChannel')">
+        <span class="dd-label">🏪 销售店铺</span>
+        <span class="dd-summary" id="ddChannelSummary">全部（合并）</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn" onclick="setAll('channel',false)">合并看（全部）</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddChannelList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddPlatform">
+      <button class="dd-btn" onclick="toggleDD('ddPlatform')">
+        <span class="dd-label">🌐 平台</span>
+        <span class="dd-summary" id="ddPlatformSummary">全部平台</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn" onclick="setAll('platform',false)">看全部平台</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddPlatformList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddMonth">
+      <button class="dd-btn" onclick="toggleDD('ddMonth')">
+        <span class="dd-label">📆 月份</span>
+        <span class="dd-summary" id="ddMonthSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('month',true)">全选</button>
+          <button class="btn" onclick="setAll('month',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddMonthList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddRegion">
+      <button class="dd-btn" onclick="toggleDD('ddRegion')">
+        <span class="dd-label">🗺️ 地区</span>
+        <span class="dd-summary" id="ddRegionSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('region',true)">全选</button>
+          <button class="btn" onclick="setAll('region',false)">清空</button>
+          <span class="dd-hint">NA=US/CA/MX · EU=欧盟 · 仅显示有数据地区 · 选地区自动选国家</span>
+        </div>
+        <div class="dd-list" id="ddRegionList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddCountry">
+      <button class="dd-btn" onclick="toggleDD('ddCountry')">
+        <span class="dd-label">🌍 国家</span>
+        <span class="dd-summary" id="ddCountrySummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('country',true)">全选</button>
+          <button class="btn" onclick="setAll('country',false)">清空</button>
+          <span class="dd-hint">仅显示有数据国家 · 选地区只显示地区内国家 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddCountryList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddAsin">
+      <button class="dd-btn" onclick="toggleDD('ddAsin')">
+        <span class="dd-label">🔑 ASIN</span>
+        <span class="dd-summary" id="ddAsinSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddAsinSearch" placeholder="搜索 ASIN / SKU / 产品系列 / 产品名…" oninput="buildAsinOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('asin',true)">全选</button>
+          <button class="btn" onclick="setAll('asin',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddAsinList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddSeries">
+      <button class="dd-btn" onclick="toggleDD('ddSeries')">
+        <span class="dd-label">🏷️ 产品系列</span>
+        <span class="dd-summary" id="ddSeriesSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddSeriesSearch" placeholder="🔍 搜索产品系列…" oninput="buildSeriesOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('series',true)">全选</button>
+          <button class="btn" onclick="setAll('series',false)">清空</button>
+          <span class="dd-hint">未匹配的 ASIN 归为「无」· 单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddSeriesList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddName">
+      <button class="dd-btn" onclick="toggleDD('ddName')">
+        <span class="dd-label">📦 产品名</span>
+        <span class="dd-summary" id="ddNameSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddNameSearch" placeholder="🔍 搜索产品名…" oninput="buildNameOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('name',true)">全选</button>
+          <button class="btn" onclick="setAll('name',false)">清空</button>
+          <span class="dd-hint">级联：仅显示所选系列下的产品名 · 单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddNameList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-table">
+  <div class="toolbar">
+    <div class="card-title" style="margin:0">📊 月度指标 <span style="font-weight:400;color:var(--muted);font-size:12px;">（自然月 1日~月末 · 与周度汇总看板同口径）</span></div>
+  </div>
+  <div class="table-wrap" id="tableWrap"></div>
+  <details class="noteFold">
+  <summary>📖 指标口径与说明（毛利 / VAT / 费用占比 / 退款 / 多渠道等）</summary>
+  <div class="note">指标口径与周度汇总看板一致：转化率=订单量÷Sessions · 广告转化率=广告订单÷广告点击 · 广告点击率=广告点击÷广告曝光 · 广告占比=广告花费÷销售额 · ROAS=广告销售额÷广告花费 · ACOS=广告花费÷广告销售额 · BuyBox=日均值。<b>地区</b>=NA(US/CA/MX)·EU(欧盟9国)·UK·JP·AU，与国家筛选叠加生效（选地区收窄国家，选国家联动地区）。<b>部分月</b>=数据未覆盖整月（月初或月末缺数），<b>进行中</b>=当月数据尚未完结，合计行仅含所选月份。销售额/花费按所选国家币种显示（多国混合时按 $）。<br><b>毛利</b> = 报表销售额+促销折扣+销售佣金+配送费+商品成本+仓储费分摊+其他费用分摊 − <b>VAT</b>(仅欧洲与英国) − <b>头程</b>(成本表预估) − <b>测评费</b> + <b>其他渠道剔除加回</b> − 本看板广告花费。<b>「商品成本」自 2026-10-13 起改由「产品关系管理」映射到产品成本表的 costRMB × 件数（亚马逊销量 + 多渠道销量）÷ 当月汇率折算，<u>不再取易仓 productCostTotal</u>（易仓原值仅留作审计）；未匹配到成本表的产品名时该行成本按 0 计并计入「成本缺失」。</b>其余各项数据来自易仓「财务-利润报表-ASIN」，按<b>亚马逊结算日期</b>归属（与业务报告的下单口径天然存在差异）；其他费用（推广服务费+服务费）按「日期×国家」产品行数均摊，FBA月仓储费按「月×ASIN×站点×店铺」的<b>日行数</b>均摊（列合计 = ERP 月度值）。利润报表无数据的站点与 2026-07 之前显示 —；成本解析不到的 Woot 行同样显示 —（不按 0 成本算，避免毛利率虚高）。<b>广告费归属</b>：优先取条目自带 ASIN，其次活动名里的 ASIN；品牌推广（SB）报表不含 ASIN，按活动名的「系列+瓦数」兜底，且<b>按站点区分</b>（同一 SKU 在北美与欧洲是不同 ASIN）。若归属到的 ASIN 在该站点没有利润报表行（如某国未上架），该笔广告费仍计入「广告花费」列与合计行的毛利扣减，但该行自身的「毛利」显示 —（没有利润报表行可挂）。<b>销售店铺</b>：默认合并看（Aliencell官方店铺 = 本看板原有亚马逊数据 + Woot店铺 = 由「Woot 数据管理」页注入的行），可单独筛；Woot 行只有订单/销售额/广告，在易仓利润报表里没有对应行，因此其毛利不走易仓口径，改按下方 Woot 毛利公式单独计算。Woot 毛利口径（采购价 × Woot订单量 − 产品成本 − 头程 − Woot广告费）；成本与头程优先取「Woot 数据管理 → 💵 Woot 成本设置」里逐 ASIN 的手工配置，<b>未配置时自动回退「产品关系管理」</b>——按 ASIN 匹配到的产品名取产品成本表的采购成本与 US 头程，÷ 当月 CNY/USD 折成 USD/台；两处都取不到则该 ASIN 不入毛利（显示 —，避免按 0 成本算虚高）。<b>费用占比列</b>（2026-10-10 新增）：成本%=商品成本÷报表销售额；FBA / FBA% =配送费；promotion / promotion% =促销折扣；仓储 / 仓储% =FBA 仓储费；头程 / 头程% =头程费用；其他费用 / 其他费用% =推广服务费+服务费；VAT / VAT% =增值税（仅欧洲与英国）。占比分母统一为<b>利润报表销售额</b>，除成本外其他费用同时列出绝对值（取正数显示）。<b>VAT</b>（2026-10-10 新增）：易仓利润报表的「产品税」与「亚马逊代扣代缴税款」正好互相抵消（净额 0）⇒ 报表没把 VAT 从毛利里扣掉，看板按 <b>(报表销售额 − 促销折扣) × 税率</b> 手动扣减（基数即「销售价 − 优惠价」）；税率见 `vat_rates.json`（UK 20%、DE 19%、FR 20%、IT 22%、ES 21%、NL/BE 21%、IE/PL 23%、SE 25%），非欧洲站点为 0。若确认报表销售额已是不含税口径而无需再扣，把该文件税率置 0 重跑构建即可。<b>头程</b>取产品成本表「头程费用/RMB × 利润报表销量 ÷ 当月 CNY 汇率」，目前为<b>预估值</b>，后续以实际推移头程替换；成本表未覆盖的 ASIN/站点头程按 0 计。<b>尾程</b>（海外仓尾程配送）仅 FBM 订单计入，FBA 订单不计——本看板店铺均走 FBA，故不入成本口径。<b>入境货运费 / 多渠道 / 测评费 / 其他渠道剔除（2026-10-12 新增）</b>：①「入境货运费」= 易仓「FBA库存与入境服务费汇总」里的「<b>FBA物流国际货运费</b>」，ERP 里挂在<b>站点级（无 ASIN）月度行</b>上，看板按「站点 × 当月销量占比」摊到各 SKU；<b>仅列示、不入毛利</b> —— 毛利的头程扣的是成本表「预估头程」，两者是同一笔成本的两个来源，同时计入会重复。②「多渠道销量 / 多渠道损失」= 多渠道（MCF）订单的销量与损失，损失 = 产品成本 + 头程 + 多渠道配送费；这三项<b>本来就含在商品成本与配送费里</b>（ERP 公式：fbaFeesTotal 含多渠道配送费、productCostTotal 含多渠道订单采购成本与头程），故单独列示而<b>不重复扣减</b>（三项明细见每日看板的列设置）。③「测评费」由「财务数据录入」页按月导入（月份+站点+ASIN+金额+币种），按销量占比摊到行并<b>计入毛利</b>。④「其他渠道已剔除」= 你在录入页导入的其他渠道订单（月份+ASIN+数量）所对应的多渠道成本，已按数量比例<b>从亚马逊毛利中移出</b>（作为加回项）。</div>
+<div class="note" style="margin-top:10px;border-top:1px dashed #e2e8f0;padding-top:8px"><b>🌐 平台筛选</b>（2026-10-13 新增）：<b>🅰️ Amazon</b> = 亚马逊 13 国（易仓业务报告 + 广告报表 + 利润报表）；<b>🛒 JoyBuy</b> = 京东欧洲四站（UK / DE / NL / FR，由 Data Compass 按自然月聚合，含站点流量、GMV、订单/件数）。默认「全部平台」= 两平台之和；«看全部平台» 按钮清空选择。<br>⚠️ <b>JoyBuy 没有广告数据</b> ⇒ 「广告指标」组列只反映 Amazon（单看 JoyBuy 时显示 —）。<b>毛利</b>（2026-10-13 起支持）：JoyBuy 走<b>账单口径</b>，<b>平台毛利 = 货款 + 佣金 + 交易服务费 + 广告返点 + VAT + 退款 + 退回佣金 + 退货服务费 + 海外物流仓储 + 其他</b>（账单里费用自带负号，直接相加），<b>完整毛利 = 平台毛利 − 物流费（承运商是 Amazon Logistics 时按亚马逊 MCF 官方费率卡按包装尺寸匹配分段、含燃油，否则按成本表「海外仓尾程配送」）− 产品成本（成本表 costRMB ÷ 当月汇率）− 头程（成本表 headRMB ÷ 当月汇率）</b>；毛利额逐行相加 = 该站点的账单真值。⚠️ 账单<b>只能到「站点 × 月」</b>（看板行是「月 × 站点 × 产品」）⇒ 行级数字按该(站点,月)的<b>行 GMV 占比</b>摊分，属近似值；<b>UK / NL / FR 目前没有已结算账单 ⇒ 其毛利显示 —</b>（不按 0 算）。<b>费用占比列</b>在 JoyBuy 行的含义：<b>成本%</b> = 产品成本 ÷ <b>账单货款</b>；<b>FBA / FBA%</b> = <b>物流费</b>（MCF 或海外仓尾程）；<b>仓储</b> = 海外物流仓储服务费；<b>其他费用</b> = 交易服务费 + 广告返点 + 其他。⚠️ JoyBuy 的毛利率分母是账单<b>货款</b>（Product Payment），与「销售额」列（Data Compass GMV）口径不同（DE 2026-09：货款 €1,803.89 vs GMV €1,619.70）。「全部平台」= 两平台<b>毛利相加</b>；<b>销售额 / 流量 / 订单 / 转化率</b>同样为两平台之和。另：JoyBuy 的「Sessions」口径是<b>商品页 UV（PDP UV）</b>，与 Amazon 的 Sessions 不完全等价，跨平台比转化率请留意；JoyBuy 产品行按「周与自然月重叠天数」等比分摊并校准到站点月合计 ⇒ 订单/件数可能带小数。<br>⚠️ <b>产品系列 / 产品名</b> 筛选：JoyBuy 行没有 ASIN，用的是其自带系列与品名（如 X1 / Laser Module / Air Purifier）；同名系列（如 X1）会与 Amazon 自动合并，因此选「X1」时两平台该系列的月份会一起汇总。选任一个 <b>ASIN</b> 时 JoyBuy 行会被排除（它没有 ASIN）。</div>
+</details>
+</div>
+
+<div class="footer">Aliencell 月度数据看板 · 随每日数据自动刷新 · 产品映射 <b id="mapStat">0/0</b>（未匹配归「无」，可在左侧导航「产品关系」中维护）</div>
+
+<script>
+const DATA = __DATA_JSON__;
+const GEN_TIME = "__GEN_TIME__";
+const CN_MONEY = {'US':'$','DE':'€','BE':'€','CA':'C$','ES':'€','FR':'€','IE':'€','IT':'€','MX':'MX$','NL':'€','PL':'zł','SE':'kr','UK':'£'};
+// ---------- 货币体系: 按国家显示对应货币, 同地区多货币统一换算 ----------
+const CUR_OF = {'US':'USD','CA':'CAD','MX':'MXN','UK':'GBP','JP':'JPY','AU':'AUD',
+  'DE':'EUR','FR':'EUR','IT':'EUR','ES':'EUR','NL':'EUR','BE':'EUR','IE':'EUR','PL':'PLN','SE':'SEK'};
+const CUR_SYM = {'USD':'$','EUR':'€','GBP':'£','CAD':'C$','MXN':'MX$','PLN':'zł','SEK':'kr','JPY':'¥','AUD':'A$'};
+const REGION_CUR = {'NA':'USD','EU':'EUR','UK':'GBP','JP':'JPY','AU':'AUD'};
+const FX = __FX_JSON__;  // {ym: {币种: CNY/单位}} 交叉汇率 A→B = FX[ym][A]/FX[ym][B]
+// ---------- 头程成本表 (2026-10-10 用户口径) ----------
+// {产品名: {US/EU/UK: 头程RMB/台}}(预估值, 后续以用户推移后的实际头程为准);
+// 官方行: 头程RMB × 利润报表销量 ÷ (CNY/目标币种); Woot 行: freight(USD) × 订单量, 已在行内 pHead
+const HF = __HF_JSON__;
+// Woot 成本表 (2026-10-13): {产品名: 采购成本RMB/台} —— Woot 行经「产品关系管理」匹配到产品名后取此表
+const COSTRMB = __COST_JSON__;
+function hfRegionOf(cc){
+  if (cc === 'UK') return 'UK';
+  if (cc === 'US') return 'US';
+  return ['DE','FR','IT','ES','NL','BE','IE','PL','SE'].indexOf(cc) >= 0 ? 'EU' : null;
+}
+function headRmbOf(asin, cc){
+  const meta = (typeof asinMetaOf === 'function') ? asinMetaOf(asin) : null;
+  const p = meta && HF[meta.name];
+  const rg = hfRegionOf(cc);
+  return (p && rg) ? (Number(p[rg]) || 0) : 0;
+}
+function fxHeadCny(cny, ym){           // CNY → 当前目标币种
+  if (!cny) return 0;
+  const to = targetCur();
+  const rt = (FX[ym] || {})[to] || FX_FB[to];
+  return rt ? cny / rt : 0;
+}
+const FX_FB = {'USD':7.20,'EUR':7.85,'GBP':9.15,'CAD':5.25,'MXN':0.38,'JPY':0.048,'AUD':4.70,'PLN':1.85,'SEK':0.70};
+const COUNTRY_CN = {'US':'美国','DE':'德国','BE':'比利时','CA':'加拿大','ES':'西班牙','FR':'法国','IE':'爱尔兰','IT':'意大利','MX':'墨西哥','NL':'荷兰','PL':'波兰','SE':'瑞典','UK':'英国'};
+// 地区: NA=北美(US/CA/MX), EU=欧盟9国, UK/JP/AU 独立
+const REGION_OF = {'US':'NA','CA':'NA','MX':'NA','UK':'UK','JP':'JP','AU':'AU',
+  'DE':'EU','FR':'EU','IT':'EU','ES':'EU','NL':'EU','BE':'EU','IE':'EU','PL':'EU','SE':'EU'};
+const REGION_CN = {'NA':'北美地区','EU':'欧盟','UK':'英国','JP':'日本','AU':'澳大利亚'};
+const REGION_ORDER = ['NA','EU','UK','JP','AU'];
+const REGION_COUNTRIES = {'NA':['US','CA','MX'],'EU':['DE','FR','IT','ES','NL','BE','IE','PL','SE'],'UK':['UK'],'JP':['JP'],'AU':['AU']};
+function regionOf(cc) { return REGION_OF[cc] || cc; }
+
+// ---------- 数据预处理 ----------
+const ROWS = DATA.rows;
+const MONTHS = DATA.months;
+
+// ASIN -> 产品系列/产品名 (云端映射同步前先用内嵌, 同步后刷新)
+const EMBED_MAP = __MAP_JSON__;
+function embeddedMetaOf(a) {
+  const arr = (EMBED_MAP && Array.isArray(EMBED_MAP.asinMap)) ? EMBED_MAP.asinMap : [];
+  for (const x of arr) if (x && x.asin === a) return { series: x.series || '无', name: x.name || '无' };
+  return { series: '无', name: '无' };
+}
+function asinMetaOf(a) {
+  if (a === WOOT_ASIN) return { series: 'Woot', name: 'Woot 店铺活动' };
+  if (!a) return { series: '无', name: '无' };
+  try {
+    const raw = localStorage.getItem('pc_asinmap');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        // 同 ASIN 多国家: 国家未匹配时取任一映射 (月度行本身带国家, 优先精确国家)
+        let hit = null;
+        for (const x of arr) if (x && x.asin === a) { hit = x; break; }
+        if (hit) return { series: hit.series || '无', name: hit.name || '无' };
+      }
+    }
+  } catch (e) {}
+  return embeddedMetaOf(a);
+}
+// 行级 meta (按 asin+国家 精确匹配优先)
+function rowMeta(r) {
+  if (r.asin === WOOT_ASIN) return { series: 'Woot', name: 'Woot 店铺活动' };
+  // JoyBuy 行没有 ASIN，用行内自带的 系列/品名（映射表里查不到）
+  if (platOf(r) === 'joybuy') return { series: r.series || '无', name: r.name || '无' };
+  if (!r.asin) return { series: '无', name: '无' };
+  try {
+    const raw = localStorage.getItem('pc_asinmap');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        let hit = null, anyHit = null;
+        for (const x of arr) {
+          if (!x || x.asin !== r.asin) continue;
+          anyHit = anyHit || x;
+          if ((x.country || 'EU') === r.cc) { hit = x; break; }
+        }
+        const m = hit || anyHit;
+        if (m) return { series: m.series || '无', name: m.name || '无' };
+      }
+    }
+  } catch (e) {}
+  return embeddedMetaOf(r.asin);
+}
+// ---------- Woot 店铺数据并入 (并入 US, 美元; 按子 ASIN 归到对应产品) ----------
+// 逐日记录精确落到当天(自然月内直接累加); 周/月汇总记录按自然月重叠天数比例分摊。未识别 ASIN → 伪 ASIN WOOT-STORE。
+const WOOT_ASIN = 'WOOT-STORE';
+// ---------- Woot 毛利接入口 (2026-10-10, 采购价支持「每行可填」) ----------
+// 用户口径: 采购价 = Woot 付给我们的**供货价**(收入侧); 报表 sales 是零售价(≈1,899.98/台), 不能当收入。
+//   公式: Woot 毛利 = Σ(采购价 × 订单量) − 产品成本 × 订单量 − 运费 × 订单量 − Woot 广告费
+// 采购价取值: **该行自己的 price 优先**(上传时表里带「采购价/供货价」列, 或在「Woot 数据管理」列表逐行改)
+//   → 该行没填才用「默认采购价」(WOOT_PRICE, 默认 1380)。所以聚合的是「采购价收入」而不是「默认价 × 订单量」。
+// 做法: 给 Woot 行造一组「等效利润字段」(pSales/pCost/pN) —— aggMonth / profitOf 一行都不用改,
+//   广告费由 a.adCost 统一扣(其中已含 Woot 广告费)。
+// ⚠️ 未配成本的 ASIN 不写 pN → profitOf 返回 null → 毛利显示 —。
+//   按 0 成本算会把 Woot 毛利显示成「采购价全额」(虚高), 宁可留白也不给错数。
+// (必须在 wootAllocByAsin 之前定义: 分摊时就要按行取采购价算收入)
+const WOOT_CFG = (function(){
+  try { const j = JSON.parse(localStorage.getItem('pc_woot_cfg') || 'null'); return (j && typeof j === 'object') ? j : {}; }
+  catch (e) { return {}; }
+})();
+const WOOT_PRICE = Number(WOOT_CFG.price) > 0 ? Number(WOOT_CFG.price) : 1380;   // 默认采购价(行内未填时兜底)
+function wootPriceOf(v){ const p = Number(v); return p > 0 ? p : WOOT_PRICE; }   // 逐行采购价(空 → 默认价)
+// Woot 成本解析 (2026-10-13): ①「Woot 成本设置」逐 ASIN 手工配置优先
+//   ② 未配置 → 回退「产品关系管理」: asinMap 匹配到的产品名 → 成本表 costRMB(采购成本) 与
+//      headRMB.US(头程运费), 再 ÷ (CNY/USD, 取最新可用月份) 折成 USD/台
+//   两处都没有 → null(该 ASIN 不入毛利 —— 不按 0 成本算, 否则毛利虚高)
+function wootCnyPerUsd(){
+  const ks = Object.keys(FX || {}).sort();
+  const ym = ks.length ? ks[ks.length - 1] : null;
+  const r = (ym && FX[ym] && Number(FX[ym].USD)) || (typeof FX_FB !== 'undefined' ? Number(FX_FB.USD) : 0);
+  return r > 0 ? r : 0;
+}
+function wootCostFromMap(asin){
+  const meta = (typeof asinMetaOf === 'function') ? asinMetaOf(asin) : null;
+  const name = meta && meta.name;
+  const costRmb = (name && COSTRMB && Number(COSTRMB[name])) ? Number(COSTRMB[name]) : 0;
+  if (!(costRmb > 0)) return null;
+  const rate = wootCnyPerUsd();
+  if (!rate) return null;
+  const headRmb = (typeof headRmbOf === 'function') ? headRmbOf(asin, 'US') : 0;
+  return { unit: costRmb / rate, freight: headRmb > 0 ? headRmb / rate : 0, src: 'map' };
+}
+function wootUnitCost(asin){
+  const c = (WOOT_CFG.cost || {})[asin];
+  if (c) return { unit: Number(c.unit) || 0, freight: Number(c.freight) || 0, src: 'cfg' };
+  return wootCostFromMap(asin);
+}
+function wootProfitOf(orders, asin, price){
+  if (!orders) return 0;
+  const c = wootUnitCost(asin);
+  if (!c) return null;      // 未配成本 → 算不出
+  return wootPriceOf(price) * orders - (c.unit + c.freight) * orders;
+}
+function wootEntriesLocal(){ try { const a = JSON.parse(localStorage.getItem('pc_woot') || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+function wootLen(a, b){ return Math.round((new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z')) / 86400000) + 1; }
+// rev = Σ(该行采购价 × 订单量 × 分摊系数) —— 毛利口径的收入侧(逐行价格)
+function wootAllocByAsin(es, qs, qe){
+  const out = new Map();
+  for (const en of es) {
+    const L = wootLen(en.start, en.end); if (!L) continue;
+    const s = en.start > qs ? en.start : qs, e = en.end < qe ? en.end : qe;
+    if (s > e) continue;
+    const k = (Math.round((new Date(e+'T00:00:00Z') - new Date(s+'T00:00:00Z')) / 86400000) + 1) / L;
+    const key = en.asin || WOOT_ASIN;
+    let o = out.get(key);
+    if (!o) { o = { orders:0, sales:0, adCost:0, adClicks:0, adOrders:0, adImpr:0, adSales:0, rev:0 }; out.set(key, o); }
+    const m = en.metrics || {};
+    o.orders += (+m.orders || 0) * k;
+    o.sales += (+m.sales || 0) * k; o.adCost += (+m.adCost || 0) * k; o.adClicks += (+m.adClicks || 0) * k;
+    o.adOrders += (+m.adOrders || 0) * k; o.adImpr += (+m.adImpr || 0) * k; o.adSales += (+m.adSales || 0) * k;
+    o.rev += wootPriceOf(en.price) * (+m.orders || 0) * k;    // 采购价(每行可填) × 订单量
+  }
+  return out;
+}
+(function injectWootMonthly(){
+  const es = wootEntriesLocal();
+  if (!es.length) return;
+  for (const mo of MONTHS) {
+    const y = +mo.ym.slice(0,4), m = +mo.ym.slice(5,7);
+    const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const qs = mo.ym + '-01', qe = mo.ym + '-' + String(last).padStart(2,'0');
+    const alloc = wootAllocByAsin(es, qs, qe);
+    for (const [asin, al] of alloc) {
+      const od = Math.round(al.orders);
+      if (!(al.sales || od || al.adCost || al.adClicks || al.adOrders || al.adImpr || al.adSales)) continue;
+      // Woot 等效利润字段(见上方「Woot 毛利接入口」): pSales = 该月采购价收入(逐行价格, 见 al.rev);
+      //   pCost = **成本负数**(与 ERP「费用为负」一致) —— 不能写成「默认价口径毛利 − 收入」,
+      //   那在「逐行采购价 ≠ 默认价」时会算错(2026-10-10 被 test_woot_rowprice 抓到)。
+      //   订单量取整后同比例缩放, 保证 pSales/units == 加权平均单台采购价
+      //   未配成本的 ASIN → 不写 pN, 该行毛利显示 —
+      const wc = wootUnitCost(asin);
+      const wRev = al.orders ? al.rev * (od / al.orders) : 0;
+      // pHead = 头程(wootCfg.freight 即头程 USD/台) × 订单量 —— 头程% 列用
+      // ⚠️ 2026-10-12: 头程正式计入毛利(profitOf 减 pHead)后, pCost **不能再含运费** —— 否则
+      //    wootProfitOf 已扣一次、pHead 再扣一次 → 单台虚减 freight(test_woot_margin 抓过)。
+      //    「成本」列=产品成本、「头程」列=运费, 两者之和与改造前一致。
+      // ⚠️ 必须给全 profitOf() **直接相加**的字段(promo/comm/fba/storage/other) —— 缺一个就是 NaN。
+      //    此前 pN 恒 0 时 profitOf() 会提前 return null, 把这层缺字段掩盖了;
+      //    2026-10-13 启用「产品关系管理」成本回退后 Woot 行首次真正入账, 缺字段立刻表现为
+      //    「合并视图 / 单看 Woot 的毛利 = NaN」。(aggMonth 内部都有 ||0, 所以只有 profitOf 这条路径炸)
+      const wmar = (!wc || od <= 0) ? {} : { pSales: wRev, pPromo: 0, pComm: 0, pFba: 0,
+        pCost: -(wc.unit) * od, pStorage: 0, pOther: 0, pN: 1, pQty: od, pHead: wc.freight * od };
+      ROWS.push({ ym: mo.ym, cc: 'US', asin: asin,
+        sessions: 0, mob: 0, brw: 0, pv: 0, units: od, b2b: 0, orders: od,
+        sales: al.sales, bbSum: 0, bbCnt: 0,
+        adClicks: Math.round(al.adClicks), adCost: al.adCost, adOrders: Math.round(al.adOrders), adSales: al.adSales, adImpr: Math.round(al.adImpr),
+        woot: true, channel: 'woot', ...wmar });
+    }
+  }
+})();
+
+const allCountries = Object.keys(COUNTRY_CN).sort();
+const asinList = [...new Set(ROWS.map(r => r.asin).filter(Boolean))].sort();
+// (ASIN→产品 映射块已于 2026-10-13 上移到「Woot 店铺数据并入」之前 MAPHOIST ——
+//  Woot 成本回退在**装配期**就要按 ASIN 解析产品名, 留在原处会踩 const 的 TDZ)
+const seriesList = [...new Set([...asinList.map(a => asinMetaOf(a).series), ...ROWS.filter(r => platOf(r) === 'joybuy').map(r => r.series || '无')])].sort((x, y) => x === '无' ? 1 : (y === '无' ? -1 : x.localeCompare(y, 'zh')));
+function namesIn(seriesSet) {
+  const names = new Set();
+  for (const r of ROWS) {
+    const m = rowMeta(r);
+    if (seriesSet && seriesSet.size && !seriesSet.has(m.series)) continue;
+    names.add(m.name);
+  }
+  return [...names].sort((x, y) => x === '无' ? 1 : (y === '无' ? -1 : x.localeCompare(y, 'zh')));
+}
+
+// ===== 云端映射同步 (Supabase): 拉最新映射写 localStorage 后刷新 =====
+(async function cloudMapSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.catalog) || !Array.isArray(j.asinMap)) return;
+    if (!j.catalog.length && !j.asinMap.length) return;
+    let curSig = null;
+    try { curSig = JSON.stringify({ catalog: JSON.parse(localStorage.getItem('pc_catalog') || '[]'), asinMap: JSON.parse(localStorage.getItem('pc_asinmap') || '[]') }); } catch (e) {}
+    const newSig = JSON.stringify({ catalog: j.catalog, asinMap: j.asinMap });
+    if (curSig === newSig) return;
+    localStorage.setItem('pc_catalog', JSON.stringify(j.catalog));
+    localStorage.setItem('pc_asinmap', JSON.stringify(j.asinMap));
+    location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端 Woot 数据同步：拉取最新 Woot 记录写本机后刷新（与映射同一存储行 data.woot）=====
+(async function cloudWootSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j) return;
+    let dirty = false;
+    // ① 成本设置(毛利口径)同步 —— Woot 成本由别人在 woot.html 录入, 不拉下来就只有录入者本人看得到
+    if (j.wootCfg && typeof j.wootCfg === 'object') {
+      const cfg = { price: Number(j.wootCfg.price) > 0 ? Number(j.wootCfg.price) : 1380,
+                    cost: (j.wootCfg.cost && typeof j.wootCfg.cost === 'object') ? j.wootCfg.cost : {} };
+      let curCfg = null;
+      try { curCfg = JSON.parse(localStorage.getItem('pc_woot_cfg') || 'null'); } catch (e) {}
+      if (JSON.stringify(cfg) !== JSON.stringify(curCfg)) { localStorage.setItem('pc_woot_cfg', JSON.stringify(cfg)); dirty = true; }
+    }
+    // ② Woot 记录同步(云端无 woot 键 = 旧数据 → 不动本机)
+    if (Array.isArray(j.woot)) {
+      let cur = null;
+      try { cur = JSON.parse(localStorage.getItem('pc_woot') || 'null'); } catch(e) {}
+      if (JSON.stringify(j.woot) !== JSON.stringify(Array.isArray(cur) ? cur : [])) {
+        localStorage.setItem('pc_woot', JSON.stringify(j.woot)); dirty = true;
+      }
+    }
+    if (dirty) location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端更新提示：静默轮询(60s / 切回前台)，发现新数据只在顶部提示，点击才刷新 =====
+// 用途：别人上传 Woot 报表或改动产品映射后，已经打开着的看板能主动告知，而不是等人自己发现。
+// 只提示、不自动刷新：看板筛选(国家/ASIN/系列/产品名)是内存状态，自动 reload 会清空用户正在看的筛选。
+//
+// 三路比对(缺一不可)：
+//   BASE_SIG  = 本页渲染时所依据的本机缓存快照
+//   localSig  = 此刻本机缓存          → 与本浏览器别的标签页(如 Woot 上传页)写入后立刻不同
+//   cloudSig  = 云端最新              → 别人在别的电脑上传/改映射后不同
+// 只看云端会漏掉「同一浏览器上传」场景：那时本机已被写新，但当前页面渲染的还是旧数据。
+(function cloudUpdateWatch(){
+  const SB_ROW = 'https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1';
+  const SB_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+  const POLL_MS = 60000;
+
+  function lsGet(k, dflt){
+    try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v === null ? dflt : v; } catch (e) { return dflt; }
+  }
+  // ★ 稳定序列化：对象的 key 先排序再拼 —— 两侧「同一份数据、不同键顺序」必须判为相等。
+  //   踩过的坑(2026-10-14)：云端 wootCfg 存的是 {"cost":{},"price":1380}，而看板 load 同步
+  //   会把它规范化成 {"price":1380,"cost":{}} 再写本机；JSON.stringify 保留插入顺序 ⇒
+  //   两串永不相等 ⇒ 判定「云端有新数据」永远成立 ⇒ 提示条常驻、点「立即刷新」也不消失。
+  function stable(v){
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') {
+      return '{' + Object.keys(v).sort().map(function(k){ return JSON.stringify(k) + ':' + stable(v[k]); }).join(',') + '}';
+    }
+    return JSON.stringify(v === undefined ? null : v);
+  }
+  // wootCfg 规范化：与看板 load 同步里的写法完全同款(price 兜底 1380 / cost 兜底 {})，确保两侧可比
+  function normCfg(c){
+    if (!c || typeof c !== 'object') return null;
+    return { price: Number(c.price) > 0 ? Number(c.price) : 1380,
+             cost: (c.cost && typeof c.cost === 'object') ? c.cost : {} };
+  }
+  function localSig(){
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    return stable(lsGet('pc_woot', [])) + '\u0001' + stable(lsGet('pc_catalog', [])) + '\u0001'
+      + stable(lsGet('pc_asinmap', [])) + '\u0001'
+      // 本机没有成本设置(广告看板不消费 wootCfg) ⇒ 该段恒为空、不参与判定，避免误报常驻
+      + (lc === null ? '' : stable(lc));
+  }
+  function cloudSig(j){
+    if (!j || !Array.isArray(j.woot)) return null;   // 云端仍是旧结构(无 woot 键) → 不提示
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    const cc = normCfg(j.wootCfg);
+    return stable(j.woot) + '\u0001'
+      + stable(Array.isArray(j.catalog) ? j.catalog : []) + '\u0001'
+      + stable(Array.isArray(j.asinMap) ? j.asinMap : []) + '\u0001'
+      // 云端缺 wootCfg 时沿用本机值 ⇒ 该段不参与判定(避免删配置后提示条永不消失)
+      + (lc === null ? '' : stable(cc === null ? lc : cc));
+  }
+
+  const BASE_SIG = localSig();
+  let bar = null, latest = null, offKey = null, cloudSigCache = null;
+  const keyOf = (cs, ls) => cs + '#' + ls;
+
+  function mk(tag, txt, css){
+    const e = document.createElement(tag);
+    if (txt !== null) e.textContent = txt;
+    e.style.cssText = css;
+    return e;
+  }
+  function ensureBar(){
+    if (bar) return bar;
+    bar = mk('div', null, 'position:fixed;z-index:2147483000;left:50%;top:12px;transform:translateX(-50%);display:none;align-items:center;gap:10px;max-width:92vw;padding:9px 12px;border-radius:10px;border:1px solid #854F0B;background:#FAEEDA;color:#412402;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:13px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.45');
+    bar.id = 'wbUpdateBar';
+    bar.setAttribute('role', 'status');
+    const label = mk('span', '云端数据已更新', 'font-weight:500;white-space:nowrap');
+    const btn = mk('button', '立即刷新', 'cursor:pointer;border:1px solid #854F0B;background:#fff;color:#412402;border-radius:6px;padding:3px 10px;font-size:12px;font-family:inherit;white-space:nowrap');
+    btn.type = 'button';
+    btn.title = '刷新页面载入最新数据（会重置当前筛选条件）';
+    btn.onclick = apply;
+    const x = mk('button', '×', 'cursor:pointer;border:0;background:transparent;color:#854F0B;font-size:16px;font-family:inherit;line-height:1;padding:0 2px');
+    x.type = 'button';
+    x.title = '本次不再提示';
+    x.onclick = function(){ offKey = keyOf(cloudSigCache, localSig()); hide(); };
+    bar.appendChild(label); bar.appendChild(btn); bar.appendChild(x);
+    (document.body || document.documentElement).appendChild(bar);
+    return bar;
+  }
+  function show(){ ensureBar().style.display = 'flex'; }
+  function hide(){ if (bar) bar.style.display = 'none'; }
+
+  function apply(){
+    const ls = localSig();
+    // 本机缓存已被别的标签页更新过(同浏览器上传场景) → 不用云端值回写，直接重载出新数据
+    if (ls === BASE_SIG && latest) {
+      try {
+        if (Array.isArray(latest.woot)) localStorage.setItem('pc_woot', JSON.stringify(latest.woot));
+        if (Array.isArray(latest.catalog)) localStorage.setItem('pc_catalog', JSON.stringify(latest.catalog));
+        if (Array.isArray(latest.asinMap)) localStorage.setItem('pc_asinmap', JSON.stringify(latest.asinMap));
+      } catch (e) {}
+    }
+    location.reload();
+  }
+
+  async function check(){
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 8000);
+      const r = await fetch(SB_ROW, { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }, signal: ctl.signal });
+      clearTimeout(t);
+      if (!r.ok) return;
+      const rows = await r.json();
+      const j = rows && rows[0] && rows[0].data;
+      const cs = cloudSig(j);
+      if (cs === null) return;
+      latest = j; cloudSigCache = cs;
+      const ls = localSig();
+      if (keyOf(cs, ls) === offKey) { hide(); return; }
+      if (cs === ls && ls === BASE_SIG) { hide(); return; }
+      show();
+    } catch (e) {}
+  }
+
+  setTimeout(check, 5000);
+  setInterval(check, POLL_MS);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
+})();
+// ---------- 筛选状态 ----------
+let selMonth = new Set();
+let selRegion = new Set();
+let selCountry = new Set();
+let selAsin = new Set();
+let selSeries = new Set();
+let selName = new Set();
+// 销售店铺(渠道): 空集 = 合并看。amazon = 看板原有数据(易仓) = Aliencell 官方店铺; woot = pc_woot 注入行。
+// ⚠️ 利润报表只有亚马逊店铺行 ⇒ Woot 没有易仓口径毛利，改由「产品关系管理」匹配产品成本后按 Woot 毛利公式单独计算
+//    （2026-10-13：手工配置优先，未配置则按 asinMap → 成本表 costRMB/headRMB 回退）。
+const CHANNELS = [
+  { id: 'amazon', label: 'Aliencell官方店铺' },
+  { id: 'woot',   label: 'Woot店铺' },
+];
+const CHANNEL_CN = { amazon: 'Aliencell官方店铺', woot: 'Woot店铺' };
+function channelOf(r) { return (r && r.channel === 'woot') ? 'woot' : 'amazon'; }
+let selChannel = new Set();
+// 平台(数据来源): 空集 = 全部平台。amazon = 亚马逊(易仓业务报告+广告+利润报表);
+// joybuy = JoyBuy 站点(UK/DE/NL/FR, Data Compass 月度聚合; 无广告数据、无利润报表行 → 相关列显示 —)。
+const PLATFORMS = [
+  { id: 'amazon', label: '🅰️ Amazon' },
+  { id: 'joybuy', label: '🛒 JoyBuy' },
+];
+const PLAT_CN = { amazon: '🅰️ Amazon', joybuy: '🛒 JoyBuy' };
+function platOf(r) { return (r && r.plat === 'joybuy') ? 'joybuy' : 'amazon'; }
+let selPlatform = new Set();
+
+// 过滤条件判定 (不含 month: 月份只影响表格, 不参与联动)
+function rowMatch(r, opt) {
+  const { channel, plat, region, country, asin, series, name } = opt || {};
+  if (channel !== null && channel !== undefined) { if (channel.size && !channel.has(channelOf(r))) return false; }
+  if (plat !== null && plat !== undefined) { if (plat.size && !plat.has(platOf(r))) return false; }
+  if (region !== null && region !== undefined) { if (region.size && !region.has(regionOf(r.cc))) return false; }
+  if (country !== null && country !== undefined) { if (country.size && !country.has(r.cc)) return false; }
+  if (asin !== null && asin !== undefined) { if (asin.size && !asin.has(r.asin)) return false; }
+  const m = rowMeta(r);
+  if (series !== null && series !== undefined) { if (series.size && !series.has(m.series)) return false; }
+  if (name !== null && name !== undefined) { if (name.size && !name.has(m.name)) return false; }
+  return true;
+}
+function filteredRows() { return ROWS.filter(r => rowMatch(r, { channel: selChannel, plat: selPlatform, region: selRegion, country: selCountry, asin: selAsin, series: selSeries, name: selName })); }
+
+// ---------- scope 联动 (始终计算, 返回 Set) ----------
+function regionScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, plat: selPlatform, region: null, country: null, asin: selAsin, series: selSeries, name: selName })) out.add(regionOf(r.cc));
+  return out;
+}
+function countryScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, plat: selPlatform, region: null, country: null, asin: selAsin, series: selSeries, name: selName })) out.add(r.cc);
+  return out;
+}
+function asinScope() {
+  const out = new Set();
+  // JoyBuy 行没有 ASIN ⇒ 跳过，否则 Set 里会混进 null/undefined
+  for (const r of ROWS) if (r.asin && rowMatch(r, { channel: selChannel, plat: selPlatform, region: selRegion, country: selCountry, asin: null, series: selSeries, name: selName })) out.add(r.asin);
+  return out;
+}
+function seriesScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, plat: selPlatform, region: selRegion, country: selCountry, asin: selAsin, series: null, name: selName })) out.add(rowMeta(r).series);
+  return out;
+}
+function nameScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, plat: selPlatform, region: selRegion, country: selCountry, asin: selAsin, series: selSeries, name: null })) out.add(rowMeta(r).name);
+  return out;
+}
+function pruneSelections() {
+  for (let i = 0; i < 3; i++) {
+    const rs = regionScope();
+    [...selRegion].forEach(rc => { if (!rs.has(rc)) selRegion.delete(rc); });
+    const cs = countryScope();
+    [...selCountry].forEach(c => { if (!cs.has(c)) selCountry.delete(c); });
+    // 地区↔国家同步: 有国家选中时, 地区自动跟随; 国家被修剪后地区也跟着变
+    if (selCountry.size > 0) {
+      const newRs = new Set();
+      selCountry.forEach(c => newRs.add(regionOf(c)));
+      const same = newRs.size === selRegion.size && [...newRs].every(r => selRegion.has(r));
+      if (!same) { selRegion.clear(); newRs.forEach(r => selRegion.add(r)); }
+    }
+    const as = asinScope();
+    [...selAsin].forEach(a => { if (!as.has(a)) selAsin.delete(a); });
+    const ss = seriesScope();
+    [...selSeries].forEach(s => { if (!ss.has(s)) selSeries.delete(s); });
+    const ns = nameScope();
+    [...selName].forEach(n => { if (!ns.has(n)) selName.delete(n); });
+  }
+}
+
+// ---------- 指标 (与周度汇总看板同口径) ----------
+const METRICS = [
+  { key:'sessions',     short:'买家访问次数', grp:'产品' },
+  { key:'mob_sessions', short:'移动应用会话', grp:'产品' },
+  { key:'brw_sessions', short:'浏览器会话',   grp:'产品' },
+  { key:'pv',           short:'页面浏览量',   grp:'产品' },
+  { key:'units',        short:'订单量',       grp:'产品' },
+  { key:'conv',         short:'转化率',       pct:true, grp:'产品' },
+  { key:'b2b_units',    short:'B2B订单数',    grp:'产品' },
+  { key:'orders',       short:'订单件数',     grp:'产品' },
+  { key:'sales',        short:'销售额',       money:true, grp:'产品' },
+  { key:'bb',           short:'BuyBox',       pct:true, grp:'产品' },
+  { key:'ad_spend',     short:'广告花费',     money:true, grp:'广告' },
+  { key:'ad_clicks',    short:'广告点击数',   grp:'广告' },
+  { key:'ad_orders',    short:'广告订单数',   grp:'广告' },
+  { key:'ad_sales',     short:'广告销售额',   money:true, grp:'广告' },
+  { key:'ad_conv',      short:'广告转化率',   pct:true, grp:'广告' },
+  { key:'ad_ctr',       short:'广告点击率',   pct:true, grp:'广告' },
+  { key:'ad_share',     short:'广告占比',     pct:true, grp:'广告' },
+  { key:'ad_roas',      short:'ROAS',         ratio:true, grp:'广告' },
+  { key:'ad_acos',      short:'ACOS',         pct:true, grp:'广告' },
+  // 毛利(RMB): 2026-10-12 第二轮新增, 紧邻「毛利」之前; 汇率与看板折算同源(FX[ym][目标币种])
+  { key:'profitRmb',    short:'毛利(RMB)',    rmb:true, grp:'毛利' },
+  { key:'profit',       short:'毛利',         money:true, grp:'毛利' },
+  { key:'margin',       short:'毛利率',       pct:true, grp:'毛利' },
+  { key:'costPct',      short:'成本%',        pct:true, grp:'毛利' },
+  { key:'fbaAbs',       short:'FBA',          money:true, grp:'毛利' },
+  { key:'fbaPct',       short:'FBA%',         pct:true, grp:'毛利' },
+  { key:'promoAbs',     short:'promotion',    money:true, grp:'毛利' },
+  { key:'promoPct',     short:'promotion%',   pct:true, grp:'毛利' },
+  { key:'storageAbs',   short:'仓储',         money:true, grp:'毛利' },
+  { key:'storagePct',   short:'仓储%',        pct:true, grp:'毛利' },
+  { key:'headAbs',      short:'头程',         money:true, grp:'毛利' },
+  { key:'headPct',      short:'头程%',        pct:true, grp:'毛利' },
+  { key:'otherAbs',     short:'其他费用',      money:true, grp:'毛利' },
+  { key:'otherPct',     short:'其他费用%',     pct:true, grp:'毛利' },
+  { key:'vatAbs',       short:'VAT',          money:true, grp:'毛利' },
+  { key:'vatPct',       short:'VAT%',         pct:true, grp:'毛利' },
+  // ---------- 2026-10-12 第一轮: 多渠道 / 剔除 / 测评费 ----------
+  { key:'mcfQty',       short:'多渠道销量',    grp:'毛利' },
+  { key:'mcfLoss',      short:'多渠道损失',    money:true, grp:'毛利' },
+  { key:'mcfAdj',       short:'其他渠道已剔除', money:true, grp:'毛利' },
+  { key:'reviewAbs',    short:'测评费',        money:true, grp:'毛利' },
+  // ---------- 2026-10-12 第二轮: FBA 库存费 8 细项(逐项单列; 入境货运费按用户口径不展示不计入) ----------
+  { key:'fbRetAbs',     short:'FBA退货处理费',          money:true, grp:'毛利' },
+  { key:'fbOthAbs',     short:'其他FBA库存和入境服务费', money:true, grp:'毛利' },
+  { key:'fbOvrAbs',     short:'超量费',                 money:true, grp:'毛利' },
+  { key:'fbConAbs',     short:'合仓费',                 money:true, grp:'毛利' },
+  { key:'fbCarAbs',     short:'合作承运费',             money:true, grp:'毛利' },
+  { key:'fbRemAbs',     short:'移除费用',               money:true, grp:'毛利' },
+  { key:'fbMstAbs',     short:'FBA月仓租费',            money:true, grp:'毛利' },
+  { key:'fbLstAbs',     short:'FBA长期仓租费',          money:true, grp:'毛利' },
+  // ---------- 2026-10-12 第二轮: 退款 ----------
+  { key:'refAbs',       short:'退款金额',      money:true, grp:'毛利' },
+  { key:'refPromo',     short:'促销折扣退款',  money:true, grp:'毛利' },
+  { key:'refComm',      short:'销售佣金退款',  money:true, grp:'毛利' },
+  { key:'refNetAbs',    short:'退款净额',      money:true, grp:'毛利' },
+  { key:'refRate',      short:'退款率',        pct:true, grp:'毛利' },
+];
+// 毛利口径: 毛利 = 报表销售额+促销折扣+销售佣金+配送费+商品成本+仓储分摊+其他费用分摊(含 5 项库存费)
+//           + FBA退货处理费 + 退款各项(减退款、加回促销折扣退款与销售佣金退款)
+//           − VAT(EU/UK) − 头程(成本表预估) − 测评费 + 其他渠道剔除加回 − 本看板广告花费
+// (易仓利润报表按结算日期归属; 无利润报表数据的月份/站点显示 —)
+// 2026-10-12 新增: 入境货运费(仅展示, 不入毛利) / 多渠道销量·损失 / 其他渠道已剔除 / 测评费
+function profitOf(a) {
+  if (!a || !a.pN) return null;
+  return a.pSales + a.pPromo + a.pComm + a.pFba + a.pCost + a.pStorage + a.pOther
+         + (a.pFbRet || 0)
+         + (a.pRefSales || 0) + (a.pRefShip || 0) + (a.pRefPromo || 0) + (a.pRefComm || 0) + (a.pRefFba || 0)
+         - (a.pVat || 0) - (a.pHead || 0) + (a.pMcAdj || 0) - (a.pReview || 0) - a.adCost;
+}
+function marginOf(a) {
+  const p = profitOf(a);
+  return (p !== null && a.pSales > 0) ? p / a.pSales * 100 : null;
+}
+// 毛利(RMB): 目标币种毛利 × (CNY per 1 目标币种); 汇率与看板其余折算同源
+function rmbOf(a) {
+  if (!a || !a.ym) return null;
+  const p = profitOf(a);
+  if (p === null) return null;
+  const cur = targetCur();
+  const rt = (FX[a.ym] || {})[cur] || FX_FB[cur];
+  return rt ? p * rt : null;
+}
+// 月聚合
+function aggMonth(ym, rows) {
+  const a = { ym, sessions:0, mob:0, brw:0, pv:0, units:0, b2b:0, orders:0, sales:0,
+    bbSum:0, bbCnt:0, adClicks:0, adCost:0, adOrders:0, adSales:0, adImpr:0, bizRows:0, adRows:0,
+    pSales:0, pPromo:0, pComm:0, pFba:0, pCost:0, pStorage:0, pOther:0, pN:0, pMiss:0, pQty:0, pHead:0, pVat:0,
+    pMqty:0, pMcost:0, pMhead:0, pMship:0, pMcAdj:0, pReview:0,
+    pFbRet:0, pFbOth:0, pFbOvr:0, pFbCon:0, pFbCar:0, pFbRem:0, pFbMst:0, pFbLst:0,
+    pRefSales:0, pRefPromo:0, pRefComm:0, pRefShip:0, pRefFba:0, pRefQty:0 };
+  for (const r of rows) {
+    if (r.ym !== ym) continue;
+    a.sessions += r.sessions; a.mob += r.mob; a.brw += r.brw; a.pv += r.pv;
+    a.units += r.units; a.b2b += r.b2b; a.orders += r.orders; a.sales += fxv(r.sales, r.cc, ym);
+    a.bbSum += r.bbSum; a.bbCnt += r.bbCnt;
+    a.adClicks += r.adClicks; a.adCost += fxv(r.adCost, r.cc, ym); a.adOrders += r.adOrders; a.adSales += fxv(r.adSales, r.cc, ym); a.adImpr += r.adImpr;
+    a.pSales += fxv(r.pSales || 0, r.cc, ym); a.pPromo += fxv(r.pPromo || 0, r.cc, ym);
+    a.pComm += fxv(r.pComm || 0, r.cc, ym); a.pFba += fxv(r.pFba || 0, r.cc, ym);
+    a.pCost += fxv(r.pCost || 0, r.cc, ym); a.pStorage += fxv(r.pStorage || 0, r.cc, ym);
+    a.pOther += fxv(r.pOther || 0, r.cc, ym);
+    a.pVat += fxv(r.pVat || 0, r.cc, ym);              // EU/UK 增值税(正数, 从毛利扣)
+    a.pMcost += fxv(r.pMcost || 0, r.cc, ym); a.pMhead += fxv(r.pMhead || 0, r.cc, ym);
+    a.pMship += fxv(r.pMship || 0, r.cc, ym);
+    a.pMcAdj += fxv(r.pMcAdj || 0, r.cc, ym);          // 其他渠道剔除加回(正数)
+    a.pReview += fxv(r.pReview || 0, r.cc, ym);        // 测评费(正数, 费用)
+    // ---- 2026-10-12 第二轮: FBA 库存费 8 细项(负) + 退款(按 ERP 原符号) ----
+    a.pFbRet += fxv(r.pFbRet || 0, r.cc, ym); a.pFbOth += fxv(r.pFbOth || 0, r.cc, ym);
+    a.pFbOvr += fxv(r.pFbOvr || 0, r.cc, ym); a.pFbCon += fxv(r.pFbCon || 0, r.cc, ym);
+    a.pFbCar += fxv(r.pFbCar || 0, r.cc, ym); a.pFbRem += fxv(r.pFbRem || 0, r.cc, ym);
+    a.pFbMst += fxv(r.pFbMst || 0, r.cc, ym); a.pFbLst += fxv(r.pFbLst || 0, r.cc, ym);
+    a.pRefSales += fxv(r.pRefSales || 0, r.cc, ym); a.pRefPromo += fxv(r.pRefPromo || 0, r.cc, ym);
+    a.pRefComm += fxv(r.pRefComm || 0, r.cc, ym); a.pRefShip += fxv(r.pRefShip || 0, r.cc, ym);
+    a.pRefFba += fxv(r.pRefFba || 0, r.cc, ym);
+    a.pMqty += (r.pMqty || 0);
+    a.pN += (r.pN || 0); a.pMiss += (r.pMiss || 0);
+    a.pQty += (r.pQty || 0);
+    a.pRefQty += (r.pRefQty || 0);                      // 退款件数(退款率分子)
+    if (r.pHead) a.pHead += fxv(r.pHead, r.cc, ym);              // Woot 行: 头程已是 USD, 按行币种折算
+    else {                                                        // 官方行: 成本表头程RMB × 利润销量 → 目标币种
+      const hr = headRmbOf(r.asin, r.cc);
+      if (hr && r.pQty) a.pHead += fxHeadCny(hr * r.pQty, ym);
+    }
+    if (r.sessions || r.units || r.sales) a.bizRows++;
+    if (r.adClicks || r.adCost) a.adRows++;
+  }
+  return a;
+}
+function monthVal(a, key) {
+  if (!a) return null;
+  const bizOk = a.bizRows > 0, adOk = a.adRows > 0;
+  switch (key) {
+    case 'sessions': return bizOk ? a.sessions : null;
+    case 'mob_sessions': return bizOk ? a.mob : null;
+    case 'brw_sessions': return bizOk ? a.brw : null;
+    case 'pv': return bizOk ? a.pv : null;
+    case 'units': return bizOk ? a.units : null;
+    case 'conv': return bizOk && a.sessions > 0 ? a.units / a.sessions * 100 : null;
+    case 'b2b_units': return bizOk ? a.b2b : null;
+    case 'orders': return bizOk ? a.orders : null;
+    case 'sales': return bizOk ? a.sales : null;
+    case 'bb': return bizOk && a.bbCnt ? a.bbSum / a.bbCnt : null;
+    case 'ad_spend': return adOk ? a.adCost : null;
+    case 'ad_clicks': return adOk ? a.adClicks : null;
+    case 'ad_orders': return adOk ? a.adOrders : null;
+    case 'ad_sales': return adOk ? a.adSales : null;
+    case 'ad_conv': return adOk && a.adClicks > 0 ? a.adOrders / a.adClicks * 100 : null;
+    case 'ad_ctr': return adOk && a.adImpr > 0 ? a.adClicks / a.adImpr * 100 : null;
+    case 'ad_share': return adOk && a.sales > 0 ? a.adCost / a.sales * 100 : null;   // 2026-10-13: 加 adOk —— 无广告数据时该列应与其它广告列一致显示 —（原写 bizOk 会让 JoyBuy/无广告月显示 0.00%）
+    case 'ad_roas': return adOk && a.adCost > 0 ? a.adSales / a.adCost : null;
+    case 'ad_acos': return adOk && a.adSales > 0 ? a.adCost / a.adSales * 100 : null;
+    case 'profitRmb': return a.ym ? rmbOf(a) : (a.pN ? (a.pRmb === undefined ? null : a.pRmb) : null);
+    case 'profit': return profitOf(a);
+    case 'margin': return marginOf(a);
+    // ---------- 费用占比 (2026-10-10 用户口径): 分母=利润报表销售额; 除成本外同时给绝对值 ----------
+    case 'costPct':    return a.pN && a.pSales > 0 ? -a.pCost / a.pSales * 100 : null;
+    case 'fbaAbs':     return a.pN ? -a.pFba : null;
+    case 'fbaPct':     return a.pN && a.pSales > 0 ? -a.pFba / a.pSales * 100 : null;
+    case 'promoAbs':   return a.pN ? -a.pPromo : null;
+    case 'promoPct':   return a.pN && a.pSales > 0 ? -a.pPromo / a.pSales * 100 : null;
+    case 'storageAbs': return a.pN ? -a.pStorage : null;
+    case 'storagePct': return a.pN && a.pSales > 0 ? -a.pStorage / a.pSales * 100 : null;
+    case 'headAbs':    return a.pN ? a.pHead : null;
+    case 'headPct':    return a.pN && a.pSales > 0 ? a.pHead / a.pSales * 100 : null;
+    case 'otherAbs':   return a.pN ? -a.pOther : null;
+    case 'otherPct':   return a.pN && a.pSales > 0 ? -a.pOther / a.pSales * 100 : null;
+    case 'vatAbs':     return a.pN ? (a.pVat || 0) : null;
+    case 'vatPct':     return a.pN && a.pSales > 0 ? (a.pVat || 0) / a.pSales * 100 : null;
+    // ---------- 2026-10-12 第一轮: 多渠道 / 剔除 / 测评费 ----------
+    case 'mcfQty':     return a.pN ? (a.pMqty || 0) : null;
+    case 'mcfCost':    return a.pN ? -(a.pMcost || 0) : null;
+    case 'mcfHead':    return a.pN ? -(a.pMhead || 0) : null;
+    case 'mcfShip':    return a.pN ? -(a.pMship || 0) : null;
+    case 'mcfLoss':    return a.pN ? -((a.pMcost || 0) + (a.pMhead || 0) + (a.pMship || 0)) : null;
+    case 'mcfAdj':     return a.pN ? (a.pMcAdj || 0) : null;
+    case 'reviewAbs':  return a.pN ? (a.pReview || 0) : null;
+    case 'reviewPct':  return a.pN && a.pSales > 0 ? (a.pReview || 0) / a.pSales * 100 : null;
+    // ---------- 2026-10-12 第二轮: FBA 库存费 8 细项(取正显示) ----------
+    //   fbRet 独立计入毛利; fbMst/fbLst 构成「仓储」列; 其余 5 项并入「其他费用」列, 此处仅列明细
+    case 'fbRetAbs':   return a.pN ? -(a.pFbRet || 0) : null;
+    case 'fbOthAbs':   return a.pN ? -(a.pFbOth || 0) : null;
+    case 'fbOvrAbs':   return a.pN ? -(a.pFbOvr || 0) : null;
+    case 'fbConAbs':   return a.pN ? -(a.pFbCon || 0) : null;
+    case 'fbCarAbs':   return a.pN ? -(a.pFbCar || 0) : null;
+    case 'fbRemAbs':   return a.pN ? -(a.pFbRem || 0) : null;
+    case 'fbMstAbs':   return a.pN ? -(a.pFbMst || 0) : null;
+    case 'fbLstAbs':   return a.pN ? -(a.pFbLst || 0) : null;
+    // ---------- 2026-10-12 第二轮: 退款 ----------
+    case 'refAbs':     return a.pN ? -(a.pRefSales || 0) : null;
+    case 'refPromo':   return a.pN ? (a.pRefPromo || 0) : null;
+    case 'refComm':    return a.pN ? -(a.pRefComm || 0) : null;
+    case 'refNetAbs':  return a.pN ? -((a.pRefSales || 0) + (a.pRefShip || 0) + (a.pRefPromo || 0) + (a.pRefComm || 0) + (a.pRefFba || 0)) : null;
+    case 'refRate':    return a.pN && a.pQty > 0 ? (a.pRefQty || 0) / a.pQty * 100 : null;
+  }
+  return null;
+}
+function curSym() {
+  const ccs = new Set();
+  if (selCountry.size) selCountry.forEach(c => ccs.add(c));
+  else if (selRegion.size) allCountries.forEach(c => { if (selRegion.has(regionOf(c))) ccs.add(c); });
+  else allCountries.forEach(c => ccs.add(c));
+  const cs = new Set(); ccs.forEach(c => { if (CUR_OF[c]) cs.add(CUR_OF[c]); });
+  if (cs.size === 1) return CUR_SYM[[...cs][0]] || '$';       // 单一币种 → 该币种符号
+  const rs = new Set(); ccs.forEach(c => { if (REGION_OF[c]) rs.add(REGION_OF[c]); });
+  if (rs.size === 1) return CUR_SYM[REGION_CUR[[...rs][0]]] || '$';  // 单一地区多币 → 地区主导货币
+  return '$';                                                   // 跨地区混合 → 统一美元
+}
+function targetCur() {
+  const ccs = new Set();
+  if (selCountry.size) selCountry.forEach(c => ccs.add(c));
+  else if (selRegion.size) allCountries.forEach(c => { if (selRegion.has(regionOf(c))) ccs.add(c); });
+  else allCountries.forEach(c => ccs.add(c));
+  const cs = new Set(); ccs.forEach(c => { if (CUR_OF[c]) cs.add(CUR_OF[c]); });
+  if (cs.size === 1) return [...cs][0];
+  const rs = new Set(); ccs.forEach(c => { if (REGION_OF[c]) rs.add(REGION_OF[c]); });
+  if (rs.size === 1) return REGION_CUR[[...rs][0]] || 'USD';
+  return 'USD';
+}
+function fxv(v, cc, ym) {  // 国家 cc 的本币金额 → 当前目标币种 (按 ym 月汇率, 缺失回退)
+  if (!v) return v || 0;
+  const from = CUR_OF[cc] || 'USD', to = targetCur();
+  if (from === to) return v;
+  const fxm = FX[ym] || {};
+  const rf = fxm[from] || FX_FB[from], rt = fxm[to] || FX_FB[to];
+  if (!rf || !rt) return v;
+  return v * rf / rt;
+}
+// -0 归一为 0 (否则 toLocaleString 会渲染成 "$-0.00")
+function nz(v) { return Number(v) === 0 ? 0 : v; }
+function fmtCell(v, m) {
+  if (v === null || v === undefined) return '<span class="cell-na">—</span>';
+  if (m.rmb) return '¥' + nz(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  const cs = curSym();
+  if (m.money) return cs + nz(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  if (m.ratio) return v.toFixed(2) + 'x';
+  if (m.pct) return v.toFixed(2) + '%';
+  return Math.round(v).toLocaleString();
+}
+
+// ---------- KPI 5 卡 (可点击替换, localStorage pc_kpi5m) ----------
+const KPI_METRICS = [
+  { key:'units',        label:'订单量',       icon:'📦' },
+  { key:'sales',        label:'销售额',       icon:'💰' },
+  { key:'conv',         label:'转化率 CVR',   icon:'🎯' },
+  { key:'sessions',     label:'买家访问次数', icon:'👀' },
+  { key:'mob_sessions', label:'移动应用会话', icon:'📱' },
+  { key:'brw_sessions', label:'浏览器会话',   icon:'💻' },
+  { key:'pv',           label:'页面浏览量',   icon:'📄' },
+  { key:'b2b_units',    label:'B2B订单数',    icon:'🏭' },
+  { key:'orders',       label:'订单件数',     icon:'🧾' },
+  { key:'bb',           label:'BuyBox 占有率', icon:'🏆' },
+  { key:'ad_spend',     label:'广告花费',     icon:'📢' },
+  { key:'ad_clicks',    label:'广告点击数',   icon:'🖱' },
+  { key:'ad_orders',    label:'广告订单数',   icon:'🛒' },
+  { key:'ad_sales',     label:'广告销售额',   icon:'💵' },
+  { key:'ad_conv',      label:'广告转化率',   icon:'📈' },
+  { key:'ad_ctr',       label:'广告点击率',   icon:'📊' },
+  { key:'ad_share',     label:'广告占比',     icon:'🧮' },
+  { key:'ad_roas',      label:'ROAS',         icon:'🚀' },
+  { key:'ad_acos',      label:'ACOS',         icon:'💹' },
+  { key:'profitRmb',    label:'毛利(RMB)',    icon:'🇨🇳' },
+  { key:'profit',       label:'毛利',         icon:'💯' },
+  { key:'margin',       label:'毛利率',       icon:'🧾' },
+];
+let kpiKeys = ['units', 'sales', 'ad_spend', 'ad_roas', 'conv'];
+try {
+  const s = JSON.parse(localStorage.getItem('pc_kpi5m') || 'null');
+  if (Array.isArray(s) && s.length === 5 && s.every(k => KPI_METRICS.some(m => m.key === k))) kpiKeys = s;
+} catch (e) {}
+function saveKpiKeys() { try { localStorage.setItem('pc_kpi5m', JSON.stringify(kpiKeys)); } catch (e) {} }
+function calcKpis() {
+  const rows = filteredRows();
+  const monthsSel = MONTHS.filter(m => selMonth.size === 0 || selMonth.has(m.ym));
+  const tot = { sessions:0, mob:0, brw:0, pv:0, units:0, b2b:0, orders:0, sales:0, bbSum:0, bbCnt:0,
+    adClicks:0, adCost:0, adOrders:0, adSales:0, adImpr:0, bizRows:0, adRows:0,
+    pSales:0, pPromo:0, pComm:0, pFba:0, pCost:0, pStorage:0, pOther:0, pN:0, pMiss:0, pQty:0, pHead:0, pVat:0,
+    pMqty:0, pMcost:0, pMhead:0, pMship:0, pMcAdj:0, pReview:0, pRmb:0,
+    pFbRet:0, pFbOth:0, pFbOvr:0, pFbCon:0, pFbCar:0, pFbRem:0, pFbMst:0, pFbLst:0,
+    pRefSales:0, pRefPromo:0, pRefComm:0, pRefShip:0, pRefFba:0, pRefQty:0 };
+  for (const m of monthsSel) {
+    const a = aggMonth(m.ym, rows);
+    tot.sessions += a.sessions; tot.mob += a.mob; tot.brw += a.brw; tot.pv += a.pv;
+    tot.units += a.units; tot.b2b += a.b2b; tot.orders += a.orders; tot.sales += a.sales;
+    tot.bbSum += a.bbSum; tot.bbCnt += a.bbCnt;
+    tot.adClicks += a.adClicks; tot.adCost += a.adCost; tot.adOrders += a.adOrders; tot.adSales += a.adSales; tot.adImpr += a.adImpr;
+    tot.bizRows += a.bizRows; tot.adRows += a.adRows;
+    tot.pSales += a.pSales; tot.pPromo += a.pPromo; tot.pComm += a.pComm; tot.pFba += a.pFba;
+    tot.pCost += a.pCost; tot.pStorage += a.pStorage; tot.pOther += a.pOther; tot.pVat += (a.pVat || 0); tot.pN += a.pN; tot.pMiss += a.pMiss;
+    tot.pQty += a.pQty; tot.pHead += a.pHead;
+    tot.pMqty += (a.pMqty || 0);
+    tot.pMcost += (a.pMcost || 0); tot.pMhead += (a.pMhead || 0); tot.pMship += (a.pMship || 0);
+    tot.pMcAdj += (a.pMcAdj || 0); tot.pReview += (a.pReview || 0);
+    tot.pFbRet += (a.pFbRet || 0); tot.pFbOth += (a.pFbOth || 0); tot.pFbOvr += (a.pFbOvr || 0);
+    tot.pFbCon += (a.pFbCon || 0); tot.pFbCar += (a.pFbCar || 0); tot.pFbRem += (a.pFbRem || 0);
+    tot.pFbMst += (a.pFbMst || 0); tot.pFbLst += (a.pFbLst || 0);
+    tot.pRefSales += (a.pRefSales || 0); tot.pRefPromo += (a.pRefPromo || 0); tot.pRefComm += (a.pRefComm || 0);
+    tot.pRefShip += (a.pRefShip || 0); tot.pRefFba += (a.pRefFba || 0); tot.pRefQty += (a.pRefQty || 0);
+    // 毛利(RMB): 逐月按各自月份汇率折算后累加(跨月不能只用一个汇率)
+    tot.pRmb += (rmbOf(a) || 0);
+  }
+  return { tot, monthsSel };
+}
+function renderKpis() {
+  const { tot, monthsSel } = calcKpis();
+  const cs = curSym();
+  const row = document.getElementById('kpiRow');
+  row.innerHTML = kpiKeys.map((k, idx) => {
+    const def = KPI_METRICS.find(m => m.key === k);
+    const v = monthVal(tot, k);
+    const mDef = METRICS.find(m => m.key === k);
+    const txt = v === null ? '—' : (mDef.rmb ? '¥' + nz(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) : mDef.money ? cs + nz(v).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) : mDef.ratio ? v.toFixed(2) + 'x' : mDef.pct ? v.toFixed(2) + '%' : Math.round(v).toLocaleString());
+    return `<div class="kpi">
+      <button class="kpi-edit" onclick="toggleKpiDropdown(event, ${idx})">✎</button>
+      <div class="kpi-dropdown" id="kpiDD${idx}">
+        ${KPI_METRICS.map(m => `<div class="dd-opt" onclick="swapKpi(${idx}, '${m.key}')"><span class="opt-name">${m.icon} ${m.label}</span></div>`).join('')}
+      </div>
+      <div class="kpi-label">${def.icon} ${def.label}</div>
+      <div class="kpi-value">${txt}</div>
+      <div class="kpi-sub">${monthsSel.length ? monthsSel.length + ' 个月合计' : '全部月份'}</div>
+    </div>`;
+  }).join('');
+}
+function toggleKpiDropdown(e, idx) {
+  e.stopPropagation();
+  document.querySelectorAll('.kpi-dropdown').forEach(d => { if (d.id !== 'kpiDD' + idx) d.classList.remove('open'); });
+  document.getElementById('kpiDD' + idx).classList.toggle('open');
+}
+document.addEventListener('click', () => { document.querySelectorAll('.kpi-dropdown.open').forEach(d => d.classList.remove('open')); });
+function swapKpi(idx, key) {
+  if (kpiKeys.includes(key)) { alert('该指标已在其他卡片显示'); return; }
+  kpiKeys[idx] = key; saveKpiKeys(); renderKpis();
+}
+
+// ---------- 表格 ----------
+function renderTable() {
+  const cs = curSym();
+  const monthsSel = MONTHS.filter(m => selMonth.size === 0 || selMonth.has(m.ym));
+  const rows = filteredRows();
+  const wrap = document.getElementById('tableWrap');
+  const nProd = METRICS.filter(m => m.grp === '产品').length;
+  const nAd = METRICS.filter(m => m.grp === '广告').length;
+  let html = `<table><thead><tr>
+    <th rowspan="2" class="frozen" style="z-index:3">月份<br><span style="font-weight:400;font-size:10px;color:#94a3b8">自然月(1日~月末)</span></th>
+    <th colspan="${nProd}" style="background:#f0fdf4;color:#166534">产品指标</th>
+    <th colspan="${nAd}" style="background:#f0f7ff;color:#1e40af">广告指标</th>
+    <th colspan="${METRICS.length - nProd - nAd}" style="background:#fffbeb;color:#92400e">毛利指标</th>
+  </tr><tr>`;
+  METRICS.forEach(m => { html += `<th style="${m.grp === '广告' ? 'background:#f0f7ff;color:#1e40af' : (m.grp === '毛利' ? 'background:#fffbeb;color:#92400e' : '')}">${m.short}</th>`; });
+  html += '</tr></thead><tbody>';
+  if (monthsSel.length === 0) {
+    html += `<tr><td colspan="${METRICS.length + 1}" class="empty">请至少选择一个月份</td></tr></tbody></table>`;
+    wrap.innerHTML = html; return;
+  }
+  // 合计行: 直接复用 calcKpis() 的合计累加器 —— 原本 renderTable 另有一份独立 acc,
+  // 2026-10-12 第二轮加字段时漏改它 ⇒ 合计行「毛利(RMB)/8 细项/退款」全显示 —, 且「毛利」与 KPI 卡不一致。
+  // 现在只保留一份累加口径(KPI 卡与合计行必然一致), 新增字段只需改 calcKpis。
+  const { tot } = calcKpis();
+  for (const mo of monthsSel) {
+    const a = aggMonth(mo.ym, rows);
+    const flag = mo.ongoing ? '<span class="m-flag ongoing">进行中</span>' : (mo.partial ? '<span class="m-flag partial">部分月</span>' : '');
+    html += `<tr>
+      <td class="frozen"><b>${mo.label}</b>${flag}<br><span class="m-day">${mo.span}${mo.daysWithData < mo.daysTotal ? ' · 有数据 ' + mo.daysWithData + '/' + mo.daysTotal + ' 天' : ''}</span></td>
+      ${METRICS.map(m => `<td>${fmtCell(monthVal(a, m.key), m)}</td>`).join('')}
+    </tr>`;
+  }
+  html += `<tr class="total-row"><td class="frozen">合计<br><span class="m-day">${monthsSel.length} 个月</span></td>
+    ${METRICS.map(m => `<td>${fmtCell(monthVal(tot, m.key), m)}</td>`).join('')}
+  </tr></tbody></table>`;
+  wrap.innerHTML = html;
+  const n = monthsSel.length;
+  document.getElementById('rangeBadge').textContent = `${n} 个月 · ${monthsSel[0].ym} ~ ${monthsSel[n-1].ym}`;
+}
+
+// ---------- 筛选面板 ----------
+function toggleDD(id) {
+  const el = document.getElementById(id);
+  const willOpen = !el.classList.contains('open');
+  document.querySelectorAll('.dd.open').forEach(d => { if (d.id !== id) d.classList.remove('open'); });
+  el.classList.toggle('open', willOpen);
+  if (id === 'ddAsin' && willOpen) { const s = document.getElementById('ddAsinSearch'); s.value = ''; setTimeout(() => s.focus(), 30); }
+  if ((id === 'ddSeries' || id === 'ddName') && willOpen) {
+    const s = document.getElementById(id === 'ddSeries' ? 'ddSeriesSearch' : 'ddNameSearch');
+    if (s) { s.value = ''; if (id === 'ddSeries') buildSeriesOptions(); else buildNameOptions(); setTimeout(() => s.focus(), 30); }
+  }
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dd') && !e.target.closest('.kpi')) document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+});
+function handleOptClick(e, set, key, render) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.ctrlKey || e.metaKey) { set.has(key) ? set.delete(key) : set.add(key); }
+  else {
+    if (set.has(key) && set.size === 1) set.clear();
+    else { set.clear(); set.add(key); }
+  }
+  render();
+}
+function setAll(kind, v) {
+  if (kind === 'channel') {
+    selChannel.clear();
+    if (v) CHANNELS.forEach(c => selChannel.add(c.id));
+    renderAll();
+    return;
+  }
+  if (kind === 'platform') {
+    selPlatform.clear();
+    if (v) PLATFORMS.forEach(p => selPlatform.add(p.id));
+    renderAll();
+    return;
+  }
+  if (kind === 'month') {
+    selMonth.clear();
+    if (v) MONTHS.forEach(m => selMonth.add(m.ym));
+  } else if (kind === 'region') {
+    selRegion.clear(); selCountry.clear();
+    if (v) {
+      regionScope().forEach(rc => selRegion.add(rc));
+      for (const r of ROWS) {
+        if (selRegion.has(regionOf(r.cc)) && rowMatch(r, { channel: selChannel, plat: selPlatform, region: null, country: null, asin: selAsin, series: selSeries, name: selName }))
+          selCountry.add(r.cc);
+      }
+    }
+  } else if (kind === 'country') {
+    selCountry.clear(); selRegion.clear();
+    if (v) {
+      countryScope().forEach(c => selCountry.add(c));
+      selCountry.forEach(cc => selRegion.add(regionOf(cc)));
+    }
+  } else if (kind === 'asin') {
+    selAsin.clear();
+    if (v) asinScope().forEach(a => selAsin.add(a));
+  } else if (kind === 'series') {
+    selSeries.clear();
+    if (v) seriesScope().forEach(s => selSeries.add(s));
+  } else if (kind === 'name') {
+    selName.clear();
+    if (v) nameScope().forEach(n => selName.add(n));
+  }
+  renderAll();
+}
+// 地区↔国家双向自动同步
+function regionOptClick(e, rc) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.ctrlKey || e.metaKey) { selRegion.has(rc) ? selRegion.delete(rc) : selRegion.add(rc); }
+  else {
+    if (selRegion.has(rc) && selRegion.size === 1) selRegion.clear();
+    else { selRegion.clear(); selRegion.add(rc); }
+  }
+  // 自动选中该地区内有数据的国家
+  selCountry.clear();
+  if (selRegion.size > 0) {
+    for (const r of ROWS) {
+      if (selRegion.has(regionOf(r.cc)) && rowMatch(r, { channel: selChannel, plat: selPlatform, region: null, country: null, asin: selAsin, series: selSeries, name: selName }))
+        selCountry.add(r.cc);
+    }
+  }
+  renderAll();
+}
+function countryOptClick(e, c) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.ctrlKey || e.metaKey) { selCountry.has(c) ? selCountry.delete(c) : selCountry.add(c); }
+  else {
+    if (selCountry.has(c) && selCountry.size === 1) selCountry.clear();
+    else { selCountry.clear(); selCountry.add(c); }
+  }
+  // 自动设置对应地区
+  selRegion.clear();
+  selCountry.forEach(cc => selRegion.add(regionOf(cc)));
+  renderAll();
+}
+function buildMonthOptions() {
+  const list = document.getElementById('ddMonthList');
+  list.innerHTML = MONTHS.map(m => {
+    const sel = selMonth.has(m.ym) ? ' sel' : '';
+    const flag = m.ongoing ? '进行中' : (m.partial ? '部分月' : '完整');
+    return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selMonth, '${m.ym}', renderAll)">
+      <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+      <span class="opt-name">${m.label}</span><span class="opt-sub">${flag} · ${m.span}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ddMonthSummary').textContent = selMonth.size === 0 ? '全部' : `已选 ${selMonth.size}/${MONTHS.length} 项`;
+}
+
+function buildChannelOptions() {
+  const list = document.getElementById('ddChannelList');
+  if (!list) return;
+  const hasWoot = ROWS.some(r => r.channel === 'woot');
+  const wootRows = ROWS.filter(r => r.channel === 'woot').length;
+  const has = { amazon: true, woot: hasWoot };
+  list.innerHTML = CHANNELS.map(c => {
+    const sel = selChannel.has(c.id) ? ' sel' : '';
+    const ok = has[c.id];
+    const oc = ok ? `handleOptClick(event, selChannel, '${c.id}')` : 'void 0';
+    const tag = ok ? (c.id === 'woot' ? `(${wootRows} 行)` : '') : '(当前无数据)';
+    return `<div class="dd-opt${sel}${ok ? '' : ' dim'}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${ok?'':'disabled'} style="pointer-events:none">
+      <span class="opt-name">${c.label}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('');
+  const el = document.getElementById('ddChannelSummary');
+  if (el) el.textContent = selChannel.size === 0 || selChannel.size === CHANNELS.length ? '全部（合并）'
+    : [...selChannel].map(x => CHANNEL_CN[x] || x).join(' + ');
+}
+function buildPlatformOptions() {
+  const list = document.getElementById('ddPlatformList');
+  if (!list) return;
+  const jbRows = ROWS.filter(r => platOf(r) === 'joybuy').length;
+  const has = { amazon: true, joybuy: jbRows > 0 };
+  list.innerHTML = PLATFORMS.map(p => {
+    const sel = selPlatform.has(p.id) ? ' sel' : '';
+    const ok = has[p.id];
+    const oc = ok ? `handleOptClick(event, selPlatform, '${p.id}')` : 'void 0';
+    const tag = ok ? (p.id === 'joybuy' ? `(${jbRows} 行)` : '') : '(当前无数据)';
+    return `<div class="dd-opt${sel}${ok ? '' : ' dim'}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${ok?'':'disabled'} style="pointer-events:none">
+      <span class="opt-name">${p.label}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('');
+  const el = document.getElementById('ddPlatformSummary');
+  if (el) el.textContent = (selPlatform.size === 0 || selPlatform.size === PLATFORMS.length)
+    ? '全部平台' : [...selPlatform].map(x => PLAT_CN[x] || x).join(' + ');
+}
+function handleOptClick(e, set, key) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.ctrlKey || e.metaKey) { set.has(key) ? set.delete(key) : set.add(key); }
+  else if (set.size === 1 && set.has(key)) { set.clear(); }
+  else { set.clear(); set.add(key); }
+  renderAll();
+}
+
+function buildRegionOptions() {
+  const list = document.getElementById('ddRegionList');
+  const scope = regionScope();
+  // 只显示有数据的地区(范围外/无数据地区隐藏); 已选地区保留显示以便取消
+  const vis = REGION_ORDER.filter(rc => scope.has(rc) || selRegion.has(rc));
+  list.innerHTML = vis.length ? vis.map(rc => {
+    const sel = selRegion.has(rc) ? ' sel' : '';
+    const has = scope.has(rc);
+    const dim = has ? '' : ' dim';
+    const tag = has ? '' : ' (当前无数据)';
+    const oc = has ? `regionOptClick(event, '${rc}')` : 'void 0';
+    return `<div class="dd-opt${sel}${dim}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${dim?'disabled':''} style="pointer-events:none">
+      <span class="opt-name">${REGION_CN[rc]} ${rc}</span><span class="opt-sub">${REGION_COUNTRIES[rc].join('/')}${tag}</span>
+    </div>`;
+  }).join('') : '<div class="dd-opt dim" style="justify-content:center">无匹配地区</div>';
+  document.getElementById('ddRegionSummary').textContent = selRegion.size === 0 ? '全部' : `已选 ${selRegion.size}/${vis.length} 项`;
+}
+
+function buildCountryOptions() {
+  const list = document.getElementById('ddCountryList');
+  const scope = countryScope();
+  // 只显示有数据的国家(无数据隐藏); 选了地区 → 隐藏地区范围外国家; 已选国家保留显示以便取消
+  const vis = allCountries.filter(c => {
+    if (selRegion.size && !selRegion.has(regionOf(c))) return false;
+    return scope.has(c) || selCountry.has(c);
+  });
+  list.innerHTML = vis.length ? vis.map(c => {
+    const sel = selCountry.has(c) ? ' sel' : '';
+    const has = scope.has(c);
+    const dim = has ? '' : ' dim';
+    const tag = has ? '' : ' (当前无数据)';
+    const oc = has ? `countryOptClick(event, '${c}')` : 'void 0';
+    return `<div class="dd-opt${sel}${dim}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${dim?'disabled':''} style="pointer-events:none">
+      <span class="opt-name">${COUNTRY_CN[c]} ${c}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('') : '<div class="dd-opt dim" style="justify-content:center">无匹配国家</div>';
+  document.getElementById('ddCountrySummary').textContent = selCountry.size === 0 ? '全部' : `已选 ${selCountry.size}/${vis.length} 项`;
+}
+
+function buildAsinOptions() {
+  const q = (document.getElementById('ddAsinSearch').value || '').trim().toLowerCase();
+  const list = document.getElementById('ddAsinList');
+  const scope = asinScope();
+  let cands = asinList.filter(a => scope.has(a));
+  cands = cands.filter(a => {
+    if (!q) return true;
+    const m = asinMetaOf(a);
+    return a.toLowerCase().includes(q) || m.series.toLowerCase().includes(q) || m.name.toLowerCase().includes(q);
+  });
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">无匹配的 ASIN</div>';
+  } else {
+    list.innerHTML = cands.map(a => {
+      const sel = selAsin.has(a) ? ' sel' : '';
+      const m = asinMetaOf(a);
+      const metaTxt = (m.series !== '无' || m.name !== '无') ? m.series + ' / ' + m.name : '未匹配';
+      const ccs = [...new Set(ROWS.filter(r => r.asin === a).map(r => r.cc))].join(',');
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selAsin, '${a}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${a}</span><span class="opt-sub">${ccs} · ${metaTxt}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddAsinSummary').textContent = selAsin.size === 0 ? '全部' : `已选 ${selAsin.size}/${asinList.length} 项`;
+}
+
+function buildSeriesOptions() {
+  const q = (document.getElementById('ddSeriesSearch').value || '').trim().toLowerCase();
+  const list = document.getElementById('ddSeriesList');
+  const scope = seriesScope();
+  let cands = seriesList.filter(s => scope.has(s));
+  cands = cands.filter(s => !q || s.toLowerCase().includes(q));
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">' + (scope.size === 0 ? '当前筛选下无产品系列(全部归「无」)' : '无匹配的产品系列') + '</div>';
+  } else {
+    list.innerHTML = cands.map(s => {
+      const sel = selSeries.has(s) ? ' sel' : '';
+      const tag = s === '无' ? '未匹配' : '';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selSeries, '${s}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${s}</span><span class="opt-sub">${tag}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddSeriesSummary').textContent = selSeries.size === 0 ? '全部' : `已选 ${selSeries.size}/${seriesList.length} 项`;
+}
+function buildNameOptions() {
+  const scope = nameScope();
+  let validAll = namesIn(selSeries).filter(n => scope.has(n));
+  const valid = new Set(validAll);
+  const q = (document.getElementById('ddNameSearch').value || '').trim().toLowerCase();
+  const cands = [...valid].filter(n => !q || n.toLowerCase().includes(q));
+  const list = document.getElementById('ddNameList');
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">' + (valid.size === 0 ? '当前筛选下无产品名(全部归「无」)' : '无匹配的产品名') + '</div>';
+  } else {
+    list.innerHTML = cands.map(n => {
+      const sel = selName.has(n) ? ' sel' : '';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selName, '${n}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${n}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddNameSummary').textContent = selName.size === 0 ? '全部' : `已选 ${selName.size}/${validAll.length} 项`;
+}
+
+// ---------- 启动 ----------
+function refreshMapStat() {
+  const el = document.getElementById('mapStat');
+  if (!el) return;
+  const mapped = asinList.filter(a => { const m = asinMetaOf(a); return m.series !== '无' || m.name !== '无'; }).length;
+  el.textContent = `${mapped}/${asinList.length}`;
+}
+function renderAll() {
+  pruneSelections();
+  buildPlatformOptions();
+  buildChannelOptions();
+  buildMonthOptions();
+  buildRegionOptions();
+  buildCountryOptions();
+  buildAsinOptions();
+  buildSeriesOptions();
+  buildNameOptions();
+  renderKpis();
+  renderTable();
+  refreshMapStat();
+}
+renderAll();
+</script>
+
+</body>
+</html>

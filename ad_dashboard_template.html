@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 广告周度分析看板</title>
+<script>__CHART_JS__</script>
+<style>
+  :root { --bg:#f5f7fa; --card:#ffffff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --shadow:0 1px 3px rgba(16,24,40,.08); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:20px; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+  .header h1 { font-size:21px; font-weight:700; }
+  .header .sub { color:var(--muted); font-size:13px; margin-top:6px; line-height:1.6; }
+  .badge { display:inline-block; background:#eef4ff; color:var(--primary); border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:14px 18px; margin-bottom:14px; }
+  .card-title { font-size:14px; font-weight:600; margin-bottom:10px; }
+  /* ---- 下拉筛选 ---- */
+  .filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+  .dd { position:relative; min-width:190px; }
+  .dd-btn { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer;
+    font-size:13px; color:var(--text); transition:all .15s; user-select:none; }
+  .dd-btn:hover { border-color:var(--primary); }
+  .dd-btn .dd-label { font-weight:600; white-space:nowrap; }
+  .dd-btn .dd-summary { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:right; }
+  .dd-btn .dd-arrow { font-size:10px; color:var(--muted); transition:transform .15s; }
+  .dd.open .dd-btn .dd-arrow { transform:rotate(180deg); }
+  .dd-panel { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:50; min-width:340px; max-width:640px;
+    background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(16,24,40,.14); padding:10px; }
+  .dd.open .dd-panel { display:block; }
+  .dd-panel .dd-tools { display:flex; gap:6px; margin-bottom:8px; align-items:center; flex-wrap:wrap; }
+  .dd-panel .dd-hint { margin-left:auto; font-size:11px; color:#999; white-space:nowrap; }
+  .dd-search { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; margin-bottom:8px; outline:none; }
+  .dd-search:focus { border-color:var(--primary); }
+  .dd-panel .dd-list { max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:2px; }
+  .dd-opt { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .dd-opt:hover { background:#f1f5f9; }
+  .dd-opt input { accent-color:var(--primary); }
+  .dd-opt .opt-name { font-weight:500; }
+  .dd-opt .opt-sub { color:var(--muted); font-size:11px; margin-left:auto; text-align:right; }
+  .dd-opt.sel { background:#eef4ff; }
+  .dd-opt.dim { opacity:.42; }
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:3px 12px; border-radius:6px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); }
+  /* ---- 指标卡 ---- */
+  .kpis { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin-bottom:14px; }
+  .kpi { position:relative; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 16px; box-shadow:var(--shadow); cursor:pointer; }
+  .kpi:hover { border-color:var(--primary); }
+  .kpi .label { font-size:12px; color:var(--muted); margin-bottom:3px; }
+  .kpi .value { font-size:21px; font-weight:700; }
+  .kpi .hint { font-size:10px; color:#94a3b8; margin-top:2px; }
+  .kpi-swap { position:absolute; top:6px; right:8px; font-size:11px; color:#94a3b8; opacity:0; transition:opacity .15s; }
+  .kpi:hover .kpi-swap { opacity:1; }
+  .kpi-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:50; background:var(--card); border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow); min-width:180px; max-height:260px; overflow-y:auto; }
+  .kpi-dropdown.open { display:block; }
+  .kpi-dropdown-item { padding:8px 12px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--border); }
+  .kpi-dropdown-item:hover { background:var(--bg); }
+  .kpi-dropdown-item:last-child { border-bottom:none; }
+  .kpi-dropdown-item .check { display:inline-block; width:16px; margin-right:4px; color:var(--primary); font-weight:700; }
+  .kpi-dropdown-item.dim { color:#94a3b8; cursor:default; }
+  /* ---- 表格 (border-collapse:separate 以支持 sticky 冻结列) ---- */
+  .toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+  table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+  th, td { padding:7px 9px; border-bottom:1px solid var(--border); text-align:right; white-space:nowrap; }
+  th { background:#f8fafc; font-weight:600; color:var(--muted); position:sticky; top:0; z-index:2; }
+  td:first-child, th:first-child { text-align:left; }
+  .table-wrap { max-height:560px; overflow:auto; border:1px solid var(--border); border-radius:8px; }
+  /* 冻结首列 (周数/名称) */
+  .frozen { position:sticky; left:0; background:#fff; z-index:1; box-shadow:2px 0 0 var(--border); }
+  thead .frozen { background:#f8fafc; z-index:3; }
+  thead tr:first-child .frozen { z-index:4; top:0; }
+  thead tr:nth-child(2) th { top:44px; }
+  thead tr:nth-child(2) .frozen { z-index:4; }
+  tr.total-row td { background:#f0f4ff; font-weight:700; border-top:2px solid var(--border); }
+  tr.total-row .frozen { background:#f0f4ff; }
+  /* 广告组展开 */
+  .grp-row { cursor:pointer; }
+  .grp-row:hover td { background:#f8fafc; }
+  .grp-row.grp-open td { background:#eef4ff; }
+  .grp-toggle { display:inline-block; width:18px; text-align:center; color:var(--muted); font-size:11px; transition:transform .15s; }
+  .grp-detail-cell { background:#fbfcfe; padding:10px 12px !important; text-align:left !important; }
+  .sub-table { border:1px solid var(--border); border-radius:6px; overflow:hidden; font-size:12px; }
+  .sub-table th { position:static; background:#f1f5f9; font-size:11px; padding:5px 8px; }
+  .sub-table td { padding:5px 8px; }
+  .sub-table tr.sub-total td { background:#eef4ff; font-weight:700; }
+  .sub-table td:first-child, .sub-table th:first-child { text-align:left; }
+  /* 投放词展开 (嵌套在广告组展开内) */
+  .kw-section { margin-top: 10px; }
+  .kw-section-title { font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px; padding-top:8px; border-top:1px dashed var(--border); }
+  .kw-table { width:100%; border:1px solid var(--border); border-radius:6px; overflow:hidden; font-size:12px; }
+  .kw-table th { position:static; background:#f1f5f9; font-size:11px; padding:5px 8px; }
+  .kw-table td { padding:5px 8px; border-bottom:1px solid var(--border); text-align:right; white-space:nowrap; }
+  .kw-table td:first-child, .kw-table th:first-child { text-align:left; }
+  .kw-row { cursor:pointer; }
+  .kw-row:hover td { background:#f8fafc; }
+  .kw-row.kw-open td { background:#eef4ff; }
+  .kw-toggle { display:inline-block; width:18px; text-align:center; color:var(--muted); font-size:11px; }
+  .kw-detail-cell { background:#fbfcfe; padding:8px 10px !important; text-align:left !important; }
+  /* ---- 图表 ---- */
+  .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  .chart-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; box-shadow:var(--shadow); }
+  .chart-box h3 { font-size:14px; font-weight:600; margin-bottom:10px; }
+  .chart-box .ch { position:relative; height:250px; }
+  .chart-box.wide { grid-column:1 / -1; }
+  .chart-box.wide .ch { height:380px; }
+  .empty { text-align:center; padding:36px; color:var(--muted); font-size:14px; }
+  .footer { text-align:center; color:var(--muted); font-size:12px; margin-top:14px; }
+  .note { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.7; }
+  /* ---- 类型标签 / 视图横幅 ---- */
+  .tag { display:inline-block; border-radius:4px; padding:1px 7px; font-size:11px; font-weight:600; }
+  .tag-sp { background:#eef4ff; color:#1e40af; }
+  .tag-sb { background:#fff7ed; color:#c2410c; }
+  .tag-sd { background:#faf5ff; color:#7c3aed; }
+  .tag-woot { background:#f0fdf6; color:#059669; }
+  .view-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .view-badge { font-size:12px; font-weight:600; border-radius:6px; padding:4px 10px; }
+  .view-agg { background:#eef4ff; color:#1e40af; }
+  .view-camp { background:#fef3c7; color:#92400e; }
+  .view-camp-name { font-weight:600; }
+  .camp-meta { display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-size:12px; color:var(--muted); background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:8px 12px; }
+  .camp-meta b { color:var(--text); font-weight:600; }
+  @media (max-width: 900px) { .chart-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+
+<div class="header">
+  <div>
+    <h1>📢 Aliencell 广告周度分析看板</h1>
+    <div class="sub">更新: <span id="genTime"></span> &nbsp;|&nbsp; 统计周期: <b>周六~周五</b></div>
+  </div>
+  <span class="badge"><span id="totalCountries"></span> 个国家 · <span id="totalAsins"></span> 个子ASIN · <span id="totalWeeks"></span> 个Week · <span id="totalCamps"></span> 个广告活动 · <span id="curNote" style="font-weight:400"></span></span>
+</div>
+
+<div class="card">
+  <div class="card-title">筛选条件</div>
+  <div class="filter-bar">
+    <div class="dd" id="ddChannel">
+      <button class="dd-btn" onclick="toggleDD('ddChannel')">
+        <span class="dd-label">🏪 销售店铺</span>
+        <span class="dd-summary" id="ddChannelSummary">全部（合并）</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn" onclick="setAll('channel',false)">合并看（全部）</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddChannelList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddCountry">
+      <button class="dd-btn" onclick="toggleDD('ddCountry')">
+        <span class="dd-label">🌍 国家/地区</span>
+        <span class="dd-summary" id="ddCountrySummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('country',true)">全选</button>
+          <button class="btn" onclick="setAll('country',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddCountryList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddWeek">
+      <button class="dd-btn" onclick="toggleDD('ddWeek')">
+        <span class="dd-label">🗓 周数</span>
+        <span class="dd-summary" id="ddWeekSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('week',true)">全选</button>
+          <button class="btn" onclick="setAll('week',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddWeekList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddAsin">
+      <button class="dd-btn" onclick="toggleDD('ddAsin')">
+        <span class="dd-label">📦 ASIN</span>
+        <span class="dd-summary" id="ddAsinSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('asin',true)">全选</button>
+          <button class="btn" onclick="setAll('asin',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <input type="text" class="dd-search" id="asinSearch" placeholder="🔍 搜索 ASIN 或 SKU ...">
+        <div class="dd-list" id="ddAsinList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddSeries">
+      <button class="dd-btn" onclick="toggleDD('ddSeries')">
+        <span class="dd-label">🏷️ 产品系列</span>
+        <span class="dd-summary" id="ddSeriesSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('series',true)">全选</button>
+          <button class="btn" onclick="setAll('series',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <input type="text" class="dd-search" id="ddSeriesSearch" placeholder="🔍 搜索产品系列...">
+        <div class="dd-list" id="ddSeriesList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddName">
+      <button class="dd-btn" onclick="toggleDD('ddName')">
+        <span class="dd-label">📦 产品名</span>
+        <span class="dd-summary" id="ddNameSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('name',true)">全选</button>
+          <button class="btn" onclick="setAll('name',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <input type="text" class="dd-search" id="ddNameSearch" placeholder="🔍 搜索产品名...">
+        <div class="dd-list" id="ddNameList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddType">
+      <button class="dd-btn" onclick="toggleDD('ddType')">
+        <span class="dd-label">🎯 广告形式</span>
+        <span class="dd-summary" id="ddTypeSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('type',true)">全选</button>
+          <button class="btn" onclick="setAll('type',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddTypeList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddStatus">
+      <button class="dd-btn" onclick="toggleDD('ddStatus')">
+        <span class="dd-label">🔔 广告状态</span>
+        <span class="dd-summary" id="ddStatusSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('status',true)">全选</button>
+          <button class="btn" onclick="setAll('status',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddStatusList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddCampaign" style="min-width:300px;flex:1">
+      <button class="dd-btn" onclick="toggleDD('ddCampaign')">
+        <span class="dd-label">📢 广告活动</span>
+        <span class="dd-summary" id="ddCampaignSummary">全部活动</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel" style="min-width:460px">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAllCampaigns(true)">全选</button>
+          <button class="btn" onclick="setAllCampaigns(false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddCampaignList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="view-bar">
+  <span class="view-badge" id="viewBadge">📊 汇总视图</span>
+  <span class="camp-meta" id="campMeta" style="display:none"></span>
+</div>
+
+<div class="kpis" id="kpiRow"></div>
+
+<div class="card">
+  <div class="toolbar">
+    <div class="card-title" style="margin:0" id="tableTitle">周度广告数据对比 (行=Week · 列=广告指标)</div>
+    <button class="btn" onclick="exportCSV()">导出 CSV</button>
+  </div>
+  <div class="table-wrap">
+    <table id="sumTable">
+      <thead id="sumHead"></thead>
+      <tbody id="sumBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card" id="adgroupCard" style="display:none">
+  <div class="card-title" id="adgroupTitle">广告组明细 (点击行可展开周度数据)</div>
+  <div class="table-wrap" style="max-height:420px">
+    <table id="adgroupTable">
+      <thead id="adgroupHead"></thead>
+      <tbody id="adgroupBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="chart-box">
+    <h3>花费 &amp; 销售额 周趋势</h3>
+    <div class="ch"><canvas id="spendSalesChart"></canvas></div>
+  </div>
+  <div class="chart-box">
+    <h3>曝光 · 点击 · CPC · 花费 · 销售额 周趋势</h3>
+    <div class="ch"><canvas id="impClickChart"></canvas></div>
+  </div>
+  <div class="chart-box">
+    <h3>广告形式花费分布 (堆叠)</h3>
+    <div class="ch"><canvas id="typeStackChart"></canvas></div>
+  </div>
+  <div class="chart-box">
+    <h3>ACOS &amp; ROAS 周趋势</h3>
+    <div class="ch"><canvas id="acosRoasChart"></canvas></div>
+  </div>
+  <div class="chart-box wide">
+    <h3>视频完播 &amp; 播放至一半 周趋势</h3>
+    <div class="ch"><canvas id="videoChart"></canvas></div>
+  </div>
+</div>
+
+<div class="footer">数据来源: 易仓ERP 广告管理 · 统计周期: 周六~周五 · 每周一 15:00 自动更新</div>
+
+<script>
+const DATA = __DATA_JSON__;
+
+// ================= 产品映射（localStorage 优先 > 内嵌 __MAP_JSON__） =================
+const __PC_MAP__ = __MAP_JSON__;
+let PC_MAP = { catalog: [], asinMap: [] };
+(function loadPcMap() {
+  let lsC = null, lsA = null;
+  try { lsC = JSON.parse(localStorage.getItem('pc_catalog') || 'null'); } catch (e) {}
+  try { lsA = JSON.parse(localStorage.getItem('pc_asinmap') || 'null'); } catch (e) {}
+  if (Array.isArray(lsC) && lsC.length) PC_MAP.catalog = lsC;
+  else if (Array.isArray(__PC_MAP__.catalog)) PC_MAP.catalog = __PC_MAP__.catalog;
+  if (Array.isArray(lsA) && lsA.length) PC_MAP.asinMap = lsA;
+  else if (Array.isArray(__PC_MAP__.asinMap)) PC_MAP.asinMap = __PC_MAP__.asinMap;
+})();
+const __ASIN_META = {};
+PC_MAP.asinMap.forEach(m => { __ASIN_META[m.asin] = m; });
+function asinMetaOf(asin) { if (asin === 'WOOT-STORE') return { series: 'Woot', name: 'Woot 店铺活动' }; return __ASIN_META[asin] || { series: '无', name: '无' }; }
+function allSeries() {
+  const s = new Set();
+  PC_MAP.catalog.forEach(p => { if (p.series) s.add(p.series); });
+  PC_MAP.asinMap.forEach(m => { if (m.series && m.series !== '无') s.add(m.series); });
+  return [...s].sort((a, b) => a.localeCompare(b, 'zh'));
+}
+function namesOfSeries(series) {
+  return [...new Set(PC_MAP.catalog.filter(p => p.series === series).map(p => p.name))].sort((a, b) => a.localeCompare(b, 'zh'));
+}
+
+// ===== 云端映射同步 (Supabase)：拉取最新映射写入本机后刷新，保证打开即最新 =====
+(async function cloudMapSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.catalog) || !Array.isArray(j.asinMap)) return;
+    if (!j.catalog.length && !j.asinMap.length) return;
+    let curSig = null;
+    try { curSig = JSON.stringify({ catalog: JSON.parse(localStorage.getItem('pc_catalog') || '[]'), asinMap: JSON.parse(localStorage.getItem('pc_asinmap') || '[]') }); } catch (e) {}
+    const newSig = JSON.stringify({ catalog: j.catalog, asinMap: j.asinMap });
+    if (curSig === newSig) return;
+    localStorage.setItem('pc_catalog', JSON.stringify(j.catalog));
+    localStorage.setItem('pc_asinmap', JSON.stringify(j.asinMap));
+    location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端 Woot 数据同步：拉取最新 Woot 记录写本机后刷新（与映射同一存储行 data.woot）=====
+// 缺少此段会导致：只有上传者本机能看到 Woot 广告，其他人打开广告看板看不到。
+(async function cloudWootSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.woot)) return;  // 云端无 woot 键(旧数据)时不动本机
+    const cloud = j.woot;
+    let cur = null;
+    try { cur = JSON.parse(localStorage.getItem('pc_woot') || 'null'); } catch (e) {}
+    if (JSON.stringify(cloud) === JSON.stringify(Array.isArray(cur) ? cur : [])) return;
+    localStorage.setItem('pc_woot', JSON.stringify(cloud));
+    location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端更新提示：静默轮询(60s / 切回前台)，发现新数据只在顶部提示，点击才刷新 =====
+// 用途：别人上传 Woot 报表或改动产品映射后，已经打开着的看板能主动告知，而不是等人自己发现。
+// 只提示、不自动刷新：看板筛选(国家/ASIN/系列/产品名)是内存状态，自动 reload 会清空用户正在看的筛选。
+//
+// 三路比对(缺一不可)：
+//   BASE_SIG  = 本页渲染时所依据的本机缓存快照
+//   localSig  = 此刻本机缓存          → 与本浏览器别的标签页(如 Woot 上传页)写入后立刻不同
+//   cloudSig  = 云端最新              → 别人在别的电脑上传/改映射后不同
+// 只看云端会漏掉「同一浏览器上传」场景：那时本机已被写新，但当前页面渲染的还是旧数据。
+(function cloudUpdateWatch(){
+  const SB_ROW = 'https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1';
+  const SB_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+  const POLL_MS = 60000;
+
+  function lsGet(k, dflt){
+    try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v === null ? dflt : v; } catch (e) { return dflt; }
+  }
+  // ★ 稳定序列化：对象的 key 先排序再拼 —— 两侧「同一份数据、不同键顺序」必须判为相等。
+  //   踩过的坑(2026-10-14)：云端 wootCfg 存的是 {"cost":{},"price":1380}，而看板 load 同步
+  //   会把它规范化成 {"price":1380,"cost":{}} 再写本机；JSON.stringify 保留插入顺序 ⇒
+  //   两串永不相等 ⇒ 判定「云端有新数据」永远成立 ⇒ 提示条常驻、点「立即刷新」也不消失。
+  function stable(v){
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') {
+      return '{' + Object.keys(v).sort().map(function(k){ return JSON.stringify(k) + ':' + stable(v[k]); }).join(',') + '}';
+    }
+    return JSON.stringify(v === undefined ? null : v);
+  }
+  // wootCfg 规范化：与看板 load 同步里的写法完全同款(price 兜底 1380 / cost 兜底 {})，确保两侧可比
+  function normCfg(c){
+    if (!c || typeof c !== 'object') return null;
+    return { price: Number(c.price) > 0 ? Number(c.price) : 1380,
+             cost: (c.cost && typeof c.cost === 'object') ? c.cost : {} };
+  }
+  function localSig(){
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    return stable(lsGet('pc_woot', [])) + '\u0001' + stable(lsGet('pc_catalog', [])) + '\u0001'
+      + stable(lsGet('pc_asinmap', [])) + '\u0001'
+      // 本机没有成本设置(广告看板不消费 wootCfg) ⇒ 该段恒为空、不参与判定，避免误报常驻
+      + (lc === null ? '' : stable(lc));
+  }
+  function cloudSig(j){
+    if (!j || !Array.isArray(j.woot)) return null;   // 云端仍是旧结构(无 woot 键) → 不提示
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    const cc = normCfg(j.wootCfg);
+    return stable(j.woot) + '\u0001'
+      + stable(Array.isArray(j.catalog) ? j.catalog : []) + '\u0001'
+      + stable(Array.isArray(j.asinMap) ? j.asinMap : []) + '\u0001'
+      // 云端缺 wootCfg 时沿用本机值 ⇒ 该段不参与判定(避免删配置后提示条永不消失)
+      + (lc === null ? '' : stable(cc === null ? lc : cc));
+  }
+
+  const BASE_SIG = localSig();
+  let bar = null, latest = null, offKey = null, cloudSigCache = null;
+  const keyOf = (cs, ls) => cs + '#' + ls;
+
+  function mk(tag, txt, css){
+    const e = document.createElement(tag);
+    if (txt !== null) e.textContent = txt;
+    e.style.cssText = css;
+    return e;
+  }
+  function ensureBar(){
+    if (bar) return bar;
+    bar = mk('div', null, 'position:fixed;z-index:2147483000;left:50%;top:12px;transform:translateX(-50%);display:none;align-items:center;gap:10px;max-width:92vw;padding:9px 12px;border-radius:10px;border:1px solid #854F0B;background:#FAEEDA;color:#412402;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:13px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.45');
+    bar.id = 'wbUpdateBar';
+    bar.setAttribute('role', 'status');
+    const label = mk('span', '云端数据已更新', 'font-weight:500;white-space:nowrap');
+    const btn = mk('button', '立即刷新', 'cursor:pointer;border:1px solid #854F0B;background:#fff;color:#412402;border-radius:6px;padding:3px 10px;font-size:12px;font-family:inherit;white-space:nowrap');
+    btn.type = 'button';
+    btn.title = '刷新页面载入最新数据（会重置当前筛选条件）';
+    btn.onclick = apply;
+    const x = mk('button', '×', 'cursor:pointer;border:0;background:transparent;color:#854F0B;font-size:16px;font-family:inherit;line-height:1;padding:0 2px');
+    x.type = 'button';
+    x.title = '本次不再提示';
+    x.onclick = function(){ offKey = keyOf(cloudSigCache, localSig()); hide(); };
+    bar.appendChild(label); bar.appendChild(btn); bar.appendChild(x);
+    (document.body || document.documentElement).appendChild(bar);
+    return bar;
+  }
+  function show(){ ensureBar().style.display = 'flex'; }
+  function hide(){ if (bar) bar.style.display = 'none'; }
+
+  function apply(){
+    const ls = localSig();
+    // 本机缓存已被别的标签页更新过(同浏览器上传场景) → 不用云端值回写，直接重载出新数据
+    if (ls === BASE_SIG && latest) {
+      try {
+        if (Array.isArray(latest.woot)) localStorage.setItem('pc_woot', JSON.stringify(latest.woot));
+        if (Array.isArray(latest.catalog)) localStorage.setItem('pc_catalog', JSON.stringify(latest.catalog));
+        if (Array.isArray(latest.asinMap)) localStorage.setItem('pc_asinmap', JSON.stringify(latest.asinMap));
+      } catch (e) {}
+    }
+    location.reload();
+  }
+
+  async function check(){
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 8000);
+      const r = await fetch(SB_ROW, { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }, signal: ctl.signal });
+      clearTimeout(t);
+      if (!r.ok) return;
+      const rows = await r.json();
+      const j = rows && rows[0] && rows[0].data;
+      const cs = cloudSig(j);
+      if (cs === null) return;
+      latest = j; cloudSigCache = cs;
+      const ls = localSig();
+      if (keyOf(cs, ls) === offKey) { hide(); return; }
+      if (cs === ls && ls === BASE_SIG) { hide(); return; }
+      show();
+    } catch (e) {}
+  }
+
+  setTimeout(check, 5000);
+  setInterval(check, POLL_MS);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
+})();
+const TYPE_NAME = { 'sponsoredProducts':'商品推广', 'sponsoredBrands':'品牌推广', 'sponsoredDisplay':'展示型推广', 'wootAds':'Woot 广告' };
+const TYPE_SHORT = { 'sponsoredProducts':'SP', 'sponsoredBrands':'SB', 'sponsoredDisplay':'SD', 'wootAds':'Woot' };
+const TYPE_CLS = { 'sponsoredProducts':'tag-sp', 'sponsoredBrands':'tag-sb', 'sponsoredDisplay':'tag-sd', 'wootAds':'tag-woot' };
+const CUR_SYMBOL = { 'USD':'$', 'EUR':'€', 'CAD':'C$', 'MXN':'MX$', 'PLN':'zł', 'SEK':'kr', 'GBP':'£' };
+
+const countryMap = {}; DATA.countries.forEach(c => countryMap[c.code] = c);
+const weekMap = {}; DATA.weeks.forEach(w => weekMap[w.label] = w);
+const campaignMap = {}; DATA.campaigns.forEach(c => campaignMap[c.id] = c);
+
+// ---------- Woot 店铺广告数据并入 (并入 US, 美元; 按子 ASIN 归到对应产品) ----------
+// 数据来自「Woot 数据管理」页 (云端/本机缓存 pc_woot)。逐日记录落到所属周; 未识别 ASIN → WOOT-STORE。
+(function injectWootAd(){
+  const WOOT_STORE = 'WOOT-STORE';
+  let es = [];
+  try { const a = JSON.parse(localStorage.getItem('pc_woot') || '[]'); es = Array.isArray(a) ? a : []; } catch (e) {}
+  if (!es.length) return;
+  const wlen = (a, b) => Math.round((new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z')) / 86400000) + 1;
+  let n = 0;
+  (DATA.weeks || []).forEach(w => {
+    const map = new Map();
+    for (const en of es) {
+      const L = wlen(en.start, en.end); if (!L) continue;
+      const s = en.start > w.start ? en.start : w.start, e = en.end < w.end ? en.end : w.end;
+      if (s > e) continue;
+      const k = (Math.round((new Date(e+'T00:00:00Z') - new Date(s+'T00:00:00Z')) / 86400000) + 1) / L;
+      const key = en.asin || WOOT_STORE;
+      let o = map.get(key);
+      if (!o) { o = { cost:0, clicks:0, orders:0, impressions:0, sales:0 }; map.set(key, o); }
+      const m = en.metrics || {};
+      o.cost += (+m.adCost || 0) * k; o.clicks += (+m.adClicks || 0) * k;
+      o.orders += (+m.adOrders || 0) * k; o.impressions += (+m.adImpr || 0) * k; o.sales += (+m.adSales || 0) * k;
+    }
+    map.forEach((o, asin) => {
+      const clicks = Math.round(o.clicks), orders = Math.round(o.orders), impressions = Math.round(o.impressions);
+      if (!(o.cost || clicks || orders || impressions)) return;
+      const cid = 'woot-' + asin;
+      if (!campaignMap[cid]) {
+        campaignMap[cid] = { id: cid, name: 'Woot 广告', type: 'wootAds', asin: asin === WOOT_STORE ? '' : asin,
+          country: 'US', sku: '', portfolio: 'Woot', state: 'enabled', channel: 'woot' };
+        DATA.campaigns.push(campaignMap[cid]);
+      }
+      DATA.records.push({ country: 'US', week: w.label, start: w.start, end: w.end,
+        asin: asin === WOOT_STORE ? '' : asin, sku: '', campaignId: cid, campaign: 'Woot 广告',
+        adGroupId: cid, adGroup: 'Woot 广告', type: 'wootAds', state: 'enabled', channel: 'woot',
+        impressions: impressions, clicks: clicks, cost: o.cost, orders: orders, sales: o.sales,
+        videoComplete: 0, videoMidpoint: 0 });
+      if (asin !== WOOT_STORE && Array.isArray(DATA.asins) && DATA.asins.indexOf(asin) < 0) DATA.asins.push(asin);
+      n++;
+    });
+  });
+  if (!n) return;
+  if (!DATA.types.some(t => t.code === 'wootAds')) DATA.types.push({ code: 'wootAds', name: 'Woot 广告' });
+  const foot = document.querySelector('.footer');
+  if (foot) foot.innerHTML += ' · <b style="color:#7c3aed">Woot 广告已并入 US（' + n + ' 条 ASIN×周 · 按子 ASIN 归入对应产品）</b>';
+})();
+
+let selCountry = new Set();   // 空 = 全部
+let selWeek = new Set();
+let selAsin = new Set();
+let selType = new Set();
+let selState = new Set();     // 空 = 全部状态
+let selCampaigns = new Set(); // 空 = 全部活动(汇总视图); 恰好1个 = 活动视图
+let selSeries = new Set();    // 空 = 全部产品系列
+let selName = new Set();       // 空 = 全部产品名
+let asinSearchKw = '';
+let seriesSearchKw = '';
+let nameSearchKw = '';
+let lastFilterDim = null;   // 最近一次操作的筛选维度 (联动重置用)
+// ---------- 销售店铺(渠道) 2026-10-10 ----------
+// amazon = 亚马逊广告后台拉到的记录；woot = 「Woot 数据管理」页注入的广告(US)。
+// 记录上带 channel:'woot' 的才算 Woot，其余缺省视为 amazon → 旧数据零迁移、行为不变。
+const CHANNELS = [{ id:'amazon', label:'Aliencell官方店铺' }, { id:'woot', label:'Woot店铺' }];
+const CHANNEL_CN = { amazon:'Aliencell官方店铺', woot:'Woot店铺' };
+let selChannel = new Set();   // 空 = 合并(全部)
+function channelOf(r){ return (r && r.channel === 'woot') ? 'woot' : 'amazon'; }
+function channelMerged(){ return !selChannel.size || (selChannel.has('amazon') && selChannel.has('woot')); }
+function channelOk(r){ return !selChannel.size || selChannel.has(channelOf(r)); }
+
+let charts = {};
+
+// ---------- 记录匹配 ----------
+function asinMetaOk(asin) {
+  if (selSeries.size || selName.size) {
+    const m = asinMetaOf(asin);
+    if (selSeries.size && !selSeries.has(m.series)) return false;
+    if (selName.size && !selName.has(m.name)) return false;
+  }
+  return true;
+}
+function recInScope(r, ignoreChannel) {
+  if (!ignoreChannel && !channelOk(r)) return false;
+  if (selCountry.size && !selCountry.has(r.country)) return false;
+  if (selWeek.size && !selWeek.has(r.week)) return false;
+  if (selAsin.size && !selAsin.has(r.asin)) return false;
+  if (selType.size && !selType.has(r.type)) return false;
+  if (selState.size && !selState.has(r.state || 'enabled')) return false;
+  if (selCampaigns.size && !selCampaigns.has(r.campaignId)) return false;
+  if (!asinMetaOk(r.asin)) return false;
+  return true;
+}
+function baseRecords() { return DATA.records; }
+function activeCampaign() {
+  if (selCampaigns.size !== 1) return null;
+  return campaignMap[[...selCampaigns][0]] || null;
+}
+
+// ---------- 候选范围 (联动隐藏) ----------
+function asinCandidates() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    s.add(r.asin);
+  });
+  return DATA.asins.filter(a => s.has(a));
+}
+function weekCandidates() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selAsin.size && !selAsin.has(r.asin)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    s.add(r.week);
+  });
+  return DATA.weeks.filter(w => s.has(w.label));
+}
+function countryInScope() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selAsin.size && !selAsin.has(r.asin)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    s.add(r.country);
+  });
+  return s;
+}
+function typeCounts() {
+  const cnt = {};
+  DATA.types.forEach(t => cnt[t.code] = 0);
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selAsin.size && !selAsin.has(r.asin)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (selCampaigns.size && !selCampaigns.has(r.campaignId)) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    cnt[r.type] = (cnt[r.type] || 0) + 1;
+  });
+  return cnt;
+}
+function campaignCandidates() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selAsin.size && !selAsin.has(r.asin)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    s.add(r.campaignId);
+  });
+  return DATA.campaigns.filter(c => s.has(c.id));
+}
+// 某活动在当前筛选范围内实际投放到的 ASIN 集合
+// (活动可跨 ASIN/跨系列投放: 选定系列后, 活动仍在列表是因为它确实投了该系列的 ASIN;
+//  副标题用这里的结果而非活动元数据的单一 ASIN, 避免"看着不匹配却没被隐藏"的误解)
+function campaignScopeAsins(campId) {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (r.campaignId !== campId) return;
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selAsin.size && !selAsin.has(r.asin)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    s.add(r.asin);
+  });
+  return s;
+}
+function pruneSelections() {
+  // 联动重置: 最新操作是产品筛选(子ASIN/系列/产品名)时, 若所选周与其数据范围完全无交集
+  // → 重置周筛选(回到全部周), 保留用户刚选的产品; 条件"其他周有数据"用于排除系列/产品名互斥的无效组合
+  if (selWeek.size > 0 && (lastFilterDim === 'asin' || lastFilterDim === 'series' || lastFilterDim === 'name')) {
+    const ws0 = new Set(weekCandidates().map(w => w.label));
+    if (ws0.size > 0 && ![...selWeek].some(w => ws0.has(w))) selWeek.clear();
+  }
+  for (let i = 0; i < 3; i++) {
+    const as = new Set(asinCandidates());
+    [...selAsin].forEach(a => { if (!as.has(a)) selAsin.delete(a); });
+    const ws = new Set(weekCandidates().map(w => w.label));
+    [...selWeek].forEach(w => { if (!ws.has(w)) selWeek.delete(w); });
+    const cs = countryInScope();
+    [...selCountry].forEach(c => { if (!cs.has(c)) selCountry.delete(c); });
+    const ss = stateInScope();
+    [...selState].forEach(s => { if (!ss.has(s)) selState.delete(s); });
+    if (selCampaigns.size) {
+      const cids = new Set(campaignCandidates().map(c => c.id));
+      [...selCampaigns].forEach(id => { if (!cids.has(id)) selCampaigns.delete(id); });
+    }
+    // 产品系列/产品名联动清理
+    const seriesS = seriesScope();
+    [...selSeries].forEach(s => { if (!seriesS.has(s)) selSeries.delete(s); });
+    const nameS = nameScope();
+    [...selName].forEach(n => { if (!nameS.has(n)) selName.delete(n); });
+  }
+}
+
+// ---------- 下拉重建 ----------
+function optRow(name, sub, sel, dim, dimClickable) {
+  const label = document.createElement('label');
+  label.className = 'dd-opt' + (sel ? ' sel' : '') + (dim ? ' dim' : '');
+  label.innerHTML = `<input type="checkbox" ${sel?'checked':''} ${dim && !dimClickable ? 'disabled':''}><span class="opt-name">${name}</span><span class="opt-sub">${sub || ''}</span>`;
+  return label;
+}
+
+// 统一筛选交互: 普通单击=单选替换(清空其他,只选该项; 若单击的是当前唯一已选项则取消回到全部); Ctrl/⌘+单击=多选追加/取消
+function handleOptClick(e, set, key) {
+  e.preventDefault();
+  e.stopPropagation(); // 阻止冒泡: 选项点击后列表会重建, 原节点脱离DOM导致 document 的 closest 判断失效而误关面板
+  if (e.ctrlKey || e.metaKey) {
+    set.has(key) ? set.delete(key) : set.add(key);
+  } else if (set.size === 1 && set.has(key)) {
+    set.clear(); // 单击唯一已选项 → 取消(回到全部)
+  } else {
+    set.clear();
+    set.add(key);
+  }
+  lastFilterDim = set === selWeek ? 'week' : set === selAsin ? 'asin' : set === selSeries ? 'series' : set === selName ? 'name'
+    : set === selCountry ? 'country' : set === selState ? 'status' : set === selCampaigns ? 'campaign' : set === selChannel ? 'channel' : 'type';
+  syncAndRender();
+}
+
+// ---------- 销售店铺(渠道) ----------
+// 选项计数只受「其他筛选维度」影响(ignoreChannel=true)，否则选中 Woot 后
+// 『Aliencell官方店铺』会被自己筛成 0 条，看起来像数据没了。
+function buildChannelOptions() {
+  const el = document.getElementById('ddChannelList');
+  if (!el) return;
+  el.innerHTML = '';
+  CHANNELS.forEach(c => {
+    const n = DATA.records.filter(r => channelOf(r) === c.id && recInScope(r, true)).length;
+    const has = DATA.records.some(r => channelOf(r) === c.id);
+    const icon = c.id === 'woot' ? '🛒' : '🏢';
+    const opt = optRow(`${icon} ${c.label}`, has ? n + ' 条记录' : '当前无数据', selChannel.has(c.id), !has);
+    opt.onclick = (e) => { e.preventDefault(); if (!has) return; handleOptClick(e, selChannel, c.id); };
+    el.appendChild(opt);
+  });
+}
+function buildCountryOptions() {
+  const el = document.getElementById('ddCountryList');
+  el.innerHTML = '';
+  const scope = countryInScope();
+  DATA.countries.forEach(c => {
+    const dim = !scope.has(c.code);
+    const opt = optRow(`${c.name} ${c.code}`, `${c.currency}${c.hasData ? '' : ' · 无数据'}`, selCountry.has(c.code), dim);
+    opt.onclick = (e) => { e.preventDefault(); if (dim) return; handleOptClick(e, selCountry, c.code); };
+    el.appendChild(opt);
+  });
+}
+function buildWeekOptions() {
+  const el = document.getElementById('ddWeekList');
+  el.innerHTML = '';
+  // 范围外(所选产品无数据)的周置灰显示但可点击 → 点击后自动重新筛选
+  const inScope = new Set(weekCandidates().map(w => w.label));
+  DATA.weeks.forEach(w => {
+    const dim = !inScope.has(w.label) && !selWeek.has(w.label);
+    const opt = optRow(w.label, `${w.start.slice(5)}~${w.end.slice(5)}${dim ? ' · 无数据' : ''}`, selWeek.has(w.label), dim, true);
+    opt.onclick = (e) => { e.preventDefault(); handleOptClick(e, selWeek, w.label); };
+    el.appendChild(opt);
+  });
+  if (!el.children.length) el.innerHTML = '<div class="empty" style="padding:16px">当前范围内无周数据</div>';
+}
+function skuOf(asin) {
+  for (const r of DATA.records) if (r.asin === asin && r.sku) return r.sku;
+  return '';
+}
+function buildAsinOptions() {
+  const el = document.getElementById('ddAsinList');
+  el.innerHTML = '';
+  const kw = asinSearchKw.trim().toLowerCase();
+  // 范围外(所选周/国家无数据)的 ASIN 置灰显示但可点击 → 点击后周筛选自动重置, 避免产品选不上的死锁
+  const inScope = new Set(asinCandidates());
+  let matched = 0;
+  DATA.asins.forEach(a => {
+    if (!asinMetaOk(a)) return; // 与系列/产品名筛选冲突的隐藏
+    const sku = skuOf(a);
+    if (kw && !(a.toLowerCase().includes(kw) || sku.toLowerCase().includes(kw))) return;
+    matched++;
+    const dim = !inScope.has(a);
+    const opt = optRow(a, sku + (dim ? ' · 所选周无数据' : ''), selAsin.has(a), dim, true);
+    opt.onclick = (e) => { e.preventDefault(); handleOptClick(e, selAsin, a); };
+    el.appendChild(opt);
+  });
+  if (!matched) el.innerHTML = '<div class="empty" style="padding:16px">无匹配的ASIN</div>';
+}
+function buildTypeOptions() {
+  const el = document.getElementById('ddTypeList');
+  el.innerHTML = '';
+  const cnt = typeCounts();
+  DATA.types.forEach(t => {
+    const dim = cnt[t.code] === 0;
+    const opt = optRow(`${TYPE_NAME[t.code]} ${TYPE_SHORT[t.code]}`, `${cnt[t.code]} 条记录`, selType.has(t.code), dim);
+    opt.onclick = (e) => { e.preventDefault(); if (dim) return; handleOptClick(e, selType, t.code); };
+    el.appendChild(opt);
+  });
+}
+function buildCampaignOptions() {
+  const el = document.getElementById('ddCampaignList');
+  el.innerHTML = '';
+  campaignCandidates().forEach(c => {
+    // 产品筛选(ASIN/系列/产品名)启用时, 副标题显示该活动在当前范围内实际投放的 ASIN,
+    // 而不是活动元数据的单一 ASIN(可能属于未选中的系列, 造成"不匹配却没隐藏"的误解)
+    let sub = `${c.country} · ${c.asin}`;
+    if (selAsin.size || selSeries.size || selName.size) {
+      const hits = campaignScopeAsins(c.id);
+      if (hits.size === 1) sub = `${c.country} · ${[...hits][0]}`;
+      else if (hits.size > 1) sub = `${c.country} · ${[...hits][0]} 等${hits.size}个ASIN`;
+    }
+    const opt = optRow(
+      `<span class="tag ${TYPE_CLS[c.type] || ''}">${TYPE_SHORT[c.type] || c.type}</span> <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</span>`,
+      sub, selCampaigns.has(c.id), false);
+    opt.onclick = (e) => { e.preventDefault(); handleOptClick(e, selCampaigns, c.id); };
+    el.appendChild(opt);
+  });
+  if (!el.children.length) el.innerHTML = '<div class="empty" style="padding:16px">当前范围内无广告活动</div>';
+}
+function stateInScope() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selAsin.size && !selAsin.has(r.asin)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selCampaigns.size && !selCampaigns.has(r.campaignId)) return;
+    if (!asinMetaOk(r.asin)) return;
+    if (!channelOk(r)) return;
+    s.add(r.state || 'enabled');
+  });
+  return s;
+}
+
+// 产品系列/产品名联动范围（其他筛选维度下有数据的系列/产品名集合，含"无"）
+function seriesScope() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (selCampaigns.size && !selCampaigns.has(r.campaignId)) return;
+    if (selName.size && !selName.has(asinMetaOf(r.asin).name)) return;
+    if (!channelOk(r)) return;
+    s.add(asinMetaOf(r.asin).series);
+  });
+  return s;
+}
+function nameScope() {
+  const s = new Set();
+  DATA.records.forEach(r => {
+    if (selCountry.size && !selCountry.has(r.country)) return;
+    if (selWeek.size && !selWeek.has(r.week)) return;
+    if (selType.size && !selType.has(r.type)) return;
+    if (selState.size && !selState.has(r.state || 'enabled')) return;
+    if (selCampaigns.size && !selCampaigns.has(r.campaignId)) return;
+    if (selSeries.size && !selSeries.has(asinMetaOf(r.asin).series)) return;
+    if (!channelOk(r)) return;
+    s.add(asinMetaOf(r.asin).name);
+  });
+  return s;
+}
+
+function buildStateOptions() {
+  const el = document.getElementById('ddStatusList');
+  el.innerHTML = '';
+  const scope = stateInScope();
+  DATA.states.forEach(s => {
+    const dim = !scope.has(s.code);
+    const opt = optRow(s.name, dim ? '当前范围内无数据' : '', selState.has(s.code), dim);
+    opt.onclick = (e) => { e.preventDefault(); if (dim) return; handleOptClick(e, selState, s.code); };
+    el.appendChild(opt);
+  });
+}
+function buildSeriesOptions() {
+  const el = document.getElementById('ddSeriesList');
+  if (!el) return;
+  el.innerHTML = '';
+  const scope = seriesScope();
+  const kw = seriesSearchKw.trim().toLowerCase();
+  // 范围外(所选周无数据)的系列置灰显示但可点击 → 点击后周筛选自动重置
+  let cands = allSeries();
+  if (DATA.asins.some(a => asinMetaOf(a).series === '无')) cands = cands.concat(['无']);
+  let matched = 0;
+  cands.forEach(s => {
+    if (kw && !s.toLowerCase().includes(kw)) return;
+    matched++;
+    const dim = !scope.has(s);
+    const opt = optRow(s, dim ? '所选周无数据' : '', selSeries.has(s), dim, true);
+    opt.onclick = (e) => { e.preventDefault(); handleOptClick(e, selSeries, s); };
+    el.appendChild(opt);
+  });
+  if (!matched) el.innerHTML = '<div class="empty" style="padding:16px">无匹配的产品系列</div>';
+}
+function buildNameOptions() {
+  const el = document.getElementById('ddNameList');
+  if (!el) return;
+  el.innerHTML = '';
+  const scope = nameScope();
+  const kw = nameSearchKw.trim().toLowerCase();
+  let cands;
+  if (selSeries.size) {
+    cands = [];
+    selSeries.forEach(s => { if (s !== '无') namesOfSeries(s).forEach(n => cands.push(n)); });
+    if (selSeries.has('无')) cands.push('无');
+  } else {
+    cands = [...new Set(PC_MAP.catalog.map(p => p.name))];
+  }
+  if (selSeries.size === 0 && DATA.asins.some(a => asinMetaOf(a).name === '无')) cands.push('无');
+  cands = [...new Set(cands)];
+  let matched = 0;
+  cands.forEach(n => {
+    if (kw && !n.toLowerCase().includes(kw)) return;
+    matched++;
+    const dim = !scope.has(n);
+    const opt = optRow(n, dim ? '所选周无数据' : '', selName.has(n), dim, true);
+    opt.onclick = (e) => { e.preventDefault(); handleOptClick(e, selName, n); };
+    el.appendChild(opt);
+  });
+  if (!matched) el.innerHTML = '<div class="empty" style="padding:16px">无匹配的产品名</div>';
+}
+
+// ---------- 交互 ----------
+function toggleDD(id) {
+  const dd = document.getElementById(id);
+  const wasOpen = dd.classList.contains('open');
+  document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+  if (!wasOpen) {
+    dd.classList.add('open');
+    if (id === 'ddSeries') { seriesSearchKw = ''; const s = document.getElementById('ddSeriesSearch'); if (s) { s.value = ''; s.focus(); } }
+    if (id === 'ddName') { nameSearchKw = ''; const s = document.getElementById('ddNameSearch'); if (s) { s.value = ''; s.focus(); } }
+  }
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dd')) document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+  if (!e.target.closest('.kpi')) document.querySelectorAll('.kpi-dropdown').forEach(d => d.classList.remove('open'));
+});
+document.getElementById('asinSearch').addEventListener('input', (e) => {
+  asinSearchKw = e.target.value;
+  buildAsinOptions();
+});
+document.getElementById('asinSearch').addEventListener('click', (e) => e.stopPropagation());
+const _ss = document.getElementById('ddSeriesSearch');
+if (_ss) { _ss.addEventListener('input', (e) => { seriesSearchKw = e.target.value; buildSeriesOptions(); }); _ss.addEventListener('click', (e) => e.stopPropagation()); }
+const _ns = document.getElementById('ddNameSearch');
+if (_ns) { _ns.addEventListener('input', (e) => { nameSearchKw = e.target.value; buildNameOptions(); }); _ns.addEventListener('click', (e) => e.stopPropagation()); }
+function setAll(kind, v) {
+  lastFilterDim = kind === 'status' ? 'status' : kind;
+  if (kind === 'channel') {
+    selChannel.clear();
+    if (v) CHANNELS.forEach(c => selChannel.add(c.id));
+    syncAndRender();
+    return;
+  }
+  const s = kind === 'country' ? selCountry : kind === 'week' ? selWeek : kind === 'asin' ? selAsin : kind === 'status' ? selState : kind === 'series' ? selSeries : kind === 'name' ? selName : selType;
+  s.clear();
+  if (v) {
+    if (kind === 'country') countryInScope().forEach(c => s.add(c));
+    else if (kind === 'week') weekCandidates().forEach(w => s.add(w.label));
+    else if (kind === 'asin') asinCandidates().forEach(a => s.add(a));
+    else if (kind === 'status') stateInScope().forEach(st => s.add(st));
+    else if (kind === 'series') seriesScope().forEach(x => s.add(x));
+    else if (kind === 'name') nameScope().forEach(x => s.add(x));
+    else Object.entries(typeCounts()).forEach(([t, cnt]) => { if (cnt > 0) s.add(t); });
+  }
+  syncAndRender();
+}
+function setAllCampaigns(v) {
+  lastFilterDim = 'campaign';
+  selCampaigns.clear();
+  if (v) campaignCandidates().forEach(c => selCampaigns.add(c.id));
+  syncAndRender();
+}
+function updateSummaries() {
+  const fmt = (set, n) => set.size === 0 ? '全部' : `已选 ${set.size}/${n} 项`;
+  const chEl = document.getElementById('ddChannelSummary');
+  if (chEl) chEl.textContent = channelMerged() ? '全部（合并）' : [...selChannel].map(c => CHANNEL_CN[c] || c).join('、') + ' 单独看';
+  document.getElementById('ddCountrySummary').textContent = fmt(selCountry, DATA.countries.length);
+  document.getElementById('ddWeekSummary').textContent = fmt(selWeek, DATA.weeks.length);
+  document.getElementById('ddAsinSummary').textContent = fmt(selAsin, DATA.asins.length);
+  document.getElementById('ddTypeSummary').textContent = fmt(selType, DATA.types.length);
+  document.getElementById('ddStatusSummary').textContent = fmt(selState, DATA.states.length);
+  const ss = document.getElementById('ddSeriesSummary');
+  if (ss) ss.textContent = selSeries.size === 0 ? '全部' : `已选 ${selSeries.size} 项`;
+  const ns = document.getElementById('ddNameSummary');
+  if (ns) ns.textContent = selName.size === 0 ? '全部' : `已选 ${selName.size} 项`;
+  document.getElementById('ddCampaignSummary').textContent = selCampaigns.size === 0
+    ? `全部活动(${campaignCandidates().length})`
+    : `已选 ${selCampaigns.size}/${campaignCandidates().length} 个`;
+}
+
+// ---------- 聚合 ----------
+function emptyAgg() { return { impressions:0, clicks:0, cost:0, orders:0, sales:0, videoComplete:0, videoMidpoint:0 }; }
+function addAgg(t, r) {
+  t.impressions += r.impressions; t.clicks += r.clicks; t.cost += r.cost;
+  t.orders += r.orders; t.sales += r.sales;
+  t.videoComplete += r.videoComplete || 0; t.videoMidpoint += r.videoMidpoint || 0;
+}
+function aggregate() {
+  const totals = emptyAgg();
+  const perWeek = {};
+  const typePerWeek = {};
+  DATA.records.forEach(r => {
+    if (!recInScope(r)) return;
+    addAgg(totals, r);
+    const pw = perWeek[r.week] || (perWeek[r.week] = emptyAgg());
+    addAgg(pw, r);
+    const tw = (typePerWeek[r.week] || (typePerWeek[r.week] = {}));
+    const tp = tw[r.type] || (tw[r.type] = emptyAgg());
+    addAgg(tp, r);
+  });
+  return { totals, perWeek, typePerWeek };
+}
+function aggregateByAdGroup() {
+  const map = {};
+  DATA.records.forEach(r => {
+    if (!recInScope(r)) return;
+    const k = r.adGroupId || r.adGroup || r.campaign;
+    const g = map[k] || (map[k] = Object.assign({ adGroup: r.adGroup, type: r.type, gkey: k, country: r.country, campaignId: r.campaignId, adGroupId: r.adGroupId }, emptyAgg()));
+    addAgg(g, r);
+  });
+  return Object.values(map).sort((a, b) => b.cost - a.cost);
+}
+function aggregateByAdGroupWeek(gkey) {
+  const map = {};
+  DATA.records.forEach(r => {
+    if (!recInScope(r)) return;
+    const k = r.adGroupId || r.adGroup || r.campaign;
+    if (k !== gkey) return;
+    const pw = map[r.week] || (map[r.week] = emptyAgg());
+    addAgg(pw, r);
+  });
+  return map;
+}
+
+// ---------- 指标计算与格式化 ----------
+function ctr(a) { return a.impressions > 0 ? a.clicks / a.impressions * 100 : null; }
+function cvr(a) { return a.clicks > 0 ? a.orders / a.clicks * 100 : null; }
+function cpc(a) { return a.clicks > 0 ? a.cost / a.clicks : null; }
+function acos(a) { return a.sales > 0 ? a.cost / a.sales * 100 : null; }
+function roas(a) { return a.cost > 0 ? a.sales / a.cost : null; }
+
+function activeCurrencies() {
+  const codes = selCountry.size ? [...selCountry] : DATA.countries.filter(c => c.hasData).map(c => c.code);
+  return new Set(codes.map(c => countryMap[c].currency));
+}
+function curSymbol() {
+  const cs = activeCurrencies();
+  if (cs.size === 1) return CUR_SYMBOL[[...cs][0]] || [...cs][0] + ' ';
+  return '';
+}
+function fmtMoney(v) {
+  const s = curSymbol();
+  return s + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtNum(v) { return Math.round(v).toLocaleString(); }
+function fmtPct(v) { return v === null ? '—' : v.toFixed(2) + '%'; }
+function fmtRatio(v) { return v === null ? '—' : v.toFixed(2) + 'x'; }
+function fmtCell(v, kind) {
+  if (v === null || v === undefined) return '<span style="color:#cbd5e1">—</span>';
+  if (kind === 'money') return fmtMoney(v);
+  if (kind === 'pct') return v.toFixed(2) + '%';
+  if (kind === 'ratio') return v.toFixed(2) + 'x';
+  if (kind === 'cpc') return (v === null || v === undefined) ? '<span style="color:#cbd5e1">—</span>' : (curSymbol() + v.toFixed(2));
+  return fmtNum(v);
+}
+
+const COLS = [
+  { key:'impressions',    short:'曝光',   label:'曝光量 Impressions', kind:'num' },
+  { key:'clicks',         short:'点击',   label:'点击量 Clicks', kind:'num' },
+  { key:'cost',           short:'花费',   label:'广告花费 Ad Spend', kind:'money' },
+  { key:'orders',         short:'订单',   label:'广告订单数 Orders', kind:'num' },
+  { key:'sales',          short:'销售额', label:'广告销售额 Ad Sales', kind:'money' },
+  { key:'ctr',            short:'CTR',    label:'点击率 CTR (%)', kind:'pct' },
+  { key:'cvr',            short:'CVR',    label:'转化率 CVR (%)', kind:'pct' },
+  { key:'cpc',            short:'CPC',    label:'单次点击成本 CPC', kind:'cpc' },
+  { key:'acos',           short:'ACOS',   label:'广告花费销售比 ACOS (%)', kind:'pct' },
+  { key:'roas',           short:'ROAS',   label:'投产比 ROAS (倍)', kind:'ratio' },
+  { key:'videoComplete',  short:'视频完播', label:'视频完播次数 Video Complete Views', kind:'num' },
+  { key:'videoMidpoint',  short:'播放一半', label:'播放至一半次数 Video Midpoint Views', kind:'num' },
+];
+// 投放词列 (不含视频指标)
+const KW_COLS = COLS.filter(c => !c.key.startsWith('video'));
+
+// ---- KPI 可自定义 (5 个卡片, 点击替换) ----
+const KPI_DEFS = [
+  { key:'orders',         label:'订单数',      icon:'🛒',  fmt:(t)=>fmtNum(t.orders) },
+  { key:'sales',          label:'广告销售额',  icon:'💵',  fmt:(t)=>fmtMoney(t.sales) },
+  { key:'cost',           label:'广告花费',    icon:'📢',  fmt:(t)=>fmtMoney(t.cost) },
+  { key:'roas',           label:'ROAS',        icon:'🚀',  fmt:(t)=>fmtRatio(roas(t)) },
+  { key:'cvr',            label:'CVR',         icon:'🎯',  fmt:(t)=>fmtPct(cvr(t)) },
+  { key:'clicks',         label:'点击数',      icon:'🖱',  fmt:(t)=>fmtNum(t.clicks) },
+  { key:'impressions',    label:'曝光量',      icon:'👀',  fmt:(t)=>fmtNum(t.impressions) },
+  { key:'ctr',            label:'CTR',         icon:'📈',  fmt:(t)=>fmtPct(ctr(t)) },
+  { key:'cpc',            label:'CPC',         icon:'💰',  fmt:(t)=>cpc(t)===null?'—':curSymbol()+cpc(t).toFixed(2) },
+  { key:'acos',           label:'ACOS',        icon:'📉',  fmt:(t)=>fmtPct(acos(t)) },
+  { key:'videoComplete',  label:'视频完播',    icon:'🎬',  fmt:(t)=>fmtNum(t.videoComplete) },
+  { key:'videoMidpoint',  label:'播放一半',    icon:'⏯',  fmt:(t)=>fmtNum(t.videoMidpoint) },
+];
+let selectedKpiKeys = ['cost','sales','cpc','acos','cvr'];
+
+function colVal(a, key) {
+  switch (key) {
+    case 'ctr': return ctr(a);
+    case 'cvr': return cvr(a);
+    case 'cpc': return cpc(a);
+    case 'acos': return acos(a);
+    case 'roas': return roas(a);
+    default: return a[key];
+  }
+}
+function hasAnyData(a) { return a.impressions > 0 || a.clicks > 0 || a.cost > 0 || a.orders > 0 || a.sales > 0 || a.videoComplete > 0 || a.videoMidpoint > 0; }
+
+// ---------- 渲染 ----------
+function renderKpis(c) {
+  const t = c.totals;
+  const used = new Set(selectedKpiKeys);
+  const html = selectedKpiKeys.map((key, idx) => {
+    const def = KPI_DEFS.find(d => d.key === key) || KPI_DEFS[0];
+    const opts = KPI_DEFS.map(d => {
+      const checked = d.key === key ? '<span class="check">✓</span>' : '<span class="check"></span>';
+      return `<div class="kpi-dropdown-item" onclick="swapKpi(${idx}, '${d.key}'); event.stopPropagation();">${checked}${d.icon} ${d.label}</div>`;
+    }).join('');
+    return `<div class="kpi" style="background:#f0f7ff" onclick="toggleKpiDropdown(${idx}, event)">
+      <div class="kpi-swap">⚙</div>
+      <div class="label">${def.icon} ${def.label}</div>
+      <div class="value">${def.fmt(t)}</div>
+      <div class="kpi-dropdown" id="kpi-dd-${idx}">${opts}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('kpiRow').innerHTML = html;
+}
+function toggleKpiDropdown(idx, e) {
+  e.stopPropagation();
+  const all = document.querySelectorAll('.kpi-dropdown');
+  all.forEach((el, i) => { if (i !== idx) el.classList.remove('open'); });
+  const el = document.getElementById('kpi-dd-' + idx);
+  if (el) el.classList.toggle('open');
+}
+function swapKpi(idx, newKey) {
+  selectedKpiKeys[idx] = newKey;
+  document.querySelectorAll('.kpi-dropdown').forEach(el => el.classList.remove('open'));
+  const c = calc();
+  renderKpis(c);
+}
+function closeKpiDropdowns() { document.querySelectorAll('.kpi-dropdown').forEach(el => el.classList.remove('open')); }
+
+function renderTable(c) {
+  const head = document.getElementById('sumHead');
+  const body = document.getElementById('sumBody');
+  const weeks = selWeek.size ? DATA.weeks.filter(w => selWeek.has(w.label)) : DATA.weeks;
+  const camp = activeCampaign();
+
+  let h = `<tr><th rowspan="2" class="frozen" style="min-width:110px">周数</th>`;
+  h += `<th colspan="${COLS.length}" style="background:#f0f7ff;color:#1e40af">${camp ? '广告活动数据' : '全部广告汇总'}</th></tr><tr>`;
+  COLS.forEach(m => { h += `<th>${m.short}</th>`; });
+  h += '</tr>';
+  head.innerHTML = h;
+
+  if (!hasAnyData(c.totals)) {
+    body.innerHTML = `<tr><td colspan="${COLS.length + 1}" class="empty">当前筛选范围内无广告数据, 请调整筛选条件</td></tr>`;
+    return;
+  }
+
+  let rows = '';
+  weeks.forEach(w => {
+    const pw = c.perWeek[w.label] || emptyAgg();
+    let row = `<tr><td class="frozen" style="font-weight:600">${w.label}<br><span style="font-weight:400;font-size:10px;color:#94a3b8">${w.start.slice(5)}~${w.end.slice(5)}</span></td>`;
+    COLS.forEach(m => { row += `<td>${fmtCell(colVal(pw, m.key), m.kind)}</td>`; });
+    row += '</tr>';
+    rows += row;
+  });
+
+  let totalRow = `<tr class="total-row"><td class="frozen">合计</td>`;
+  COLS.forEach(m => {
+    let v;
+    if (m.key === 'ctr') v = ctr(c.totals);
+    else if (m.key === 'cvr') v = cvr(c.totals);
+    else if (m.key === 'cpc') v = cpc(c.totals);
+    else if (m.key === 'acos') v = acos(c.totals);
+    else if (m.key === 'roas') v = roas(c.totals);
+    else v = c.totals[m.key];
+    totalRow += `<td>${fmtCell(v, m.kind)}</td>`;
+  });
+  totalRow += '</tr>';
+  rows += totalRow;
+
+  body.innerHTML = rows;
+}
+
+function groupDetailHtml(g) {
+  const gkey = g.gkey || g;
+  const map = aggregateByAdGroupWeek(gkey);
+  const weeks = selWeek.size ? DATA.weeks.filter(w => selWeek.has(w.label)) : DATA.weeks;
+  let h = `<table class="sub-table"><thead><tr><th>周数</th><th>周期</th>`;
+  COLS.forEach(m => h += `<th>${m.short}</th>`);
+  h += '</tr></thead><tbody>';
+  weeks.forEach(w => {
+    const pw = map[w.label] || emptyAgg();
+    h += `<tr><td style="font-weight:600">${w.label}</td><td style="color:#94a3b8">${w.start.slice(5)}~${w.end.slice(5)}</td>`;
+    COLS.forEach(m => h += `<td>${fmtCell(colVal(pw, m.key), m.kind)}</td>`);
+    h += '</tr>';
+  });
+  const total = emptyAgg();
+  Object.values(map).forEach(a => addAgg(total, a));
+  h += `<tr class="sub-total"><td>合计</td><td></td>`;
+  COLS.forEach(m => {
+    let v;
+    if (m.key === 'ctr') v = ctr(total);
+    else if (m.key === 'cvr') v = cvr(total);
+    else if (m.key === 'cpc') v = cpc(total);
+    else if (m.key === 'acos') v = acos(total);
+    else if (m.key === 'roas') v = roas(total);
+    else v = total[m.key];
+    h += `<td>${fmtCell(v, m.kind)}</td>`;
+  });
+  h += '</tr></tbody></table>';
+
+  // ---- 投放词区 ----
+  if (DATA.keywords && DATA.keywords.length) {
+    const kws = keywordsForAdGroup(g);
+    if (kws.length) {
+      h += '<div class="kw-section">';
+      h += '<div class="kw-section-title">📝 投放词明细 (点击行展开周度数据 · 共 ' + kws.length + ' 个)</div>';
+      h += '<table class="kw-table"><thead><tr><th style="width:28px"></th><th>投放词</th><th>匹配</th><th>状态</th>';
+      KW_COLS.forEach(m => h += `<th>${m.short}</th>`);
+      h += '</tr></thead><tbody>';
+      kws.forEach(kw => {
+        const agg = emptyAgg();
+        Object.values(kw.weeks).forEach(w => {
+          agg.impressions += w.impressions || 0;
+          agg.clicks += w.clicks || 0;
+          agg.cost += w.cost || 0;
+          agg.orders += w.orders || 0;
+          agg.sales += w.sales || 0;
+        });
+        h += `<tr class="kw-row" onclick="toggleKwDetail(this)">
+          <td><span class="kw-toggle">▶</span></td>
+          <td style="font-weight:500;text-align:left">${kw.keywordText}</td>
+          <td>${kw.matchType}</td>
+          <td>${kw.state === 'enabled' ? '✅' : '⏸'}</td>`;
+        KW_COLS.forEach(m => h += `<td>${fmtCell(colVal(agg, m.key), m.kind)}</td>`);
+        h += '</tr>';
+        h += `<tr class="kw-detail-row" data-open="0" style="display:none"><td colspan="${KW_COLS.length + 4}" class="kw-detail-cell">${kwDetailHtml(kw)}</td></tr>`;
+      });
+      h += '</tbody></table></div>';
+    }
+  }
+  return h;
+}
+
+// 投放词：按广告组查找匹配的关键词（受筛选范围约束）
+function keywordsForAdGroup(g) {
+  if (!DATA.keywords || !DATA.keywords.length) return [];
+  const gkey = g.gkey || g;
+  // 从关键词数据中按 adGroupId 或 adGroupName 匹配
+  return DATA.keywords.filter(kw => {
+    // 国家范围
+    if (selCountry.size && !selCountry.has(kw.country)) return false;
+    // 广告活动范围
+    if (selCampaigns.size && !selCampaigns.has(kw.campaignId)) return false;
+    // 匹配广告组: 优先用 adGroupId，其次用 adGroupName
+    if (g.adGroupId && kw.adGroupId === g.adGroupId && g.country === kw.country) {
+      // 周范围: 至少一周有数据
+      if (selWeek.size) {
+        return Object.keys(kw.weeks).some(w => selWeek.has(w));
+      }
+      return true;
+    }
+    // 退路: 按 adGroupName 匹配（SB 等无 adGroupId 时）
+    if (!g.adGroupId && g.adGroup && kw.adGroupName === g.adGroup && g.country === kw.country) {
+      if (selWeek.size) {
+        return Object.keys(kw.weeks).some(w => selWeek.has(w));
+      }
+      return true;
+    }
+    return false;
+  }).sort((a, b) => {
+    // 按总花费降序
+    const ca = Object.values(a.weeks).reduce((s, w) => s + (w.cost || 0), 0);
+    const cb = Object.values(b.weeks).reduce((s, w) => s + (w.cost || 0), 0);
+    return cb - ca;
+  });
+}
+
+// 投放词周度明细子表
+function kwDetailHtml(kw) {
+  const weeks = selWeek.size ? DATA.weeks.filter(w => selWeek.has(w.label)) : DATA.weeks;
+  let h = '<table class="sub-table"><thead><tr><th>周数</th><th>周期</th>';
+  KW_COLS.forEach(m => h += `<th>${m.short}</th>`);
+  h += '</tr></thead><tbody>';
+  const total = emptyAgg();
+  weeks.forEach(w => {
+    const kwWeek = kw.weeks[w.label] || { impressions:0, clicks:0, cost:0, orders:0, sales:0 };
+    total.impressions += kwWeek.impressions || 0;
+    total.clicks += kwWeek.clicks || 0;
+    total.cost += kwWeek.cost || 0;
+    total.orders += kwWeek.orders || 0;
+    total.sales += kwWeek.sales || 0;
+    h += `<tr><td style="font-weight:600">${w.label}</td><td style="color:#94a3b8">${w.start.slice(5)}~${w.end.slice(5)}</td>`;
+    KW_COLS.forEach(m => h += `<td>${fmtCell(colVal(kwWeek, m.key), m.kind)}</td>`);
+    h += '</tr>';
+  });
+  h += `<tr class="sub-total"><td>合计</td><td></td>`;
+  KW_COLS.forEach(m => {
+    let v;
+    if (m.key === 'ctr') v = ctr(total);
+    else if (m.key === 'cvr') v = cvr(total);
+    else if (m.key === 'cpc') v = cpc(total);
+    else if (m.key === 'acos') v = acos(total);
+    else if (m.key === 'roas') v = roas(total);
+    else v = total[m.key];
+    h += `<td>${fmtCell(v, m.kind)}</td>`;
+  });
+  h += '</tr></tbody></table>';
+  return h;
+}
+
+function toggleKwDetail(tr) {
+  const detailTr = tr.nextElementSibling;
+  const btn = tr.querySelector('.kw-toggle');
+  if (!detailTr || !detailTr.classList.contains('kw-detail-row')) return;
+  const open = detailTr.dataset.open === '1';
+  detailTr.dataset.open = open ? '0' : '1';
+  detailTr.style.display = open ? 'none' : 'table-row';
+  if (btn) btn.textContent = open ? '▶' : '▼';
+  tr.classList.toggle('kw-open', !open);
+}
+
+function toggleGroupDetail(tr) {
+  const detailTr = tr.nextElementSibling;
+  const btn = tr.querySelector('.grp-toggle');
+  if (!detailTr || !detailTr.classList.contains('grp-detail')) return;
+  const open = detailTr.dataset.open === '1';
+  detailTr.dataset.open = open ? '0' : '1';
+  detailTr.style.display = open ? 'none' : '';
+  if (btn) btn.textContent = open ? '▶' : '▼';
+  if (tr) tr.classList.toggle('grp-open', !open);
+}
+
+function renderAdGroupTable() {
+  const card = document.getElementById('adgroupCard');
+  const head = document.getElementById('adgroupHead');
+  const body = document.getElementById('adgroupBody');
+  const camp = activeCampaign();
+  if (!camp) { card.style.display = 'none'; return; }
+  const groups = aggregateByAdGroup();
+  card.style.display = '';
+  let h = `<tr><th class="frozen" style="min-width:42px"></th><th class="frozen">广告组</th>`;
+  COLS.forEach(m => { h += `<th>${m.short}</th>`; });
+  h += '</tr>';
+  head.innerHTML = h;
+  if (!groups.length) { body.innerHTML = `<tr><td colspan="${COLS.length + 2}" class="empty">无数据</td></tr>`; return; }
+  let rows = '';
+  groups.forEach(g => {
+    let row = `<tr class="grp-row" onclick="toggleGroupDetail(this)">
+      <td class="frozen" style="cursor:pointer"><span class="grp-toggle">▶</span></td>
+      <td class="frozen" style="cursor:pointer"><span class="tag ${TYPE_CLS[g.type] || ''}">${TYPE_SHORT[g.type] || g.type}</span> ${g.adGroup}</td>`;
+    COLS.forEach(m => { row += `<td>${fmtCell(colVal(g, m.key), m.kind)}</td>`; });
+    row += '</tr>';
+    row += `<tr class="grp-detail" data-open="0" style="display:none"><td colspan="${COLS.length + 2}" class="grp-detail-cell">${groupDetailHtml(g)}</td></tr>`;
+    rows += row;
+  });
+  body.innerHTML = rows;
+}
+
+function renderViewBar() {
+  const badge = document.getElementById('viewBadge');
+  const meta = document.getElementById('campMeta');
+  const title = document.getElementById('tableTitle');
+  const agTitle = document.getElementById('adgroupTitle');
+  const camp = activeCampaign();
+  if (!camp) {
+    badge.className = 'view-badge view-agg';
+    badge.textContent = '📊 汇总视图' + (selCampaigns.size > 1 ? ` (已选 ${selCampaigns.size} 个活动)` : ' (全部广告活动)');
+    meta.style.display = 'none';
+    title.textContent = '周度广告数据对比 (行=Week · 列=广告指标 · 多活动汇总)';
+  } else {
+    badge.className = 'view-badge view-camp';
+    badge.textContent = '🎯 活动视图';
+    const metaHtml = `<span class="view-camp-name">${camp.name}</span>
+      <span class="tag ${TYPE_CLS[camp.type] || ''}">${TYPE_SHORT[camp.type] || camp.type} ${TYPE_NAME[camp.type] || ''}</span>
+      <span><b>ASIN:</b> ${camp.asin}</span><span><b>SKU:</b> ${camp.sku || '—'}</span>
+      <span><b>国家:</b> ${countryMap[camp.country] ? countryMap[camp.country].name : camp.country}</span>
+      <span><b>组合:</b> ${camp.portfolio || '—'}</span>`;
+    meta.innerHTML = metaHtml;
+    meta.style.display = 'flex';
+    title.textContent = `周度广告数据对比 (广告活动: ${camp.name})`;
+    agTitle.textContent = '广告组明细 (点击行展开 → 周度数据 + 投放词)';
+  }
+}
+
+function renderCharts(c) {
+  const weeks = selWeek.size ? DATA.weeks.filter(w => selWeek.has(w.label)) : DATA.weeks;
+  const labels = weeks.map(w => w.label);
+
+  // 1. 花费 & 销售额
+  const costData = labels.map(l => c.perWeek[l] ? c.perWeek[l].cost : 0);
+  const salesData = labels.map(l => c.perWeek[l] ? c.perWeek[l].sales : 0);
+  mkChart('spendSalesChart', 'bar', {
+    labels, datasets: [
+      { type:'bar', label:'广告花费', data: costData, backgroundColor:'rgba(220,38,38,.65)', borderRadius:3, yAxisID:'y' },
+      { type:'line', label:'广告销售额', data: salesData, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,.08)', tension:.3, fill:true, pointRadius:3, yAxisID:'y' },
+    ],
+    options: { scales: { y: { title:{display:true, text:'金额 (原币)'} } } },
+  });
+
+  // 2. 曝光·点击·CPC·花费·销售额 综合趋势 (四轴: 曝光|点击|CPC|金额)
+  const impData = labels.map(l => c.perWeek[l] ? c.perWeek[l].impressions : 0);
+  const clkData = labels.map(l => c.perWeek[l] ? c.perWeek[l].clicks : 0);
+  const cpcData = labels.map(l => {
+    const a = c.perWeek[l];
+    return (a && a.clicks > 0) ? +(a.cost / a.clicks).toFixed(2) : null;
+  });
+  const costData2 = labels.map(l => c.perWeek[l] ? c.perWeek[l].cost : 0);
+  const salesData2 = labels.map(l => c.perWeek[l] ? c.perWeek[l].sales : 0);
+  mkChart('impClickChart', 'bar', {
+    labels, datasets: [
+      { type:'bar', label:'曝光量', data: impData, backgroundColor:'rgba(37,99,235,.5)', borderRadius:3, yAxisID:'y' },
+      { type:'line', label:'点击量', data: clkData, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.08)', tension:.3, fill:true, pointRadius:3, yAxisID:'y1' },
+      { type:'line', label:'CPC', data: cpcData, borderColor:'#dc2626', borderDash:[5,3], tension:.3, pointRadius:3, spanGaps:false, yAxisID:'y2' },
+      { type:'line', label:'广告花费', data: costData2, borderColor:'#8b5cf6', tension:.3, pointRadius:3, yAxisID:'y3' },
+      { type:'line', label:'广告销售额', data: salesData2, borderColor:'#059669', tension:.3, pointRadius:3, yAxisID:'y3' },
+    ],
+    options: {
+      layout: { padding: { right: 18 } },
+      plugins: { legend: { position:'top', labels: { boxWidth: 10, font: { size: 11 } } } },
+      scales: {
+        y: { title:{display:true, text:'曝光量', color:'#2563eb', font:{size:11}}, ticks:{ maxTicksLimit:6 } },
+        y1: { position:'right', title:{display:true, text:'点击', color:'#f59e0b', font:{size:11}, padding:{bottom:2}}, grid:{drawOnChartArea:false} },
+        y2: { position:'right', title:{display:true, text:'CPC', color:'#dc2626', font:{size:11}, padding:{bottom:2}}, grid:{drawOnChartArea:false}, ticks:{ callback: v => +v.toFixed(1) } },
+        y3: { position:'right', title:{display:true, text:'金额', color:'#475569', font:{size:11}, padding:{bottom:2}}, grid:{drawOnChartArea:false} },
+      },
+    },
+  });
+
+  // 3. 广告形式花费分布 (堆叠)
+  const typeCost = {};
+  DATA.types.forEach(t => typeCost[t.code] = labels.map(() => 0));
+  labels.forEach((l, i) => {
+    const tw = c.typePerWeek[l];
+    if (tw) DATA.types.forEach(t => { if (tw[t.code]) typeCost[t.code][i] = tw[t.code].cost; });
+  });
+  const TYPE_COLORS = { sponsoredProducts:'#2563eb', sponsoredBrands:'#f59e0b', sponsoredDisplay:'#8b5cf6' };
+  mkChart('typeStackChart', 'bar', {
+    labels, datasets: DATA.types.map(t => ({
+      label: `${TYPE_NAME[t.code]} ${TYPE_SHORT[t.code]}`, data: typeCost[t.code],
+      backgroundColor: TYPE_COLORS[t.code] || '#94a3b8', borderRadius:2,
+    })),
+    options: { scales: { x:{ stacked:true }, y:{ stacked:true, title:{display:true, text:'花费 (原币)'} } } },
+  });
+
+  // 4. ACOS & ROAS
+  const acosData = labels.map(l => { const a = c.perWeek[l]; return a && hasAnyData(a) ? (acos(a) === null ? null : +acos(a).toFixed(2)) : null; });
+  const roasData = labels.map(l => { const a = c.perWeek[l]; return a && hasAnyData(a) ? (roas(a) === null ? null : +roas(a).toFixed(2)) : null; });
+  mkChart('acosRoasChart', 'line', {
+    labels, datasets: [
+      { label:'ACOS (%)', data: acosData, borderColor:'#dc2626', tension:.3, pointRadius:3, yAxisID:'y', spanGaps:false },
+      { label:'ROAS (倍)', data: roasData, borderColor:'#059669', tension:.3, pointRadius:3, yAxisID:'y1', spanGaps:false },
+    ],
+    options: {
+      scales: {
+        y: { title:{display:true, text:'ACOS %'}, position:'left' },
+        y1: { title:{display:true, text:'ROAS x'}, position:'right', grid:{drawOnChartArea:false} },
+      },
+    },
+  });
+
+  // 5. 视频完播 & 播放一半
+  const vcData = labels.map(l => c.perWeek[l] ? c.perWeek[l].videoComplete : 0);
+  const vmData = labels.map(l => c.perWeek[l] ? c.perWeek[l].videoMidpoint : 0);
+  mkChart('videoChart', 'bar', {
+    labels, datasets: [
+      { type:'bar', label:'视频完播次数', data: vcData, backgroundColor:'rgba(139,92,246,.65)', borderRadius:3, yAxisID:'y' },
+      { type:'line', label:'播放至一半次数', data: vmData, borderColor:'#0d9488', backgroundColor:'rgba(13,148,136,.1)', tension:.3, fill:true, pointRadius:3, yAxisID:'y' },
+    ],
+    options: { scales: { y: { title:{display:true, text:'次数'} } } },
+  });
+}
+
+function mkChart(id, type, cfg) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  const { labels, datasets, ...rest } = cfg;
+  charts[id] = new Chart(ctx, Object.assign({
+    type,
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { position:'bottom', labels:{ boxWidth:12, boxHeight:12, font:{ size:11 } } } },
+      scales: { x: { grid:{ display:false } } },
+    },
+  }, rest));
+}
+
+function render() {
+  const c = aggregate();
+  renderViewBar();
+  renderKpis(c);
+  renderTable(c);
+  renderAdGroupTable();
+  renderCharts(c);
+}
+
+// ---------- 主流程 ----------
+function syncAndRender() {
+  pruneSelections();
+  buildChannelOptions();
+  buildCountryOptions();
+  buildWeekOptions();
+  buildAsinOptions();
+  buildSeriesOptions();
+  buildNameOptions();
+  buildTypeOptions();
+  buildStateOptions();
+  buildCampaignOptions();
+  updateSummaries();
+  updateCurNote();
+  render();
+}
+
+function updateCurNote() {
+  const cs = activeCurrencies();
+  const note = [...cs].map(c => `${c}${CUR_SYMBOL[c] ? ' ' + CUR_SYMBOL[c] : ''}`).join(' / ');
+  document.getElementById('curNote').textContent = cs.size > 1 ? `货币: ${note} (原币相加)` : `货币: ${note}`;
+}
+
+function exportCSV() {
+  const c = aggregate();
+  const weeks = selWeek.size ? DATA.weeks.filter(w => selWeek.has(w.label)) : DATA.weeks;
+  const camp = activeCampaign();
+  const title = camp ? `广告活动周度对比_${camp.name}` : '全部广告周度汇总';
+  let csv = '\uFEFF' + title + '\n';
+  csv += '周数,周期,' + COLS.map(m => m.label).join(',') + '\n';
+  weeks.forEach(w => {
+    const pw = c.perWeek[w.label] || emptyAgg();
+    const vals = COLS.map(m => {
+      const v = colVal(pw, m.key);
+      if (v === null) return '';
+      if (m.kind === 'pct') return v.toFixed(2);
+      if (m.kind === 'ratio' || m.kind === 'cpc') return v.toFixed(2);
+      return Math.round(v);
+    });
+    csv += `${w.label},${w.start}~${w.end},${vals.join(',')}\n`;
+  });
+  const tvals = COLS.map(m => {
+    const v = colVal(c.totals, m.key);
+    if (v === null) return '';
+    if (m.kind === 'pct') return v.toFixed(2);
+    if (m.kind === 'ratio' || m.kind === 'cpc') return v.toFixed(2);
+    return Math.round(v);
+  });
+  csv += `合计,,${tvals.join(',')}\n`;
+  if (camp) {
+    csv += '\n广告组明细\n广告组,' + COLS.map(m => m.label).join(',') + '\n';
+    aggregateByAdGroup().forEach(g => {
+      const vals = COLS.map(m => {
+        const v = colVal(g, m.key);
+        if (v === null) return '';
+        if (m.kind === 'pct') return v.toFixed(2);
+        if (m.kind === 'ratio' || m.kind === 'cpc') return v.toFixed(2);
+        return Math.round(v);
+      });
+      csv += `${g.adGroup},${vals.join(',')}\n`;
+    });
+  }
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '广告周度分析_' + (camp ? camp.name : '汇总') + '.csv';
+  a.click();
+}
+
+function init() {
+  document.getElementById('genTime').textContent = DATA.generated_at;
+  document.getElementById('totalCountries').textContent = DATA.countries.length;
+  document.getElementById('totalAsins').textContent = DATA.asins.length;
+  document.getElementById('totalWeeks').textContent = DATA.weeks.length;
+  document.getElementById('totalCamps').textContent = DATA.campaigns.length;
+
+  // 重置选择状态 (默认: 空集=全部, 与活动/状态/系列/产品名语义一致)
+  // 注意: 不能初始"全选"——pruneSelections 会永久删除范围外选中项, 切换周再切回来,
+  // 其他维度的选择就丢了, 导致同样选 W36 销售额却变化(2026-09-07 用户反馈)。
+  // 空集=全部时 prune 无项可删, 周维度来回切换完全确定。
+  selCountry.clear(); selWeek.clear(); selAsin.clear(); selType.clear(); selState.clear(); selCampaigns.clear(); asinSearchKw = '';
+  selChannel.clear();
+  selSeries.clear(); selName.clear(); seriesSearchKw = ''; nameSearchKw = '';
+  document.getElementById('asinSearch').value = '';
+  const _ssEl = document.getElementById('ddSeriesSearch'); if (_ssEl) _ssEl.value = '';
+  const _nsEl = document.getElementById('ddNameSearch'); if (_nsEl) _nsEl.value = '';
+  syncAndRender();
+}
+
+init();
+</script>
+</body>
+</html>

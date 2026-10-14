@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 月度目标追踪看板</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#ffffff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --shadow:0 1px 3px rgba(16,24,40,.08);
+    --up:#dc2626; --down:#059669; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:14px 20px 10px; overflow:hidden; display:flex; flex-direction:column; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:12px; flex:none; }
+  .header h1 { font-size:18px; font-weight:700; }
+  .header .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.5; }
+  /* 数据完整性提示（2026-09-24）：源数据延迟时告诉用户"当月合计为什么偏低" */
+  .note-ok { color:#2f855a; font-weight:600; }
+  .note-calib { color:#2b6cb0; background:#ebf5ff; border:1px solid #bcdcff; border-radius:6px; padding:2px 8px; font-weight:600; }
+  .note-warn { color:#b26a00; background:#fff7e6; border:1px solid #ffe0a3; border-radius:6px; padding:2px 8px; font-weight:600; }
+  .badge { display:inline-block; background:#eef4ff; color:var(--primary); border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:12px 16px; margin-bottom:10px; flex:none; }
+  .card-table { flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:6px; }
+  .card-table .toolbar { flex:none; }
+  .card-table .table-wrap { flex:1; min-height:0; }
+  .card-table .note { flex:none; margin-top:6px; }
+  .footer { flex:none; }
+  .card-title { font-size:14px; font-weight:600; margin-bottom:10px; }
+  .sample-banner { background:#fffbeb; border:1px solid #fde68a; color:#92400e; border-radius:10px; padding:8px 14px; font-size:12.5px; margin-bottom:10px; flex:none; }
+  /* ---- KPI 卡片 ---- */
+  .kpis { display:grid; grid-template-columns:repeat(8, 1fr); gap:8px; margin-bottom:10px; flex:none; }
+  .kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 8px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .kpi-label { font-size:11.5px; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+  .kpi-value { font-size:18px; font-weight:700; margin-top:4px; letter-spacing:-.3px; white-space:nowrap; }
+  .kpi-sub { font-size:10.5px; color:var(--muted); margin-top:2px; white-space:nowrap; }
+  .kpi-chart { margin-top:4px; display:flex; align-items:center; justify-content:center; }
+  /* ---- 下拉筛选 ---- */
+  .filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+  .dd { position:relative; min-width:170px; }
+  .dd-btn { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer;
+    font-size:13px; color:var(--text); transition:all .15s; user-select:none; }
+  .dd-btn:hover { border-color:var(--primary); }
+  .dd-btn .dd-label { font-weight:600; white-space:nowrap; }
+  .dd-btn .dd-summary { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:right; }
+  .dd-btn .dd-arrow { font-size:10px; color:var(--muted); transition:transform .15s; }
+  .dd.open .dd-btn .dd-arrow { transform:rotate(180deg); }
+  .dd-panel { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:50; min-width:320px; max-width:640px;
+    background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(16,24,40,.14); padding:10px; }
+  .dd.open .dd-panel { display:block; }
+  .dd-panel .dd-tools { display:flex; gap:6px; margin-bottom:8px; align-items:center; flex-wrap:wrap; }
+  .dd-panel .dd-hint { margin-left:auto; font-size:11px; color:#999; white-space:nowrap; }
+  .dd-search { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; margin-bottom:8px; outline:none; }
+  .dd-search:focus { border-color:var(--primary); }
+  .dd-panel .dd-list { max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:2px; }
+  .dd-opt { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .dd-opt:hover { background:#f1f5f9; }
+  .dd-opt .opt-name { font-weight:500; }
+  .dd-opt .opt-sub { color:var(--muted); font-size:11px; margin-left:auto; text-align:right; }
+  .dd-opt.sel { background:#eef4ff; }
+  .dd-opt.dim { opacity:.42; }
+  .dd-opt.dim .opt-name, .dd-opt.dim .opt-sub { cursor:default; }
+  .dd-opt input { accent-color:var(--primary); }
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:3px 12px; border-radius:6px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); }
+  /* ---- 表格 ---- */
+  .toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+  .table-wrap { overflow:auto; border:1px solid var(--border); border-radius:8px; }
+  table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+  th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:right; white-space:nowrap; }
+  th { background:#f8fafc; font-weight:600; color:var(--muted); position:sticky; top:0; z-index:2; }
+  td:first-child, th:first-child { text-align:left; }
+  .frozen { position:sticky; left:0; background:#fff; z-index:1; box-shadow:2px 0 0 var(--border); }
+  thead .frozen { background:#f8fafc; z-index:3; }
+  tr.total-row td { background:#f0f4ff; font-weight:700; border-top:2px solid var(--border); }
+  tr.total-row .frozen { background:#f0f4ff; }
+  .cell-na { color:#b6c0d0; }
+  .m-day { font-size:11px; color:var(--muted); font-weight:500; }
+  .m-flag { display:inline-block; font-size:10px; border-radius:4px; padding:1px 6px; font-weight:600; margin-left:6px; }
+  .m-flag.partial { background:#fef3c7; color:#92400e; }
+  .m-flag.ongoing { background:#dcfce7; color:#166534; }
+  /* 进度条 */
+  .prog { position:relative; background:#eef1f6; border-radius:6px; height:16px; min-width:110px; overflow:hidden; }
+  .prog .bar { position:absolute; left:0; top:0; bottom:0; border-radius:6px; }
+  .prog .txt { position:relative; z-index:2; font-size:10.5px; font-weight:700; text-align:center; line-height:16px; color:#1f2733; }
+  .bar.ok { background:#bbf7d0; }
+  .bar.warn { background:#fde68a; }
+  .bar.bad { background:#fecaca; }
+  .bar.over { background:#86efac; }
+  /* 状态标签 */
+  .st { display:inline-block; font-size:11px; font-weight:700; border-radius:5px; padding:2px 8px; }
+  .st.ok { background:#dcfce7; color:#166534; }
+  .st.ahead { background:#dbeafe; color:#1e40af; }
+  .st.behind { background:#ffedd5; color:#9a3412; }
+  .st.miss { background:#fee2e2; color:#991b1b; }
+  .st.none { background:#f1f5f9; color:#64748b; }
+  .st.unmatched { background:#fef3c7; color:#92400e; }
+  .empty { text-align:center; padding:36px; color:var(--muted); font-size:14px; }
+  .footer { text-align:center; color:var(--muted); font-size:12px; margin-top:4px; flex:none; }
+  .note { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.7; }
+  @media (max-width: 1400px) { .kpis { grid-template-columns:repeat(4, 1fr); } }
+</style>
+<style>
+/* note-fold: 解释块折叠 (2026-10-12) */
+.noteFold{margin-top:8px;border:1px solid var(--border);border-radius:8px;background:rgba(127,127,127,.045);}
+.noteFold>summary{cursor:pointer;list-style:none;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none;}
+.noteFold>summary::-webkit-details-marker{display:none;}
+.noteFold>summary::marker{content:'';}
+.noteFold>summary::before{content:'▸';font-size:11px;display:inline-block;transition:transform .15s;}
+.noteFold[open]>summary::before{transform:rotate(90deg);}
+.noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
+.noteFold[open]>summary::after{content:'收起';}
+.noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+</style>
+<script>
+/* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
+(function(){
+  function sync(){
+    var ds = document.querySelectorAll('details.noteFold');
+    for (var i = 0; i < ds.length; i++) {
+      var b = ds[i].querySelector('.note,.foot-note');
+      ds[i].style.display = (b && b.textContent.trim()) ? '' : 'none';
+    }
+  }
+  window.__syncNoteFold = sync;      // 供动态填充说明块的页面（JoyBuy）在填充后调用
+  function boot(){
+    sync();
+    // 说明块常由 JS 异步填充（如 JoyBuy 的 #filterNote/#footNote）：
+    // 填充前被判为空块而 display:none，填充后必须重跑，否则说明块永久消失。
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function(){ sync(); });
+      var ds = document.querySelectorAll('details.noteFold');
+      for (var i = 0; i < ds.length; i++) mo.observe(ds[i], { childList: true, characterData: true, subtree: true });
+    }
+    setTimeout(sync, 0); setTimeout(sync, 800);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+
+<div class="header">
+  <div>
+    <h1>🎯 Aliencell 月度目标追踪看板</h1>
+    <div class="sub"><b>平台</b>：Amazon / JoyBuy / 速卖通（左上角切换）· 目标(产品×地区×月份) vs 月度实际 · 销售额均为<b>人民币¥</b>(按每月1号汇率折算) · 广告占比追踪 · 更新: <span id="genTime">__GEN_TIME__</span> &nbsp;|&nbsp; <span id="dataNote">__DATA_NOTE__</span></div>
+  </div>
+  <span class="badge" id="rangeBadge">—</span>
+</div>
+
+<div class="sample-banner" id="platBanner" style="display:none"></div>
+<div class="sample-banner" id="sampleBanner" style="display:none">⚠️ 当前展示为<b>示例目标数据</b>（按上月实际推算，仅用于预览看板逻辑）。上传正式目标表后将自动替换为真实目标。</div>
+
+<div class="kpis" id="kpiRow"></div>
+
+<div class="card">
+  <div class="card-title">🔎 筛选</div>
+  <div class="filter-bar">
+    <div class="dd" id="ddChannel">
+      <button class="dd-btn" onclick="toggleDD('ddChannel')">
+        <span class="dd-label">🏪 销售店铺</span>
+        <span class="dd-summary" id="ddChannelSummary">全部（合并）</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn" onclick="setAll('channel',false)">合并看（全部）</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddChannelList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddPlatform">
+      <button class="dd-btn" onclick="toggleDD('ddPlatform')">
+        <span class="dd-label">🧩 平台</span>
+        <span class="dd-summary" id="ddPlatformSummary">Amazon</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel" style="min-width:300px">
+        <div class="dd-tools">
+          <span class="dd-hint">单击切换平台（单选）</span>
+        </div>
+        <div class="dd-list" id="ddPlatformList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddMonth">
+      <button class="dd-btn" onclick="toggleDD('ddMonth')">
+        <span class="dd-label">📆 月份</span>
+        <span class="dd-summary" id="ddMonthSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('month',true)">全选</button>
+          <button class="btn" onclick="setAll('month',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddMonthList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddCountry">
+      <button class="dd-btn" onclick="toggleDD('ddCountry')">
+        <span class="dd-label">🌍 地区</span>
+        <span class="dd-summary" id="ddCountrySummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('country',true)">全选</button>
+          <button class="btn" onclick="setAll('country',false)">清空</button>
+          <span class="dd-hint">NA=US/CA/MX · EU=欧盟9国 · 单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddCountryList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddAsin">
+      <button class="dd-btn" onclick="toggleDD('ddAsin')">
+        <span class="dd-label">🔑 ASIN</span>
+        <span class="dd-summary" id="ddAsinSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddAsinSearch" placeholder="搜索 ASIN / 产品系列 / 产品名…" oninput="buildAsinOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('asin',true)">全选</button>
+          <button class="btn" onclick="setAll('asin',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddAsinList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddSeries">
+      <button class="dd-btn" onclick="toggleDD('ddSeries')">
+        <span class="dd-label">🏷️ 产品系列</span>
+        <span class="dd-summary" id="ddSeriesSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddSeriesSearch" placeholder="🔍 搜索产品系列…" oninput="buildSeriesOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('series',true)">全选</button>
+          <button class="btn" onclick="setAll('series',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddSeriesList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddName">
+      <button class="dd-btn" onclick="toggleDD('ddName')">
+        <span class="dd-label">📦 产品名</span>
+        <span class="dd-summary" id="ddNameSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddNameSearch" placeholder="🔍 搜索产品名…" oninput="buildNameOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('name',true)">全选</button>
+          <button class="btn" onclick="setAll('name',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddNameList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card card-table">
+  <div class="toolbar">
+    <div class="card-title" style="margin:0">🎯 目标进度 <span style="font-weight:400;color:var(--muted);font-size:12px;">（目标表 产品×地区×月份 自动匹配 · 进行中月份按数据天数预测）</span></div>
+  </div>
+  <div class="table-wrap" id="tableWrap"></div>
+  <details class="noteFold">
+  <summary>📖 匹配规则与口径说明（平台 / 目标匹配 / 换算）</summary>
+  <div class="note">匹配规则：目标表「产品」列 → 按 产品名 / 产品系列 / ASIN 精确或包含匹配（使用最新产品映射）；「地区」列 NA=US/CA/MX 合并，EU=欧盟全部站点合并，UK/JP/AU 独立。<b>销售额均为人民币¥</b>：目标销售额直接为人民币，实际销售额按各站点当地币种 × 当月1号汇率（遇节假日取前一工作日，欧洲央行 ECB 参考汇率）折算合计。<b>广告占比</b>=广告花费÷销售额（¥口径），占比越低越好，实际≤目标为达标。<b>状态</b>：达标=已完结月份完成率≥100% · 领先=进行中且完成率≥时间进度 · 落后=进行中且完成率&lt;时间进度 · 未达标=已完结月份完成率&lt;100% · 未匹配=产品映射中找不到该产品。预测=实际÷有数据天数×当月总天数。<br><b>平台</b>：目标表可用可选字段 <code>platform</code> 指定归属平台（<code>amazon</code>/<code>joybuy</code>/<code>aliexpress</code>，缺省=amazon，向后兼容）；选择某平台后，目标、实际、KPI、筛选项全部只按该平台口径计算。<b>JoyBuy</b> 按其自身命名（如 X1 60W、Air Purifier 主机）按系列/产品名匹配目标，站点为 UK/DE/NL/FR；无广告数据时，KPI 后两卡改为「店铺流量(PDP UV)/加购」。该平台尚无目标时，表格按<b>实际数据</b>展示（产品×站点×月）。</div>
+</details>
+</div>
+
+<div class="footer">Aliencell 月度目标追踪看板 · 随每日数据自动刷新 · <span id="mapStatWrap">产品映射 <b id="mapStat">0/0</b></span></div>
+
+<script>
+const DATA = __DATA_JSON__;
+const GEN_TIME = "__GEN_TIME__";
+const TARGETS = __TARGET_JSON__;
+const FX = __FX_JSON__;
+const JOYBUY = __JOYBUY_JSON__;   // JoyBuy 月度(Data Compass 聚合, 由 build_joybuy_monthly.py 生成)
+
+// 地区: NA=北美(US/CA/MX), EU=欧盟9国, UK/JP/AU 独立
+const REGION_OF = {'US':'NA','CA':'NA','MX':'NA','UK':'UK','JP':'JP','AU':'AU',
+  'DE':'EU','FR':'EU','IT':'EU','ES':'EU','NL':'EU','BE':'EU','IE':'EU','PL':'EU','SE':'EU','EU':'EU','NA':'NA'};
+const REGION_CN = {'NA':'北美地区','EU':'欧盟','UK':'英国','JP':'日本','AU':'澳大利亚'};
+const REGION_ORDER = ['NA','EU','UK','JP','AU'];
+// 国家 → 当地币种 (折算人民币按国家币别精确换汇)
+const CUR_OF = {'US':'USD','CA':'CAD','MX':'MXN','UK':'GBP','JP':'JPY','AU':'AUD',
+  'DE':'EUR','FR':'EUR','IT':'EUR','ES':'EUR','NL':'EUR','BE':'EUR','IE':'EUR','PL':'PLN','SE':'SEK'};
+
+function regionOf(cc) { return REGION_OF[cc] || cc; }
+function fxRate(ym, cc) { const cur = CUR_OF[cc]; return (FX[ym] && FX[ym][cur]) || null; }
+
+// ---------- 平台维度 (2026-10-09 新增) ----------
+// 平台决定数据源与目标集：Amazon=daily_data.json 月度聚合；JoyBuy=joybuy_monthly.json(Data Compass)；
+// 速卖通=尚未接入(显示占位)。目标行可用 platform 字段归属平台，缺省=amazon(向后兼容)。
+const PLATFORMS = [
+  // 🌐 全部平台 = 所有站点/平台数据之和（默认视图，2026-10-12 新增）
+  { key:'all',        icon:'🌐', label:'全部平台', desc:'Amazon（含 Woot）+ JoyBuy 合计' },
+  { key:'amazon',     icon:'🅰️', label:'Amazon',  desc:'亚马逊 13 国' },
+  { key:'joybuy',     icon:'🛒', label:'JoyBuy',  desc:'京东欧洲 · UK/DE/NL/FR' },
+  { key:'aliexpress', icon:'🧧', label:'速卖通',  desc:'AliExpress（待接入）' },
+];
+const PLATFORM_TX = { all:'全部平台', amazon:'Amazon', joybuy:'JoyBuy', aliexpress:'速卖通' };
+let selPlatform = 'all';      // 默认=全部平台（所有站点平台数据之和）
+function tgtPlat(t) {
+  const v = String((t && (t.platform != null ? t.platform : t['平台'])) || '').trim().toLowerCase();
+  if (!v) return 'amazon';
+  if (v === 'amazon' || v === 'amz' || v === '亚马逊') return 'amazon';
+  if (v === 'joybuy' || v === 'joy buy' || v === 'jd' || v === '京东' || v === '京东欧洲') return 'joybuy';
+  if (v === 'aliexpress' || v === 'ali' || v === 'ae' || v === '速卖通' || v === '全球速卖通') return 'aliexpress';
+  return v;
+}
+
+// ---------- 数据预处理 ----------
+const AMZ_ROWS = DATA.rows;
+const AMZ_MONTHS = DATA.months;
+// JoyBuy 行: 月份 × 站点 × 产品(系列·产品名)；asin 键用 'JB:<系列>|<产品名>'（与亚马逊 ASIN 不混）
+const JBY_ROWS = (JOYBUY.rows || []).map(r => ({
+  ym: r.ym, cc: r.cc, asin: 'JB:' + r.series + '|' + r.name,
+  series: r.series, name: r.name,
+  units: r.units || 0, orders: r.orders || 0, sales: r.sales || 0,
+  sessions: r.sessions || 0, pv: r.pv || 0, atcUv: r.atcUv || 0, atcUnits: r.atcUnits || 0,
+  stockUnits: r.stockUnits || 0, mob: 0, brw: 0, b2b: 0, bbSum: 0, bbCnt: 0,
+  adClicks: 0, adCost: 0, adOrders: 0, adSales: 0, adImpr: 0, jby: true,
+}));
+const PLAT_DATA = {
+  // 🌐 全部平台：rows/months 必须等 Woot 并入 AMZ_ROWS 之后再拼（见 buildAllPlatform）
+  all:        { rows: [], months: [], hasAds: true, hasData: true,
+                note: '「全部平台」= 所有站点/平台数据之和：Amazon（含 Woot 并入）+ JoyBuy。Amazon 行显示目标与完成率；JoyBuy 暂无目标，按实际数据视图并入。' },
+  amazon:     { rows: AMZ_ROWS, months: AMZ_MONTHS, hasAds: true,  hasData: true, note: '' },
+  joybuy:     { rows: JBY_ROWS, months: (JOYBUY.months || []), hasAds: false,
+                hasData: JBY_ROWS.length > 0,
+                note: 'JoyBuy 数据来自 partner.joybuy.com Data Compass：站点月度合计取日粒度趋势，产品维度取 SKU 周报（跨月周按重叠天数分摊）并按站点合计等比例校准，无广告数据。' },
+  aliexpress: { rows: [], months: [], hasAds: false, hasData: false,
+                note: '速卖通（AliExpress）数据尚未接入。接入后按 JoyBuy 同样方式（构建期注入平台 JSON）即可出现在此处。' },
+};
+let ROWS = [];      // 见下方 buildAllPlatform()（默认「全部平台」）
+let MONTHS = [];
+
+// ---------- Woot 店铺数据并入 (并入 US/NA, 美元; 按子 ASIN 归到对应产品) ----------
+// 逐日记录精确落到当天(自然月内直接累加); 周/月汇总记录按自然月重叠天数比例分摊。未识别 ASIN → 伪 ASIN WOOT-STORE。
+const WOOT_ASIN = 'WOOT-STORE';
+function wootEntriesLocal(){ try { const a = JSON.parse(localStorage.getItem('pc_woot') || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+function wootLen(a, b){ return Math.round((new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z')) / 86400000) + 1; }
+function wootAllocByAsin(es, qs, qe){
+  const out = new Map();
+  for (const en of es) {
+    const L = wootLen(en.start, en.end); if (!L) continue;
+    const s = en.start > qs ? en.start : qs, e = en.end < qe ? en.end : qe;
+    if (s > e) continue;
+    const k = (Math.round((new Date(e+'T00:00:00Z') - new Date(s+'T00:00:00Z')) / 86400000) + 1) / L;
+    const key = en.asin || WOOT_ASIN;
+    let o = out.get(key);
+    if (!o) { o = { orders:0, sales:0, adCost:0, adClicks:0, adOrders:0, adImpr:0, adSales:0 }; out.set(key, o); }
+    const m = en.metrics || {};
+    o.orders += (+m.orders || 0) * k;
+    o.sales += (+m.sales || 0) * k; o.adCost += (+m.adCost || 0) * k; o.adClicks += (+m.adClicks || 0) * k;
+    o.adOrders += (+m.adOrders || 0) * k; o.adImpr += (+m.adImpr || 0) * k; o.adSales += (+m.adSales || 0) * k;
+  }
+  return out;
+}
+(function injectWootMonthly(){
+  const es = wootEntriesLocal();
+  if (!es.length) return;
+  for (const mo of AMZ_MONTHS) {
+    const y = +mo.ym.slice(0,4), m = +mo.ym.slice(5,7);
+    const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const qs = mo.ym + '-01', qe = mo.ym + '-' + String(last).padStart(2,'0');
+    const alloc = wootAllocByAsin(es, qs, qe);
+    for (const [asin, al] of alloc) {
+      const od = Math.round(al.orders);
+      if (!(al.sales || od || al.adCost || al.adClicks || al.adOrders || al.adImpr || al.adSales)) continue;
+      AMZ_ROWS.push({ ym: mo.ym, cc: 'US', asin: asin,
+        sessions: 0, mob: 0, brw: 0, pv: 0, units: od, b2b: 0, orders: od,
+        sales: al.sales, bbSum: 0, bbCnt: 0,
+        adClicks: Math.round(al.adClicks), adCost: al.adCost, adOrders: Math.round(al.adOrders), adSales: al.adSales, adImpr: Math.round(al.adImpr), woot: true, channel: 'woot' });
+    }
+  }
+})();
+
+// 「全部平台」行集/月份 = Amazon（Woot 已并入 AMZ_ROWS）+ JoyBuy 并集
+(function buildAllPlatform(){
+  PLAT_DATA.all.rows = AMZ_ROWS.concat(JBY_ROWS);
+  const m = new Map();
+  AMZ_MONTHS.forEach(x => m.set(x.ym, x));
+  (JOYBUY.months || []).forEach(x => m.set(x.ym, x));
+  PLAT_DATA.all.months = [...m.values()].sort((a, b) => (a.ym < b.ym ? -1 : 1));
+  ROWS = PLAT_DATA.all.rows; MONTHS = PLAT_DATA.all.months;
+})();
+
+let monthBy = {}, regionSet = new Set(), allRegions = [], asinList = [], seriesList = [];
+// 平台作用域：'all' 含全部平台；否则精确匹配
+function platInScope(k) { return selPlatform === 'all' || k === selPlatform; }
+function rebuildDerived() {
+  monthBy = {}; MONTHS.forEach(m => monthBy[m.ym] = m);
+  regionSet = new Set(ROWS.map(r => regionOf(r.cc)));
+  (TARGETS.targets || []).forEach(t => {
+    if (!platInScope(tgtPlat(t))) return;
+    const c = (t.country || '').trim().toUpperCase();
+    if (c && c !== 'ALL') regionSet.add(regionOf(c));
+  });
+  allRegions = REGION_ORDER.filter(r => regionSet.has(r));
+  asinList = [...new Set(ROWS.map(r => r.asin))].sort();
+  seriesList = [...new Set(ROWS.map(r => rowMeta(r).series))]
+    .sort((x, y) => x === '无' ? 1 : (y === '无' ? -1 : x.localeCompare(y, 'zh')));
+}
+// 注意: rebuildDerived() 必须等 rowMeta/EMBED_MAP 就绪后再调用(定义在下方映射段之后)
+
+// ---------- 产品映射 ----------
+const EMBED_MAP = __MAP_JSON__;
+function mapArr() {
+  try { const a = JSON.parse(localStorage.getItem('pc_asinmap') || 'null'); if (Array.isArray(a) && a.length) return a; } catch (e) {}
+  return (EMBED_MAP && Array.isArray(EMBED_MAP.asinMap)) ? EMBED_MAP.asinMap : [];
+}
+function metaOf(a, cc) {
+  if (a === WOOT_ASIN) return { series: 'Woot', name: 'Woot 店铺活动' };
+  if (!a) return { series: '无', name: '无' };
+  const arr = mapArr();
+  let hit = null, anyHit = null;
+  for (const x of arr) {
+    if (!x || x.asin !== a) continue;
+    anyHit = anyHit || x;
+    if ((x.country || 'EU') === cc) { hit = x; break; }
+  }
+  const m = hit || anyHit;
+  if (m) return { series: m.series || '无', name: m.name || '无' };
+  return { series: '无', name: '无' };
+}
+// JoyBuy 行自带系列/产品名(来自 joybuy_sku_map.json)，不走亚马逊 ASIN 映射
+function rowMeta(r) {
+  if (r && r.jby) return { series: r.series || '其他', name: r.name || '其他' };
+  return metaOf(r.asin, regionOf(r.cc));
+}
+rebuildDerived();   // 派生集合(月份/地区/系列/ASIN)就绪
+function namesIn(seriesSet) {
+  const names = new Set();
+  for (const r of ROWS) { const m = rowMeta(r); if (seriesSet && seriesSet.size && !seriesSet.has(m.series)) continue; names.add(m.name); }
+  return [...names].sort((x, y) => x === '无' ? 1 : (y === '无' ? -1 : x.localeCompare(y, 'zh')));
+}
+
+// ===== 云端映射同步 =====
+(async function cloudMapSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.catalog) || !Array.isArray(j.asinMap)) return;
+    if (!j.catalog.length && !j.asinMap.length) return;
+    let curSig = null;
+    try { curSig = JSON.stringify({ catalog: JSON.parse(localStorage.getItem('pc_catalog') || '[]'), asinMap: JSON.parse(localStorage.getItem('pc_asinmap') || '[]') }); } catch (e) {}
+    const newSig = JSON.stringify({ catalog: j.catalog, asinMap: j.asinMap });
+    if (curSig === newSig) return;
+    localStorage.setItem('pc_catalog', JSON.stringify(j.catalog));
+    localStorage.setItem('pc_asinmap', JSON.stringify(j.asinMap));
+    location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端 Woot 数据同步：拉取最新 Woot 记录写本机后刷新（与映射同一存储行 data.woot）=====
+(async function cloudWootSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.woot)) return;  // 云端无 woot 键(旧数据)时不动本机
+    const cloud = j.woot;
+    let cur = null;
+    try { cur = JSON.parse(localStorage.getItem('pc_woot') || 'null'); } catch(e) {}
+    if (JSON.stringify(cloud) === JSON.stringify(Array.isArray(cur) ? cur : [])) return;
+    localStorage.setItem('pc_woot', JSON.stringify(cloud));
+    location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端更新提示：静默轮询(60s / 切回前台)，发现新数据只在顶部提示，点击才刷新 =====
+// 用途：别人上传 Woot 报表或改动产品映射后，已经打开着的看板能主动告知，而不是等人自己发现。
+// 只提示、不自动刷新：看板筛选(国家/ASIN/系列/产品名)是内存状态，自动 reload 会清空用户正在看的筛选。
+//
+// 三路比对(缺一不可)：
+//   BASE_SIG  = 本页渲染时所依据的本机缓存快照
+//   localSig  = 此刻本机缓存          → 与本浏览器别的标签页(如 Woot 上传页)写入后立刻不同
+//   cloudSig  = 云端最新              → 别人在别的电脑上传/改映射后不同
+// 只看云端会漏掉「同一浏览器上传」场景：那时本机已被写新，但当前页面渲染的还是旧数据。
+(function cloudUpdateWatch(){
+  const SB_ROW = 'https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1';
+  const SB_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+  const POLL_MS = 60000;
+
+  function lsGet(k, dflt){
+    try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v === null ? dflt : v; } catch (e) { return dflt; }
+  }
+  // ★ 稳定序列化：对象的 key 先排序再拼 —— 两侧「同一份数据、不同键顺序」必须判为相等。
+  //   踩过的坑(2026-10-14)：云端 wootCfg 存的是 {"cost":{},"price":1380}，而看板 load 同步
+  //   会把它规范化成 {"price":1380,"cost":{}} 再写本机；JSON.stringify 保留插入顺序 ⇒
+  //   两串永不相等 ⇒ 判定「云端有新数据」永远成立 ⇒ 提示条常驻、点「立即刷新」也不消失。
+  function stable(v){
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') {
+      return '{' + Object.keys(v).sort().map(function(k){ return JSON.stringify(k) + ':' + stable(v[k]); }).join(',') + '}';
+    }
+    return JSON.stringify(v === undefined ? null : v);
+  }
+  // wootCfg 规范化：与看板 load 同步里的写法完全同款(price 兜底 1380 / cost 兜底 {})，确保两侧可比
+  function normCfg(c){
+    if (!c || typeof c !== 'object') return null;
+    return { price: Number(c.price) > 0 ? Number(c.price) : 1380,
+             cost: (c.cost && typeof c.cost === 'object') ? c.cost : {} };
+  }
+  function localSig(){
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    return stable(lsGet('pc_woot', [])) + '\u0001' + stable(lsGet('pc_catalog', [])) + '\u0001'
+      + stable(lsGet('pc_asinmap', [])) + '\u0001'
+      // 本机没有成本设置(广告看板不消费 wootCfg) ⇒ 该段恒为空、不参与判定，避免误报常驻
+      + (lc === null ? '' : stable(lc));
+  }
+  function cloudSig(j){
+    if (!j || !Array.isArray(j.woot)) return null;   // 云端仍是旧结构(无 woot 键) → 不提示
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    const cc = normCfg(j.wootCfg);
+    return stable(j.woot) + '\u0001'
+      + stable(Array.isArray(j.catalog) ? j.catalog : []) + '\u0001'
+      + stable(Array.isArray(j.asinMap) ? j.asinMap : []) + '\u0001'
+      // 云端缺 wootCfg 时沿用本机值 ⇒ 该段不参与判定(避免删配置后提示条永不消失)
+      + (lc === null ? '' : stable(cc === null ? lc : cc));
+  }
+
+  const BASE_SIG = localSig();
+  let bar = null, latest = null, offKey = null, cloudSigCache = null;
+  const keyOf = (cs, ls) => cs + '#' + ls;
+
+  function mk(tag, txt, css){
+    const e = document.createElement(tag);
+    if (txt !== null) e.textContent = txt;
+    e.style.cssText = css;
+    return e;
+  }
+  function ensureBar(){
+    if (bar) return bar;
+    bar = mk('div', null, 'position:fixed;z-index:2147483000;left:50%;top:12px;transform:translateX(-50%);display:none;align-items:center;gap:10px;max-width:92vw;padding:9px 12px;border-radius:10px;border:1px solid #854F0B;background:#FAEEDA;color:#412402;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:13px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.45');
+    bar.id = 'wbUpdateBar';
+    bar.setAttribute('role', 'status');
+    const label = mk('span', '云端数据已更新', 'font-weight:500;white-space:nowrap');
+    const btn = mk('button', '立即刷新', 'cursor:pointer;border:1px solid #854F0B;background:#fff;color:#412402;border-radius:6px;padding:3px 10px;font-size:12px;font-family:inherit;white-space:nowrap');
+    btn.type = 'button';
+    btn.title = '刷新页面载入最新数据（会重置当前筛选条件）';
+    btn.onclick = apply;
+    const x = mk('button', '×', 'cursor:pointer;border:0;background:transparent;color:#854F0B;font-size:16px;font-family:inherit;line-height:1;padding:0 2px');
+    x.type = 'button';
+    x.title = '本次不再提示';
+    x.onclick = function(){ offKey = keyOf(cloudSigCache, localSig()); hide(); };
+    bar.appendChild(label); bar.appendChild(btn); bar.appendChild(x);
+    (document.body || document.documentElement).appendChild(bar);
+    return bar;
+  }
+  function show(){ ensureBar().style.display = 'flex'; }
+  function hide(){ if (bar) bar.style.display = 'none'; }
+
+  function apply(){
+    const ls = localSig();
+    // 本机缓存已被别的标签页更新过(同浏览器上传场景) → 不用云端值回写，直接重载出新数据
+    if (ls === BASE_SIG && latest) {
+      try {
+        if (Array.isArray(latest.woot)) localStorage.setItem('pc_woot', JSON.stringify(latest.woot));
+        if (Array.isArray(latest.catalog)) localStorage.setItem('pc_catalog', JSON.stringify(latest.catalog));
+        if (Array.isArray(latest.asinMap)) localStorage.setItem('pc_asinmap', JSON.stringify(latest.asinMap));
+      } catch (e) {}
+    }
+    location.reload();
+  }
+
+  async function check(){
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 8000);
+      const r = await fetch(SB_ROW, { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }, signal: ctl.signal });
+      clearTimeout(t);
+      if (!r.ok) return;
+      const rows = await r.json();
+      const j = rows && rows[0] && rows[0].data;
+      const cs = cloudSig(j);
+      if (cs === null) return;
+      latest = j; cloudSigCache = cs;
+      const ls = localSig();
+      if (keyOf(cs, ls) === offKey) { hide(); return; }
+      if (cs === ls && ls === BASE_SIG) { hide(); return; }
+      show();
+    } catch (e) {}
+  }
+
+  setTimeout(check, 5000);
+  setInterval(check, POLL_MS);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
+})();
+// ---------- 目标匹配 ----------
+// 目标行 { month, country, product, units, sales(人民币), adShare(百分比数值, 如 25 = 25%) }
+// 匹配: 精确产品名 > 精确系列 > 精确ASIN > 名称包含 > 系列包含; country 为地区代码(EU/UK/US/...), ALL/空=全部
+function resolveTarget(t) {
+  const p = (t.product || '').trim();
+  const cc = regionOf((t.country || '').trim().toUpperCase());
+  const arr = mapArr();
+  const ccs = (!cc || cc === 'ALL') ? null : new Set([cc]);
+  const res = { product: p, ccs, matched: false, matchType: '', asins: new Set(), series: null, name: null };
+  if (!p) return res;
+  let nameHit = arr.filter(x => x && x.name && x.name === p);
+  let seriesHit = arr.filter(x => x && x.series && x.series === p);
+  let asinHit = arr.filter(x => x && x.asin === p);
+  let nameSub = arr.filter(x => x && x.name && x.name.includes(p));
+  let seriesSub = arr.filter(x => x && x.series && x.series.includes(p));
+  let use = null, type = '';
+  if (asinHit.length) { use = asinHit; type = 'ASIN'; }
+  else if (nameHit.length) { use = nameHit; type = '产品名'; }
+  else if (seriesHit.length) { use = seriesHit; type = '系列'; }
+  else if (nameSub.length) { use = nameSub; type = '产品名(包含)'; }
+  else if (seriesSub.length) { use = seriesSub; type = '系列(包含)'; }
+  if (!use) return res;
+  for (const x of use) {
+    if (!ccs || ccs.has(regionOf(x.country || 'EU'))) { res.asins.add(x.asin); }
+  }
+  if (res.asins.size === 0) for (const x of use) res.asins.add(x.asin);
+  res.series = [...new Set(use.map(x => x.series || '无'))].join(' / ');
+  res.name = [...new Set(use.map(x => x.name || '无'))].join(' / ');
+  res.matchType = type;
+  res.matched = res.asins.size > 0;
+  return res;
+}
+function tgtShareOf(t) {
+  const v = t.adShare != null ? t.adShare : (t.adshare != null ? t.adshare : t['ad_share']);
+  const n = Number(v);
+  return (v == null || v === '' || isNaN(n)) ? null : n;
+}
+
+// ---------- 筛选状态 (selCountry 存地区代码) ----------
+let selMonth = new Set();
+let selCountry = new Set();
+let selAsin = new Set();
+let selSeries = new Set();
+let selName = new Set();
+// ---------- 销售店铺(渠道) 2026-10-10 ----------
+// amazon = 易仓数据(业务报告+广告+利润) = Aliencell 官方店铺；woot = Woot 数据管理页注入的部分
+// 行上带 channel:'woot' 的才算 Woot，其余(构建期行)缺省视为 amazon → 旧数据零迁移
+const CHANNELS = [{ id:'amazon', label:'Aliencell官方店铺' }, { id:'woot', label:'Woot店铺' }];
+const CHANNEL_CN = { amazon:'Aliencell官方店铺', woot:'Woot店铺' };
+let selChannel = new Set();
+function channelOf(r){ return (r && r.channel === 'woot') ? 'woot' : 'amazon'; }
+function channelMerged(){ return !selChannel.size || (selChannel.has('amazon') && selChannel.has('woot')); }
+
+function rowMatch(r, opt) {
+  const { channel, country, asin, series, name } = opt || {};
+  if (channel !== null && channel !== undefined) { if (channel.size && !channel.has(channelOf(r))) return false; }
+  if (country !== null && country !== undefined) { if (country.size && !country.has(regionOf(r.cc))) return false; }
+  if (asin !== null && asin !== undefined) { if (asin.size && !asin.has(r.asin)) return false; }
+  const m = rowMeta(r);
+  if (series !== null && series !== undefined) { if (series.size && !series.has(m.series)) return false; }
+  if (name !== null && name !== undefined) { if (name.size && !name.has(m.name)) return false; }
+  return true;
+}
+function scopeAsins() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, country: selCountry, asin: null, series: selSeries, name: selName })) out.add(r.asin);
+  return out;
+}
+function countryScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, country: null, asin: selAsin, series: selSeries, name: selName })) out.add(regionOf(r.cc));
+  return out;
+}
+function seriesScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, country: selCountry, asin: selAsin, series: null, name: selName })) out.add(rowMeta(r).series);
+  return out;
+}
+function nameScope() {
+  const out = new Set();
+  for (const r of ROWS) if (rowMatch(r, { channel: selChannel, country: selCountry, asin: selAsin, series: selSeries, name: null })) out.add(rowMeta(r).name);
+  return out;
+}
+function pruneSelections() {
+  for (let i = 0; i < 3; i++) {
+    const cs = countryScope();
+    [...selCountry].forEach(c => { if (!cs.has(c)) selCountry.delete(c); });
+    const as = scopeAsins();
+    [...selAsin].forEach(a => { if (!as.has(a)) selAsin.delete(a); });
+    const ss = seriesScope();
+    [...selSeries].forEach(s => { if (!ss.has(s)) selSeries.delete(s); });
+    const ns = nameScope();
+    [...selName].forEach(n => { if (!ns.has(n)) selName.delete(n); });
+  }
+}
+
+// ---------- 实际值计算: 目标行实际 = (目标月, 目标地区, 目标ASIN集) ∩ 当前筛选 ----------
+// 销售额/广告花费折算人民币(按各国家币种 × 当月汇率)
+function actualFor(resolved, ym) {
+  let units = 0, sales = 0, salesCny = 0, adCost = 0, adCostCny = 0, fxMissing = false;
+  const rows = ROWS.filter(r =>
+    r.ym === ym &&
+    (!resolved.ccs || resolved.ccs.has(regionOf(r.cc))) &&
+    resolved.asins.has(r.asin) &&
+    rowMatch(r, { channel: selChannel, country: selCountry, asin: selAsin, series: selSeries, name: selName })
+  );
+  for (const r of rows) {
+    units += r.units; sales += r.sales; adCost += r.adCost;
+    const fxr = fxRate(ym, r.cc);
+    if (fxr) { salesCny += r.sales * fxr; adCostCny += r.adCost * fxr; }
+    else if (r.sales || r.adCost) fxMissing = true;
+  }
+  return { units, sales, salesCny, adCost, adCostCny, nRows: rows.length, fxMissing };
+}
+function timeProgress(ym) {
+  const m = monthBy[ym];
+  if (!m) return 1;
+  return Math.min(m.daysWithData / m.daysTotal, 1);
+}
+
+// ---------- 渲染 ----------
+function progBar(rate, ongoing) {
+  const w = rate === null ? 0 : Math.min(rate, 1.5) / 1.5 * 100;
+  let cls = 'ok';
+  if (rate !== null) {
+    if (rate >= 1) cls = 'over';
+    else if (rate >= 0.85) cls = 'ok';
+    else if (rate >= 0.6) cls = 'warn';
+    else cls = 'bad';
+  }
+  const txt = rate === null ? '—' : (rate * 100).toFixed(1) + '%';
+  return `<div class="prog"><div class="bar ${cls}" style="width:${w}%"></div><div class="txt">${txt}</div></div>`;
+}
+// 广告占比进度条: 越低越好, 实际/目标 ≤100% 达标 (满格=目标的150%)
+function shareBar(actShare, tgtShare) {
+  if (actShare === null || tgtShare === null || tgtShare <= 0) return '<span class="cell-na">—</span>';
+  const rate = actShare / tgtShare;
+  const w = Math.min(rate, 1.5) / 1.5 * 100;
+  let cls;
+  if (rate <= 0.85) cls = 'over';
+  else if (rate <= 1) cls = 'ok';
+  else if (rate <= 1.2) cls = 'warn';
+  else cls = 'bad';
+  const txt = (actShare * 100).toFixed(1) + '%';
+  return `<div class="prog"><div class="bar ${cls}" style="width:${w}%"></div><div class="txt">${txt}</div></div>`;
+}
+function fmtCny(v, dec) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return '¥' + Number(v).toLocaleString('en-US', { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 });
+}
+function renderAll() {
+  pruneSelections();
+  buildPlatformOptions();
+  buildChannelOptions();
+  buildMonthOptions();
+  buildCountryOptions();
+  buildAsinOptions();
+  buildSeriesOptions();
+  buildNameOptions();
+  renderTable();
+  refreshMapStat();
+}
+// ---------- 平台切换 ----------
+function buildPlatformOptions() {
+  const list = document.getElementById('ddPlatformList');
+  if (!list) return;
+  list.innerHTML = PLATFORMS.map(p => {
+    const pd = PLAT_DATA[p.key];
+    const sel = selPlatform === p.key ? ' sel' : '';
+    const allT = (TARGETS.targets || []);
+    const nTgt = allT.filter(t => p.key === 'all' ? true : tgtPlat(t) === p.key).length;
+    const sub = p.key === 'all'
+      ? (nTgt + ' 条目标 · Amazon + JoyBuy 合计')
+      : p.key === 'amazon' ? (nTgt + ' 条目标')
+      : (pd.hasData ? '数据 ' + pd.rows.length + ' 行' + (nTgt ? ' · 目标 ' + nTgt + ' 条' : ' · 暂无目标') : '待接入');
+    // 三项都可切换（速卖通无数据时进入的是「待接入」占位视图）
+    return `<div class="dd-opt${sel}" onclick="setPlatform('${p.key}')">
+      <input type="radio" name="platpick" ${sel ? 'checked' : ''} style="pointer-events:none">
+      <span class="opt-name">${p.icon} ${p.label}</span><span class="opt-sub">${sub}</span>
+    </div>`;
+  }).join('');
+  const cur = PLATFORMS.find(p => p.key === selPlatform) || PLATFORMS[0];
+  const el = document.getElementById('ddPlatformSummary');
+  if (el) el.textContent = cur.icon + ' ' + cur.label;
+}
+function setPlatform(key) {
+  if (!PLAT_DATA[key]) return;
+  selPlatform = key;
+  const pd = PLAT_DATA[key];
+  ROWS = pd.rows; MONTHS = pd.months;
+  selMonth.clear(); selCountry.clear(); selAsin.clear(); selSeries.clear(); selName.clear();
+  selChannel.clear();   // 渠道也归零：Woot/JoyBuy 本就不共存，避免切平台后看到空表
+  rebuildDerived();
+  const asinDD = document.getElementById('ddAsin');
+  if (asinDD) asinDD.style.display = (key === 'amazon') ? '' : 'none';   // ASIN 是亚马逊维度
+  document.querySelectorAll('.dd.open').forEach(d => d.classList.remove('open'));
+  renderAll();
+}
+// ---------- JoyBuy 目标匹配(产品=系列/产品名, 走 JoyBuy 自己的命名体系) ----------
+function resolveTargetJby(t) {
+  const p = String(t.product || '').trim();
+  const ccRaw = (t.country || '').trim().toUpperCase();
+  const ccs = (!ccRaw || ccRaw === 'ALL') ? null : new Set([regionOf(ccRaw)]);
+  const res = { product: p, ccs, matched: false, matchType: '', asins: new Set(), keys: new Set(), series: null, name: null };
+  if (!p) return res;
+  const prods = [...new Set(JBY_ROWS.map(r => r.series + '\u0001' + r.name))];
+  const ser = k => k.split('\u0001')[0], nam = k => k.split('\u0001')[1];
+  let use = null, type = '';
+  if ((use = prods.filter(k => nam(k) === p)).length) type = '产品名';
+  else if ((use = prods.filter(k => ser(k) === p)).length) type = '系列';
+  else if ((use = prods.filter(k => nam(k).includes(p))).length) type = '产品名(包含)';
+  else if ((use = prods.filter(k => ser(k).includes(p))).length) type = '系列(包含)';
+  if (!use || !use.length) return res;
+  for (const k of use) {
+    const cc = (JBY_ROWS.find(x => x.asin === 'JB:' + k) || {}).cc;
+    if (!ccs || ccs.has(regionOf(cc))) res.keys.add(k);
+  }
+  if (!res.keys.size) use.forEach(k => res.keys.add(k));
+  res.series = [...new Set(use.map(ser))].join(' / ');
+  res.name = [...new Set(use.map(nam))].join(' / ');
+  res.matchType = type;
+  res.matched = res.keys.size > 0;
+  return res;
+}
+function actualForJby(res, ym) {
+  let units = 0, sales = 0, salesCny = 0, sessions = 0, pv = 0, atcUv = 0, atcUnits = 0, nRows = 0, fxMissing = false;
+  for (const r of JBY_ROWS) {
+    if (r.ym !== ym) continue;
+    if (res.ccs && !res.ccs.has(regionOf(r.cc))) continue;
+    if (!res.keys.has(r.series + '\u0001' + r.name)) continue;
+    if (selCountry.size && !selCountry.has(regionOf(r.cc))) continue;
+    const m = rowMeta(r);
+    if (selSeries.size && !selSeries.has(m.series)) continue;
+    if (selName.size && !selName.has(m.name)) continue;
+    units += r.units; sales += r.sales; sessions += r.sessions; pv += r.pv;
+    atcUv += r.atcUv; atcUnits += r.atcUnits;
+    const fxr = fxRate(ym, r.cc);
+    if (fxr) salesCny += r.sales * fxr; else if (r.sales) fxMissing = true;
+    nRows++;
+  }
+  return { units, sales, salesCny, adCost: 0, adCostCny: 0, sessions, pv, atcUv, atcUnits, nRows, fxMissing };
+}
+// 无目标的平台视图：按 月 × 站点 × 产品(系列·产品名) 直接汇总实际数据
+function dataOnlyEntries(onlyJby) {
+  const groups = new Map();
+  for (const r of ROWS) {
+    if (onlyJby && !r.jby) continue;              // 「全部平台」下只并入 JoyBuy（Amazon 走目标行）
+    const m = rowMeta(r);
+    if (selCountry.size && !selCountry.has(regionOf(r.cc))) continue;
+    if (selSeries.size && !selSeries.has(m.series)) continue;
+    if (selName.size && !selName.has(m.name)) continue;
+    const key = r.ym + '|' + r.cc + '|' + m.series + '|' + m.name;
+    let g = groups.get(key);
+    if (!g) {
+      g = { ym: r.ym, cc: r.cc, series: m.series, name: m.name,
+            units: 0, orders: 0, sales: 0, salesCny: 0, sessions: 0, pv: 0, atcUv: 0, atcUnits: 0,
+            adCost: 0, adCostCny: 0, nRows: 0, fxMissing: false };
+      groups.set(key, g);
+    }
+    g.units += r.units || 0; g.orders += r.orders || 0; g.sales += r.sales || 0;
+    g.sessions += r.sessions || 0; g.pv += r.pv || 0; g.atcUv += r.atcUv || 0; g.atcUnits += r.atcUnits || 0;
+    g.adCost += r.adCost || 0;
+    const fxr = fxRate(r.ym, r.cc);
+    if (fxr) { g.salesCny += (r.sales || 0) * fxr; g.adCostCny += (r.adCost || 0) * fxr; }
+    else if (r.sales || r.adCost) g.fxMissing = true;
+    g.nRows++;
+  }
+  const out = [];
+  for (const g of groups.values()) {
+    out.push({
+      t: { month: g.ym, country: g.cc, product: g.name, units: null, sales: null, adShare: null },
+      ym: g.ym, mo: monthBy[g.ym],
+      res: { product: g.name, ccs: new Set([regionOf(g.cc)]), matched: true, matchType: '实际数据',
+             asins: new Set(), keys: new Set(), series: g.series, name: g.name, dataOnly: true },
+      act: g,
+      plat: onlyJby ? 'joybuy' : selPlatform,
+    });
+  }
+  return out;
+}
+function renderTable() {
+  const wrap = document.getElementById('tableWrap');
+  const pd = PLAT_DATA[selPlatform];
+  const list = (TARGETS.targets || []).filter(t => platInScope(tgtPlat(t)));
+  const banner = document.getElementById('platBanner');
+  // 该平台无目标也无数据 → 占位说明(速卖通现状)
+  if (!list.length && !pd.hasData) {
+    document.getElementById('kpiRow').innerHTML = '';
+    document.getElementById('rangeBadge').textContent = PLATFORM_TX[selPlatform] + ' · 暂无数据';
+    wrap.innerHTML = `<table><tbody><tr><td class="empty">${PLATFORM_TX[selPlatform]} 数据尚未接入<br><span style="font-size:12px;color:var(--muted)">${pd.note}</span></td></tr></tbody></table>`;
+    if (banner) banner.style.display = 'none';
+    document.getElementById('sampleBanner').style.display = 'none';
+    return;
+  }
+  if (banner) {
+    if (pd.note) { banner.style.display = ''; banner.innerHTML = 'ℹ️ ' + pd.note; }
+    else banner.style.display = 'none';
+  }
+  const dataOnly = !list.length;   // 有数据无目标 → 按实际数据展示
+  const entries = [];
+  if (dataOnly) {
+    entries.push(...dataOnlyEntries());
+  } else {
+  // 解析目标 + 过滤 (月份/地区/产品筛选)
+  for (const t of list) {
+    const ym = (t.month || '').slice(0, 7);
+    const mo = monthBy[ym];
+    const tp = tgtPlat(t);                              // 逐目标所属平台（all 视图下混合）
+    const res = (tp === 'amazon') ? resolveTarget(t) : resolveTargetJby(t);
+    if (selMonth.size && !selMonth.has(ym)) continue;
+    if (selCountry.size) {
+      if (res.ccs) { let ok = false; for (const c of res.ccs) if (selCountry.has(c)) ok = true; if (!ok) continue; }
+    }
+    if (tp === 'amazon') {
+      if (selAsin.size || selSeries.size || selName.size) {
+        const asins = selAsin.size ? res.asins : null;
+        if (asins) { let ok = false; for (const a of asins) if (selAsin.has(a)) ok = true; if (!ok) continue; }
+        if (selSeries.size) {
+          let ok = false;
+          for (const a of res.asins) { const m = metaOf(a, regionOf((t.country || '').toUpperCase() || 'US')); if (selSeries.has(m.series)) ok = true; }
+          if (!ok) continue;
+        }
+        if (selName.size) {
+          let ok = false;
+          for (const a of res.asins) { const m = metaOf(a, regionOf((t.country || '').toUpperCase() || 'US')); if (selName.has(m.name)) ok = true; }
+          if (!ok) continue;
+        }
+      }
+    } else if (selSeries.size || selName.size) {
+      if (selSeries.size && !(selSeries.has(res.series) || [...selSeries].some(s => (res.series || '').includes(s)))) continue;
+      if (selName.size && !(selName.has(res.name) || [...selName].some(n => (res.name || '').includes(n)))) continue;
+    }
+    const act = res.matched
+      ? (tp === 'amazon' ? actualFor(res, ym) : actualForJby(res, ym))
+      : { units: 0, sales: 0, salesCny: 0, adCost: 0, adCostCny: 0, sessions: 0, atcUv: 0, atcUnits: 0, nRows: 0, fxMissing: false };
+    entries.push({ t, ym, mo, res, act, plat: tp });
+  }
+  if (selPlatform === 'all') {
+    // JoyBuy 无目标行 ⇒ 在「全部平台」下按实际数据视图并入（口径与单看 JoyBuy 一致）
+    for (const e of dataOnlyEntries(true)) {
+      if (selMonth.size && !selMonth.has(e.ym)) continue;
+      entries.push(e);
+    }
+  }
+  }
+
+  // KPI (8卡: 销量×3 + 销售额¥×3 + 广告占比×2)
+  const totTgtU = entries.reduce((s, e) => s + (Number(e.t.units) || 0), 0);
+  const totActU = entries.reduce((s, e) => s + e.act.units, 0);
+  const totTgtS = entries.reduce((s, e) => s + (Number(e.t.sales) || 0), 0);
+  const totActS = entries.reduce((s, e) => s + e.act.salesCny, 0);
+  const totActCost = entries.reduce((s, e) => s + e.act.adCostCny, 0);
+  // 目标占比: 按目标销售额加权
+  let shareW = 0, shareSum = 0;
+  for (const e of entries) {
+    const ts = tgtShareOf(e.t), s = Number(e.t.sales) || 0;
+    if (ts !== null && s > 0) { shareSum += ts * s; shareW += s; }
+  }
+  const totTgtShare = shareW > 0 ? shareSum / shareW : null;
+  const totActShare = totActS > 0 ? totActCost / totActS : null;
+  const uRate = totTgtU > 0 ? totActU / totTgtU : null;
+  const sRate = totTgtS > 0 ? totActS / totTgtS : null;
+  const uMax = Math.max(totTgtU, totActU, 1);
+  const sMax = Math.max(totTgtS, totActS, 1);
+  const shMax = Math.max(totTgtShare || 0, (totActShare || 0) * 100, 30);
+  function ringSVG(rate, size) {
+    size = size || 40;
+    const r = (size - 10) / 2;
+    const circ = 2 * Math.PI * r;
+    const dash = Math.max(0, Math.min(rate, 1)) * circ;
+    const color = rate >= 1 ? '#059669' : rate >= 0.8 ? '#2563eb' : '#dc2626';
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#e5e9f0" stroke-width="5"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-dasharray="${dash} ${circ-dash}" stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})"/></svg>`;
+  }
+  function barSVG(val, max, color, sizeW, sizeH) {
+    sizeW = sizeW || 36; sizeH = sizeH || 28;
+    const h = max > 0 ? Math.min(val / max * sizeH, sizeH) : 0;
+    return `<svg width="${sizeW}" height="${sizeH}" viewBox="0 0 ${sizeW} ${sizeH}"><rect x="4" y="${sizeH-h}" width="${sizeW-8}" height="${h}" fill="${color}" rx="2"/></svg>`;
+  }
+  function kpiCard(icon, label, value, sub, chart) {
+    return `<div class="kpi"><div class="kpi-label">${icon} ${label}</div><div class="kpi-value">${value}</div><div class="kpi-sub">${sub}</div>${chart ? '<div class="kpi-chart">' + chart + '</div>' : ''}</div>`;
+  }
+  // KPI (8卡: 销量×3 + 销售额¥×3 + 广告占比×2; 无广告数据的平台换成 流量/加购)
+  const hasAds = !!pd.hasAds;
+  const totActUv = entries.reduce((s, e) => s + (e.act.sessions || 0), 0);
+  const totActAtc = entries.reduce((s, e) => s + (e.act.atcUv || 0), 0);
+  const totActAtcU = entries.reduce((s, e) => s + (e.act.atcUnits || 0), 0);
+  const uvMax = Math.max(totActUv, 1);
+  const adCards = hasAds ? [
+    kpiCard('🎯', '目标广告占比', totTgtShare !== null ? totTgtShare.toFixed(1)+'%' : '—', '按目标销售额加权', totTgtShare !== null ? barSVG(totTgtShare, shMax, '#94a3b8') : ''),
+    kpiCard('🧮', '实际广告占比', totActShare !== null ? (totActShare*100).toFixed(1)+'%' : '—', '¥广告花费÷¥销售额', totActShare !== null ? barSVG(totActShare*100, shMax, totActShare*100 <= (totTgtShare||0) ? '#059669' : '#dc2626') : ''),
+  ] : [
+    kpiCard('👀', '店铺流量', totActUv ? Math.round(totActUv).toLocaleString() : '—', 'PDP UV（商品页访问人数）', totActUv ? barSVG(totActUv, uvMax, '#2563eb') : ''),
+    kpiCard('🛒', '加购用户/件数', totActAtc || totActAtcU ? Math.round(totActAtc).toLocaleString() + ' / ' + Math.round(totActAtcU).toLocaleString() : '—', 'ATC UV / ATC 件数', totActAtc ? barSVG(totActAtc, Math.max(totActAtc, 1), '#059669') : ''),
+  ];
+  document.getElementById('kpiRow').innerHTML = [
+    kpiCard('🎯', '目标销量', totTgtU > 0 ? Math.round(totTgtU).toLocaleString() : '—', totTgtU > 0 ? '所选目标合计' : '该平台暂无目标', barSVG(totTgtU, uMax, '#94a3b8')),
+    kpiCard('📦', '实际销量', Math.round(totActU).toLocaleString(), '目标口径实际', barSVG(totActU, uMax, '#2563eb')),
+    kpiCard('📊', '销量完成率', uRate !== null ? (uRate*100).toFixed(1)+'%' : '—', uRate !== null ? '实际÷目标' : '无目标', uRate !== null ? ringSVG(uRate) : ''),
+    kpiCard('🎯', '目标销售额', fmtCny(totTgtS || null), '人民币 · 所选目标合计', barSVG(totTgtS, sMax, '#94a3b8')),
+    kpiCard('💰', '实际销售额', fmtCny(totActS || null), '人民币 · 按月汇率折算', barSVG(totActS, sMax, '#2563eb')),
+    kpiCard('📈', '销售额完成率', sRate !== null ? (sRate*100).toFixed(1)+'%' : '—', sRate !== null ? '实际÷目标' : '无目标', sRate !== null ? ringSVG(sRate) : ''),
+  ].concat(adCards).join('');
+
+  // 表格
+  let html = `<table><thead><tr>
+    <th class="frozen">月份</th><th>地区</th><th style="text-align:left">目标产品</th><th style="text-align:left">匹配</th>
+    <th>目标销量</th><th>实际销量</th><th>销量进度</th><th>销量差距</th>
+    <th>目标销售额</th><th>实际销售额</th><th>销售额进度</th><th>销售额差距</th><th>预测销量</th><th>预测销售额</th>
+    <th>目标占比</th><th>实际占比</th><th>占比状态</th><th>状态</th>
+  </tr></thead><tbody>`;
+  if (!entries.length) {
+    html += `<tr><td colspan="18" class="empty">当前筛选下${dataOnly ? '无数据' : '无目标行'}</td></tr>`;
+  }
+  const sorted = entries.slice().sort((a, b) => (a.ym === b.ym ? (a.t.country || '').localeCompare(b.t.country || '') : (a.ym < b.ym ? 1 : -1)));
+  for (const e of sorted) {
+    const tgtU = Number(e.t.units) || 0, tgtS = Number(e.t.sales) || 0;
+    const actU = e.act.units, actS = e.act.salesCny;
+    const rateU = tgtU > 0 ? actU / tgtU : null;
+    const rateS = tgtS > 0 ? actS / tgtS : null;
+    const ccRaw = (e.t.country || 'ALL').toUpperCase();
+    const rc = regionOf(ccRaw);
+    const ep = e.plat || tgtPlat(e.t);        // 该行所属平台（全部平台视图下行级混合）
+    // 地区列: Amazon 目标按地区(NA/EU/UK)展示; 其他平台行按站点(DE/NL/FR/UK)展示
+    const regionTxt = rc === 'ALL' ? '全部'
+      : (ep === 'amazon') ? (REGION_CN[rc] || rc) + ' ' + rc
+      : (REGION_CN[rc] || rc) + ' · ' + ccRaw;
+    const ongoing = e.mo && e.mo.ongoing;
+    const tp = timeProgress(e.ym);
+    // 预测 (进行中月份)
+    const projU = ongoing && e.mo.daysWithData > 0 ? actU / e.mo.daysWithData * e.mo.daysTotal : null;
+    const projS = ongoing && e.mo.daysWithData > 0 ? actS / e.mo.daysWithData * e.mo.daysTotal : null;
+    // 广告占比
+    const tgtShare = tgtShareOf(e.t);
+    const actShare = e.res.matched && e.act.salesCny > 0 ? e.act.adCostCny / e.act.salesCny : null;
+    let shareStTxt = '—', shareStCls = 'none';
+    if (tgtShare !== null && actShare !== null) {
+      if (actShare * 100 <= tgtShare) { shareStTxt = '达标 ✓'; shareStCls = 'ok'; }
+      else { shareStTxt = '超标 +' + (actShare * 100 - tgtShare).toFixed(1) + 'pp'; shareStCls = 'miss'; }
+    } else if (tgtShare === null) { shareStTxt = '无目标'; shareStCls = 'none'; }
+    // 状态 (销量/销售额口径)
+    let stTxt, stCls;
+    if (!e.res.matched) { stTxt = '未匹配'; stCls = 'unmatched'; }
+    else if (!e.mo) { stTxt = '无数据月'; stCls = 'none'; }
+    else if (ongoing) {
+      const r = rateU !== null ? rateU : rateS;
+      if (r === null) { stTxt = '进行中'; stCls = 'none'; }
+      else if (r >= tp) { stTxt = '领先 ⚡'; stCls = 'ahead'; }
+      else { stTxt = '落后'; stCls = 'behind'; }
+    } else {
+      const r = rateU !== null ? rateU : rateS;
+      if (r === null) { stTxt = '—'; stCls = 'none'; }
+      else if (r >= 1) { stTxt = '达标 ✓'; stCls = 'ok'; }
+      else { stTxt = '未达标'; stCls = 'miss'; }
+    }
+    const flag = ongoing ? '<span class="m-flag ongoing">进行中</span>' : (e.mo && e.mo.partial ? '<span class="m-flag partial">部分月</span>' : '');
+    const gapU = tgtU > 0 ? (actU - tgtU) : null;
+    const gapS = tgtS > 0 ? (actS - tgtS) : null;
+    const cnt = e.res.dataOnly ? '' : ` <span class="m-day">(${e.res.asins.size} ASIN)</span>`;
+    const matchTxt = e.res.matched
+      ? `<span class="m-day">${e.res.matchType}:</span> ${e.res.series && e.res.series !== '无' ? e.res.series : ''}${e.res.series && e.res.series !== '无' && e.res.name && e.res.name !== '无' ? ' / ' : ''}${e.res.name && e.res.name !== '无' ? e.res.name : ''}${cnt}`
+      : '<span style="color:#b45309">⚠ 映射中未找到</span>';
+    const fxMark = e.act.fxMissing ? '<span class="m-day" title="部分站点当月汇率缺失">⚠汇率</span>' : '';
+    // 非 Amazon 平台(无广告数据)在「实际销量」下补一行流量, 让 JoyBuy 的 PDP UV 可见
+    const uvSub = (ep === 'amazon') ? ''
+      : `<br><span class="m-day" title="PDP 商品页访问人数">流量 ${Math.round(e.act.sessions || 0).toLocaleString()}</span>`;
+    html += `<tr>
+      <td class="frozen"><b>${e.ym}</b>${flag}${e.mo ? `<br><span class="m-day">数据 ${e.mo.daysWithData}/${e.mo.daysTotal} 天</span>` : ''}</td>
+      <td>${regionTxt}</td>
+      <td style="text-align:left;max-width:240px;overflow:hidden;text-overflow:ellipsis">${e.t.product || '—'}</td>
+      <td style="text-align:left">${matchTxt}</td>
+      <td>${tgtU ? Math.round(tgtU).toLocaleString() : '—'}</td>
+      <td>${e.res.matched ? Math.round(actU).toLocaleString() + uvSub : '<span class="cell-na">—</span>'}</td>
+      <td>${progBar(e.res.matched ? rateU : null, ongoing)}</td>
+      <td>${gapU === null ? '—' : (gapU >= 0 ? '<span style="color:#059669">+' : '<span style="color:#dc2626">') + Math.round(gapU).toLocaleString() + '</span>'}</td>
+      <td>${tgtS ? fmtCny(tgtS) : '—'}</td>
+      <td>${e.res.matched ? fmtCny(e.act.salesCny || null) + fxMark : '<span class="cell-na">—</span>'}</td>
+      <td>${progBar(e.res.matched ? rateS : null, ongoing)}</td>
+      <td>${gapS === null ? '—' : (gapS >= 0 ? '<span style="color:#059669">+' : '<span style="color:#dc2626">') + fmtCny(Math.abs(gapS)) + '</span>'}</td>
+      <td>${projU === null ? '—' : Math.round(projU).toLocaleString()}</td>
+      <td>${projS === null ? '—' : fmtCny(projS)}</td>
+      <td>${tgtShare !== null ? tgtShare.toFixed(1) + '%' : '—'}</td>
+      <td>${e.res.matched ? shareBar(actShare, tgtShare !== null ? tgtShare / 100 : null) : '<span class="cell-na">—</span>'}</td>
+      <td><span class="st ${shareStCls}">${shareStTxt}</span></td>
+      <td><span class="st ${stCls}">${stTxt}</span></td>
+    </tr>`;
+  }
+  // 合计行（「全部平台」下区分目标行与实际行，避免把 JoyBuy 实际行也说成「目标」）
+  const nTgtRows = entries.filter(e => !e.res.dataOnly).length;
+  const nDataRows = entries.filter(e => e.res.dataOnly).length;
+  const cntTxt = (selPlatform === 'all' && nDataRows)
+    ? (nTgtRows + ' 条目标 + ' + nDataRows + ' 条实际行')
+    : (entries.length + ' 条' + (dataOnly ? '实际行' : '目标'));
+  html += `<tr class="total-row">
+    <td class="frozen">合计</td><td>—</td><td style="text-align:left">${cntTxt}</td><td>—</td>
+    <td>${totTgtU > 0 ? Math.round(totTgtU).toLocaleString() : '—'}</td><td>${Math.round(totActU).toLocaleString()}</td>
+    <td>${totTgtU > 0 ? progBar(totActU / totTgtU, true) : '—'}</td>
+    <td>${totTgtU > 0 ? ((totActU - totTgtU >= 0 ? '+' : '') + Math.round(totActU - totTgtU).toLocaleString()) : '—'}</td>
+    <td>${fmtCny(totTgtS || null)}</td>
+    <td>${fmtCny(totActS || null)}</td>
+    <td>${totTgtS > 0 ? progBar(totActS / totTgtS, true) : '—'}</td>
+    <td>${totTgtS > 0 ? ((totActS - totTgtS >= 0 ? '+' : '') + fmtCny(Math.abs(totTgtS - totActS))) : '—'}</td>
+    <td>—</td><td>—</td>
+    <td>${totTgtShare !== null ? totTgtShare.toFixed(1) + '%' : '—'}</td>
+    <td>${hasAds && totActShare !== null ? (totActShare * 100).toFixed(1) + '%' : '—'}</td>
+    <td>${hasAds && totTgtShare !== null && totActShare !== null ? (totActShare * 100 <= totTgtShare ? '<span class="st ok">达标 ✓</span>' : '<span class="st miss">超标</span>') : '—'}</td>
+    <td>—</td>
+  </tr></tbody></table>`;
+  wrap.innerHTML = html;
+  document.getElementById('rangeBadge').textContent = `${PLATFORM_TX[selPlatform]} · ${cntTxt}${totTgtU > 0 ? ' · 完成率(销量) ' + (totActU / totTgtU * 100).toFixed(0) + '%' : ''}`;
+  const sampleBanner = document.getElementById('sampleBanner');
+  if (TARGETS.sample) sampleBanner.style.display = '';
+}
+
+// ---------- 筛选面板 (与其他看板一致) ----------
+function toggleDD(id) {
+  const el = document.getElementById(id);
+  const willOpen = !el.classList.contains('open');
+  document.querySelectorAll('.dd.open').forEach(d => { if (d.id !== id) d.classList.remove('open'); });
+  el.classList.toggle('open', willOpen);
+  if (id === 'ddAsin' && willOpen) { const s = document.getElementById('ddAsinSearch'); s.value = ''; setTimeout(() => s.focus(), 30); }
+  if ((id === 'ddSeries' || id === 'ddName') && willOpen) {
+    const s = document.getElementById(id === 'ddSeries' ? 'ddSeriesSearch' : 'ddNameSearch');
+    if (s) { s.value = ''; if (id === 'ddSeries') buildSeriesOptions(); else buildNameOptions(); setTimeout(() => s.focus(), 30); }
+  }
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dd')) document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+});
+function handleOptClick(e, set, key, render) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.ctrlKey || e.metaKey) { set.has(key) ? set.delete(key) : set.add(key); }
+  else {
+    if (set.has(key) && set.size === 1) set.clear();
+    else { set.clear(); set.add(key); }
+  }
+  render();
+}
+function setAll(kind, v) {
+  if (kind === 'channel') {
+    selChannel.clear();
+    if (v) CHANNELS.forEach(c => selChannel.add(c.id));
+  } else if (kind === 'month') {
+    selMonth.clear();
+    if (v) {
+      const yms = new Set(MONTHS.map(m => m.ym));
+      (TARGETS.targets || []).forEach(t => { if (!platInScope(tgtPlat(t))) return; const y = (t.month || '').slice(0, 7); if (y) yms.add(y); });
+      yms.forEach(y => selMonth.add(y));
+    }
+  } else if (kind === 'country') {
+    selCountry.clear();
+    if (v) allRegions.forEach(c => selCountry.add(c));
+  } else if (kind === 'asin') {
+    selAsin.clear();
+    if (v) scopeAsins().forEach(a => selAsin.add(a));
+  } else if (kind === 'series') {
+    selSeries.clear();
+    if (v) seriesScope().forEach(s => selSeries.add(s));
+  } else if (kind === 'name') {
+    selName.clear();
+    if (v) nameScope().forEach(n => selName.add(n));
+  }
+  renderAll();
+}
+// ---------- 销售店铺(渠道)筛选 2026-10-10 ----------
+// 空集 = 合并（全部）；选 Woot 则只算 Woot 行；选 Aliencell 则只算构建期行
+function buildChannelOptions() {
+  const list = document.getElementById('ddChannelList');
+  if (!list) return;
+  const hasWoot = ROWS.some(r => channelOf(r) === 'woot');
+  const hasAmz = ROWS.some(r => channelOf(r) === 'amazon');
+  list.innerHTML = CHANNELS.map(c => {
+    const sel = selChannel.has(c.id) ? ' sel' : '';
+    const has = (c.id === 'woot') ? hasWoot : hasAmz;
+    const dim = has ? '' : ' dim';
+    const tag = has ? '' : ' (当前无数据)';
+    const oc = has ? `handleOptClick(event, selChannel, '${c.id}', renderAll)` : 'void 0';
+    const icon = c.id === 'woot' ? '🛒' : '🏢';
+    return `<div class="dd-opt${sel}${dim}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${dim?'disabled':''} style="pointer-events:none">
+      <span class="opt-name">${icon} ${c.label}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('');
+  const el = document.getElementById('ddChannelSummary');
+  if (el) {
+    if (channelMerged()) el.textContent = '全部（合并）';
+    else el.textContent = [...selChannel].map(c => CHANNEL_CN[c] || c).join('、') + ' 单独看';
+  }
+}
+function buildMonthOptions() {
+  const yms = new Set(MONTHS.map(m => m.ym));
+  (TARGETS.targets || []).forEach(t => { if (!platInScope(tgtPlat(t))) return; const y = (t.month || '').slice(0, 7); if (y) yms.add(y); });
+  const ymArr = [...yms].sort().reverse();
+  const list = document.getElementById('ddMonthList');
+  list.innerHTML = ymArr.map(ym => {
+    const mo = monthBy[ym];
+    const sel = selMonth.has(ym) ? ' sel' : '';
+    const flag = mo ? (mo.ongoing ? '进行中' : (mo.partial ? '部分月' : '完整')) : '仅目标';
+    return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selMonth, '${ym}', renderAll)">
+      <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+      <span class="opt-name">${ym}</span><span class="opt-sub">${flag}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ddMonthSummary').textContent = selMonth.size === 0 ? '全部' : `已选 ${selMonth.size}/${ymArr.length} 项`;
+}
+function buildCountryOptions() {
+  const list = document.getElementById('ddCountryList');
+  const scope = countryScope();
+  list.innerHTML = allRegions.map(rc => {
+    const sel = selCountry.has(rc) ? ' sel' : '';
+    const has = scope.has(rc);
+    const dim = has ? '' : ' dim';
+    const tag = has ? '' : ' (当前无数据)';
+    const oc = has ? `handleOptClick(event, selCountry, '${rc}', renderAll)` : 'void 0';
+    return `<div class="dd-opt${sel}${dim}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${dim?'disabled':''} style="pointer-events:none">
+      <span class="opt-name">${REGION_CN[rc] || rc} ${rc}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ddCountrySummary').textContent = selCountry.size === 0 ? '全部' : `已选 ${selCountry.size}/${allRegions.length} 项`;
+}
+function buildAsinOptions() {
+  const q = (document.getElementById('ddAsinSearch').value || '').trim().toLowerCase();
+  const list = document.getElementById('ddAsinList');
+  const scope = scopeAsins();
+  let cands = asinList.filter(a => scope.has(a));
+  cands = cands.filter(a => {
+    if (!q) return true;
+    const m = metaOf(a);
+    return a.toLowerCase().includes(q) || m.series.toLowerCase().includes(q) || m.name.toLowerCase().includes(q);
+  });
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">无匹配的 ASIN</div>';
+  } else {
+    list.innerHTML = cands.map(a => {
+      const sel = selAsin.has(a) ? ' sel' : '';
+      const m = metaOf(a);
+      const metaTxt = (m.series !== '无' || m.name !== '无') ? m.series + ' / ' + m.name : '未匹配';
+      const ccs = [...new Set(ROWS.filter(r => r.asin === a).map(r => regionOf(r.cc)))].join(',');
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selAsin, '${a}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${a}</span><span class="opt-sub">${ccs} · ${metaTxt}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddAsinSummary').textContent = selAsin.size === 0 ? '全部' : `已选 ${selAsin.size}/${asinList.length} 项`;
+}
+function buildSeriesOptions() {
+  const q = (document.getElementById('ddSeriesSearch').value || '').trim().toLowerCase();
+  const list = document.getElementById('ddSeriesList');
+  const scope = seriesScope();
+  let cands = seriesList.filter(s => scope.has(s));
+  cands = cands.filter(s => !q || s.toLowerCase().includes(q));
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">' + (scope.size === 0 ? '当前筛选下无产品系列' : '无匹配的产品系列') + '</div>';
+  } else {
+    list.innerHTML = cands.map(s => {
+      const sel = selSeries.has(s) ? ' sel' : '';
+      const tag = s === '无' ? '未匹配' : '';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selSeries, '${s}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${s}</span><span class="opt-sub">${tag}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddSeriesSummary').textContent = selSeries.size === 0 ? '全部' : `已选 ${selSeries.size}/${seriesList.length} 项`;
+}
+function buildNameOptions() {
+  const scope = nameScope();
+  const validAll = namesIn(selSeries).filter(n => scope.has(n));
+  const valid = new Set(validAll);
+  const q = (document.getElementById('ddNameSearch').value || '').trim().toLowerCase();
+  const cands = [...valid].filter(n => !q || n.toLowerCase().includes(q));
+  const list = document.getElementById('ddNameList');
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">' + (valid.size === 0 ? '当前筛选下无产品名' : '无匹配的产品名') + '</div>';
+  } else {
+    list.innerHTML = cands.map(n => {
+      const sel = selName.has(n) ? ' sel' : '';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selName, '${n}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${n}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddNameSummary').textContent = selName.size === 0 ? '全部' : `已选 ${selName.size}/${validAll.length} 项`;
+}
+function refreshMapStat() {
+  const el = document.getElementById('mapStat');
+  if (!el) return;
+  const wrap = document.getElementById('mapStatWrap');
+  if (selPlatform !== 'amazon') {           // JoyBuy 走自身 SKU 映射, 亚马逊 ASIN 映射不适用
+    if (wrap) wrap.style.display = 'none';
+    return;
+  }
+  if (wrap) wrap.style.display = '';
+  const mapped = asinList.filter(a => { const m = metaOf(a); return m.series !== '无' || m.name !== '无'; }).length;
+  el.textContent = `${mapped}/${asinList.length}`;
+}
+// 初始默认平台可能不是 Amazon（如「全部平台」）⇒ 也要按其规则隐藏 ASIN 筛选
+// （setPlatform 只负责切换时的 UI，加载路径不会走到它）
+(function initPlatformUi(){
+  const dd = document.getElementById('ddAsin');
+  if (dd) dd.style.display = (selPlatform === 'amazon') ? '' : 'none';
+})();
+renderAll();
+</script>
+
+</body>
+</html>

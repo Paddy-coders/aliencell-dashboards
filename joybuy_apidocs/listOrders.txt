@@ -1,0 +1,66 @@
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+Login
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Aftersales‌Overview‌
+getAfsOrder
+patchAfsOrder
+listAfsOrders
+listAfsOrderLogs
+Supply Chain
+Vender
+Product
+Order
+API Documentation
+Aftersales‌
+Aftersales‌Overview‌
+Aftersales‌Overview‌
+FBM
+All APIs
+API Name
+	
+Description
+	
+Action
+getAfsOrder
+GET sp-aftercare/v0/afs-orders/{afsOrderId}
+	
+1.Supports querying documents of cancellation or after-sales types, distinguished by the after-sales type reverseType. 2.Supports querying service orders in FBM and FBJ modes.
+	
+View Documentation
+
+
+patchAfsOrder
+PATCH sp-aftercare/v0/afs-orders/{afsOrderId}
+	
+After-sales service order operations, including merchant review actions such as refund approval, rejection of service requests, approval for replacement without return, approval for offline replacemen
+	
+View Documentation
+
+
+listAfsOrders
+GET sp-aftercare/v0/afs-orders
+	
+Query the list of JD.com after-sales service orders based on different conditions, including self-managed after-sales documents, and support for POP and other modes.
+	
+View Documentation
+
+
+listAfsOrderLogs
+GET sp-aftercare/v0/afs-orders/{afsOrderId}/logs
+	
+Query Service Order Log List
+	
+View Documentation

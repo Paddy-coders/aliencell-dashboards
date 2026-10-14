@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 财务录入（其他渠道订单 / 测评费用）</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-soft:#eef4ff; --danger:#dc2626; --ok:#059669;
+    --warn:#b7791f; --shadow:0 1px 3px rgba(16,24,40,.08); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:18px 22px 34px; }
+  .wrap { max-width:1120px; margin:0 auto; }
+
+  .head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .head h1 { font-size:20px; font-weight:700; }
+  .head .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.7; }
+  .head-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 16px; box-shadow:var(--shadow); }
+  .stat b { font-size:18px; color:var(--primary); }
+  .stat span { font-size:12px; color:var(--muted); margin-left:6px; }
+  .cloud-stat { cursor:default; }
+  .cloud-stat.ok { border-color:#b7e4cd; background:#f0fdf6; }
+  .cloud-stat.ok span { color:#059669; }
+  .cloud-stat.fail { border-color:#f3c1c1; background:#fdf2f2; }
+  .cloud-stat.fail span { color:#dc2626; }
+  .cloud-stat.sync { border-color:#f4e0b3; background:#fdfaf0; }
+  .cloud-stat.sync span { color:var(--warn); }
+
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:6px 14px; border-radius:8px; font-size:13px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); color:#fff; }
+  .btn.danger { color:var(--danger); }
+  .btn.danger:hover { border-color:var(--danger); }
+  .icon-btn { border:1px solid var(--border); background:#fff; padding:1px 8px; border-radius:6px; font-size:12px; cursor:pointer; color:var(--muted); transition:all .15s; line-height:1.7; }
+  .icon-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .icon-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
+
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { border:1px solid var(--border); background:var(--card); color:var(--text); padding:9px 18px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:var(--shadow); transition:all .15s; }
+  .tab.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .tabview { display:none; }
+  .tabview.active { display:block; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .card-title .hint { font-size:11px; color:var(--muted); font-weight:400; }
+  .form-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .inp { padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; outline:none; color:var(--text); background:#fff; }
+  .inp:focus { border-color:var(--primary); }
+  .inp.wide { flex:1; min-width:180px; }
+  .inp.mid { min-width:130px; }
+  .inp.sm { min-width:96px; }
+  textarea { width:100%; min-height:84px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:12px; font-family:ui-monospace,Consolas,monospace; resize:vertical; outline:none; color:var(--text); background:#fbfcfe; }
+  textarea:focus { border-color:var(--primary); }
+  .hintline { font-size:11px; color:var(--muted); line-height:1.8; }
+
+  table.tbl { width:100%; border-collapse:collapse; font-size:13px; }
+  table.tbl th, table.tbl td { padding:7px 9px; border-bottom:1px solid var(--border); text-align:left; vertical-align:middle; }
+  table.tbl th { background:#f8fafc; font-weight:600; color:var(--muted); font-size:12px; white-space:nowrap; }
+  table.tbl tr:hover td { background:#fafcff; }
+  table.tbl td input, table.tbl td select { width:100%; padding:5px 8px; border:1px solid transparent; border-radius:6px; font-size:13px; font-family:inherit; background:transparent; color:var(--text); outline:none; }
+  table.tbl td input:hover, table.tbl td select:hover { border-color:var(--border); }
+  table.tbl td input:focus, table.tbl td select:focus { border-color:var(--primary); background:#fff; }
+  .num { text-align:right; }
+  .bad { border-color:var(--danger) !important; background:#fff5f5 !important; }
+
+  .empty { text-align:center; color:var(--muted); font-size:13px; padding:26px 0; }
+  .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#111827; color:#fff; font-size:13px;
+    padding:9px 18px; border-radius:8px; opacity:0; pointer-events:none; transition:all .25s; z-index:99; max-width:78vw; }
+  .toast.show { opacity:.94; transform:translateX(-50%) translateY(0); }
+  .foot-note { text-align:center; color:var(--muted); font-size:11px; margin-top:6px; line-height:1.8; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; background:var(--primary-soft); color:var(--primary); border:1px solid #dbe7ff; }
+  @media (max-width:760px){ .head-actions .btn, .stats .stat { width:100%; } }
+</style>
+<script src="xlsx.full.min.js"></script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>🧾 Aliencell 财务录入</h1>
+      <div class="sub">
+        录入 <b>其他渠道订单</b>（非亚马逊渠道、走亚马逊多渠道配送 MCF 的那部分）与 <b>测评费用</b>，保存后同步到云端。<br>
+        看板侧由 <code>sync_finance_inputs.py</code> 拉取本页数据生成 <code>finance_inputs.json</code>，重建看板后生效：<br>
+        · 其他渠道订单 → 按「月份 + ASIN」匹配多渠道配送记录，把对应部分的<b>产品成本 + 头程 + 配送费</b>从亚马逊毛利中<b>剔除（加回）</b>；<br>
+        · 测评费用 → 按「月份 + 站点」摊到 SKU，<b>计入毛利</b>（作为费用扣减）。
+      </div>
+    </div>
+    <div class="head-actions">
+      <button class="btn" onclick="pullCloud(true)">⬇️ 从云端拉取</button>
+      <button class="btn primary" onclick="saveAll(true)">💾 保存并同步云端</button>
+      <button class="btn" onclick="goBack()">◀ 返回看板</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="stOO">0</b><span>条其他渠道订单</span></div>
+    <div class="stat"><b id="stOOQty">0</b><span>台合计</span></div>
+    <div class="stat"><b id="stRF">0</b><span>条测评费</span></div>
+    <div class="stat"><b id="stRFAmt">0</b><span>测评费金额(按币种)</span></div>
+    <div class="stat cloud-stat" id="cloudStat" title="云端同步状态"><span id="cloudBadge">云端同步中…</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabBtnOO" onclick="switchTabView('oo')">🔀 其他渠道订单</button>
+    <button class="tab" id="tabBtnRF" onclick="switchTabView('rf')">🧪 测评费用</button>
+  </div>
+
+  <!-- ================= 其他渠道订单 ================= -->
+  <div class="tabview active" id="viewOO">
+    <div class="card">
+      <div class="card-title">➕ 添加订单 <span class="hint">按月维度录入「月份 + ASIN + 数量」；站点由系统按多渠道销量占比自动分解，无需填</span></div>
+      <div class="form-row">
+        <input class="inp sm" id="ooYm" type="month" title="月份">
+        <input class="inp mid" id="ooAsin" placeholder="ASIN，如 B0H6QDGYY5" style="text-transform:uppercase">
+        <input class="inp sm" id="ooQty" type="number" min="1" step="1" placeholder="数量">
+        <input class="inp wide" id="ooNote" placeholder="备注（可选，如「独立站 10 月订单」）">
+        <button class="btn primary" onclick="addOO()">添加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📥 批量导入 <span class="hint">JSON / CSV / XLS / XLSX / 粘贴文本，自动识别表头（月份 / ASIN / 数量 / 备注）</span></div>
+      <div class="form-row" style="margin-bottom:8px">
+        <button class="btn" onclick="document.getElementById('ooFile').click()">选择文件（JSON/CSV/XLS/XLSX）</button>
+        <input type="file" id="ooFile" accept=".json,.csv,.txt,.xls,.xlsx" style="display:none">
+        <button class="btn" onclick="importOOFromText()">导入下方文本</button>
+        <button class="btn" onclick="exportOO('csv')">导出 CSV</button>
+        <button class="btn" onclick="exportOO('json')">导出 JSON</button>
+      </div>
+      <textarea id="ooText" placeholder="CSV/制表符/JSON 均可，示例：
+月份,ASIN,数量,备注
+2026-09,B0H6QDGYY5,1,独立站
+2026-09,B0HZ8Y9LV4,2,
+（也可直接粘贴 Excel 两列/多列区域）"></textarea>
+      <div class="hintline">提示：表头识别词 —— 月/月份/ym/month · ASIN/子ASIN/asin · 数量/件数/qty/quantity · 备注/note。导入为<b>追加合并</b>（同 月份+ASIN 的行会合并数量）。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 订单明细 <span class="hint" id="ooCount"></span>
+        <span style="flex:1"></span>
+        <button class="icon-btn danger" onclick="clearOO()">清空全部</button>
+      </div>
+      <div id="ooTable"></div>
+    </div>
+  </div>
+
+  <!-- ================= 测评费用 ================= -->
+  <div class="tabview" id="viewRF">
+    <div class="card">
+      <div class="card-title">➕ 添加测评费 <span class="hint">按月维度录入「月份 + 站点 + ASIN + 金额 + 币种 + 备注」；ASIN 留空 = 摊到该站点当月所有 SKU</span></div>
+      <div class="form-row">
+        <input class="inp sm" id="rfYm" type="month" title="月份">
+        <select class="inp sm" id="rfSite">
+          <option value="">站点…</option>
+          <option>US</option><option>UK</option><option>DE</option><option>FR</option><option>IT</option>
+          <option>ES</option><option>NL</option><option>BE</option><option>IE</option><option>PL</option>
+          <option>SE</option><option>CA</option><option>MX</option><option>JP</option><option>AU</option>
+        </select>
+        <input class="inp mid" id="rfAsin" placeholder="ASIN（可留空）" style="text-transform:uppercase">
+        <input class="inp sm" id="rfAmt" type="number" step="0.01" placeholder="金额">
+        <select class="inp sm" id="rfCur">
+          <option value="">币种（按站点自动）</option>
+          <option>USD</option><option>EUR</option><option>GBP</option><option>CNY</option>
+          <option>CAD</option><option>MXN</option><option>JPY</option><option>AUD</option><option>PLN</option><option>SEK</option>
+        </select>
+        <input class="inp wide" id="rfNote" placeholder="备注（可选，如「9月测评 3 单」）">
+        <button class="btn primary" onclick="addRF()">添加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📥 批量导入 <span class="hint">JSON / CSV / XLS / XLSX / 粘贴文本，自动识别表头（月份 / 站点 / ASIN / 金额 / 币种 / 备注）</span></div>
+      <div class="form-row" style="margin-bottom:8px">
+        <button class="btn" onclick="document.getElementById('rfFile').click()">选择文件（JSON/CSV/XLS/XLSX）</button>
+        <input type="file" id="rfFile" accept=".json,.csv,.txt,.xls,.xlsx" style="display:none">
+        <button class="btn" onclick="importRFFromText()">导入下方文本</button>
+        <button class="btn" onclick="exportRF('csv')">导出 CSV</button>
+        <button class="btn" onclick="exportRF('json')">导出 JSON</button>
+      </div>
+      <textarea id="rfText" placeholder="CSV/制表符/JSON 均可，示例：
+月份,站点,ASIN,金额,币种,备注
+2026-09,UK,B0G25G961Y,120,GBP,测评2单
+2026-09,DE,,80,EUR,9月测评"></textarea>
+      <div class="hintline">提示：表头识别词 —— 月/月份/ym/month · 站点/国家/site/country · ASIN/子ASIN · 金额/费用/amount/fee · 币种/货币/currency/cur · 备注/note。币种留空时按站点取默认（US→USD / UK→GBP / DE·FR·IT·ES·NL·BE·IE→EUR / SE→SEK / PL→PLN）。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 测评费明细 <span class="hint" id="rfCount"></span>
+        <span style="flex:1"></span>
+        <button class="icon-btn danger" onclick="clearRF()">清空全部</button>
+      </div>
+      <div id="rfTable"></div>
+    </div>
+  </div>
+
+  <div class="foot-note">
+    数据存于本机浏览器(localStorage)并同步到云端 <code>Supabase mapping.data.finance</code>（与产品映射/Woot 共用同一行，写入时会先合并保留其他键）。<br>
+    改动后需跑 <code>sync_finance_inputs.py</code> 刷新 <code>finance_inputs.json</code> 再重建看板，看板数值才会更新。
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= 配置 =================
+const SUPABASE_URL = 'https://oovvqvgrjqwogjwswaxx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+const SUPABASE_ADMIN_KEY = 'wb-map-2026';   // 与数据库 RLS 管理密钥一致（防无关人员写入）
+const K_FIN = 'pc_finance';
+const SITE_CUR = { US:'USD', CA:'CAD', MX:'MXN', UK:'GBP', JP:'JPY', AU:'AUD', DE:'EUR', FR:'EUR',
+                   IT:'EUR', ES:'EUR', NL:'EUR', BE:'EUR', IE:'EUR', PL:'PLN', SE:'SEK' };
+const SITES = Object.keys(SITE_CUR);
+
+let fin = { otherOrders: [], reviewFees: [] };
+let cloudState = 'sync';
+let _saveTimer = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s === null || s === undefined ? '' : s)
+  .replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+function flash(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); }
+function goBack(){ try { if (window.parent && window.parent !== window) { window.parent.postMessage({ type:'wb-nav-back' }, '*'); return; } } catch(e){} location.href = './index.html'; }
+function todayStamp(){ const d = new Date(); const p = n => String(n).padStart(2,'0'); return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()); }
+
+// ================= 规范化 / 校验 =================
+function normYm(v){
+  const s = String(v || '').trim();
+  let m = s.match(/^(\d{4})[-/年.](\d{1,2})/);
+  if (m) return m[1] + '-' + String(m[2]).padStart(2, '0');
+  m = s.match(/^(\d{4})(\d{2})$/);            // 202609
+  if (m) return m[1] + '-' + m[2];
+  m = s.match(/^(\d{4})[-/](\d{1,2})[-/]\d{1,2}/);
+  if (m) return m[1] + '-' + String(m[2]).padStart(2, '0');
+  return '';
+}
+const isYm = s => /^\d{4}-(0[1-9]|1[0-2])$/.test(s || '');
+const normAsin = v => String(v || '').trim().toUpperCase().replace(/\s|"/g, '');
+const isAsin = s => /^[A-Z0-9]{10}$/.test(s || '');
+function numOf(v){
+  const s = String(v === null || v === undefined ? '' : v).replace(/[,\s¥$€£元]/g, '');
+  if (!s) return NaN;
+  const n = Number(s);
+  return isFinite(n) ? n : NaN;
+}
+
+// ================= 状态读写 =================
+function loadLocal(){
+  try {
+    const j = JSON.parse(localStorage.getItem(K_FIN) || 'null');
+    if (j && typeof j === 'object') {
+      fin.otherOrders = Array.isArray(j.otherOrders) ? j.otherOrders : [];
+      fin.reviewFees  = Array.isArray(j.reviewFees)  ? j.reviewFees  : [];
+    }
+  } catch(e){}
+  normAll();
+}
+function normAll(){
+  fin.otherOrders = fin.otherOrders.map(x => ({
+    ym: normYm(x.ym), asin: normAsin(x.asin), qty: numOf(x.qty) || 0, note: String(x.note || '').trim()
+  })).filter(x => x.ym && x.asin && x.qty > 0);
+  fin.reviewFees = fin.reviewFees.map(x => {
+    const site = String(x.site || '').toUpperCase();
+    return { ym: normYm(x.ym), site: site, asin: normAsin(x.asin),
+             amount: numOf(x.amount) || 0, cur: String(x.cur || SITE_CUR[site] || '').toUpperCase(),
+             note: String(x.note || '').trim() };
+  }).filter(x => x.ym && x.site && x.amount);
+}
+function saveLocal(){
+  try {
+    localStorage.setItem(K_FIN, JSON.stringify({
+      otherOrders: fin.otherOrders, reviewFees: fin.reviewFees,
+      updatedAt: new Date().toISOString()
+    }));
+  } catch(e){ flash('本机保存失败: ' + e.message); }
+}
+function saveAll(notify){
+  normAll(); saveLocal(); renderAll();
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => pushCloud(notify), 300);
+}
+
+// ================= 云端同步 =================
+function setCloud(state, txt){
+  cloudState = state;
+  const el = $('cloudStat'); if (!el) return;
+  el.className = 'stat cloud-stat ' + (state === 'ok' ? 'ok' : state === 'fail' ? 'fail' : 'sync');
+  $('cloudBadge').textContent = txt;
+}
+async function pushCloud(notify){
+  setCloud('sync', '云端保存中…');
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
+    // ⚠️ 防互踩: mapping 表是 id=1 单行, 与本页共用 —— 必须"读最新 → 合并 → 整体写回",
+    //   绝不能只写自己的键(那会抹掉 catalog/asinMap/woot/wootCfg)
+    const gr = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, signal: ctl.signal });
+    if (!gr.ok) throw new Error('读取云端失败 HTTP ' + gr.status);
+    const rows = await gr.json();
+    const cur = (rows && rows[0] && rows[0].data) || {};
+    const data = Object.assign({}, cur, {
+      finance: { otherOrders: fin.otherOrders, reviewFees: fin.reviewFees, updatedAt: new Date().toISOString() }
+    });
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?id=eq.1', {
+      method: 'PATCH', signal: ctl.signal,
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                 'x-admin-key': SUPABASE_ADMIN_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ data: data, updated_at: new Date().toISOString() })
+    });
+    clearTimeout(t);
+    if (r.ok) { setCloud('ok', '云端已同步'); if (notify) flash('已保存并同步到云端'); return true; }
+    setCloud('fail', '云端保存失败 HTTP ' + r.status);
+    if (notify) flash('云端保存失败（已保存在本机）HTTP ' + r.status);
+    return false;
+  } catch(e){
+    setCloud('fail', '云端保存失败');
+    if (notify) flash('云端保存失败（已保存在本机）: ' + e.message);
+    return false;
+  }
+}
+async function pullCloud(manual){
+  setCloud('sync', '云端同步中…');
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data,updated_at&id=eq.1', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, signal: ctl.signal });
+    clearTimeout(t);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    const j = (rows && rows[0] && rows[0].data) || {};
+    const f = j.finance;
+    if (!f || (!Array.isArray(f.otherOrders) && !Array.isArray(f.reviewFees))) {
+      setCloud('ok', '云端已同步(无财务数据)');
+      if (manual) flash('云端暂无财务录入数据');
+      return false;
+    }
+    const same = JSON.stringify({ a: fin.otherOrders, b: fin.reviewFees })
+              === JSON.stringify({ a: f.otherOrders || [], b: f.reviewFees || [] });
+    if (same) { setCloud('ok', '云端已同步'); if (manual) flash('本机已是最新（无变化）'); return false; }
+    if (manual || !fin.otherOrders.length && !fin.reviewFees.length) {
+      fin.otherOrders = Array.isArray(f.otherOrders) ? f.otherOrders : [];
+      fin.reviewFees  = Array.isArray(f.reviewFees)  ? f.reviewFees  : [];
+      saveLocal(); renderAll();
+      setCloud('ok', '云端已同步');
+      if (manual) flash('已从云端拉取最新财务数据');
+      return true;
+    }
+    setCloud('ok', '云端已同步');
+    flash('云端有更新（本机也有数据）→ 点「从云端拉取」可覆盖本机');
+    return false;
+  } catch(e){
+    setCloud('fail', '云端同步失败');
+    if (manual) flash('云端同步失败: ' + e.message);
+    return false;
+  }
+}
+
+// ================= 渲染 =================
+function renderAll(){
+  const ooSum = fin.otherOrders.reduce((s, x) => s + (x.qty || 0), 0);
+  $('stOO').textContent = fin.otherOrders.length;
+  $('stOOQty').textContent = Math.round(ooSum * 100) / 100;
+  $('stRF').textContent = fin.reviewFees.length;
+  const byCur = {};
+  fin.reviewFees.forEach(x => { const c = x.cur || '—'; byCur[c] = (byCur[c] || 0) + (x.amount || 0); });
+  const amtTxt = Object.keys(byCur).sort().map(c => (Math.round(byCur[c] * 100) / 100).toLocaleString('en-US') + ' ' + c).join(' · ');
+  $('stRFAmt').textContent = amtTxt || '0';
+  renderOO(); renderRF();
+  updateCloudBadge();
+}
+function updateCloudBadge(){
+  if (cloudState === 'ok') setCloud('ok', '云端已同步');
+  else if (cloudState === 'fail') setCloud('fail', '云端同步失败');
+  else setCloud('sync', '云端同步中…');
+}
+function renderOO(){
+  const list = fin.otherOrders.slice().sort((a, b) => (b.ym || '').localeCompare(a.ym || '') || (a.asin || '').localeCompare(b.asin || ''));
+  $('ooCount').textContent = list.length ? list.length + ' 条 · 共 ' + Math.round(list.reduce((s, x) => s + (x.qty || 0), 0) * 100) / 100 + ' 台' : '';
+  if (!list.length) { $('ooTable').innerHTML = '<div class="empty">暂无记录 —— 用上面的表单添加，或批量导入</div>'; return; }
+  const idx = fin.otherOrders;
+  let h = '<table class="tbl"><thead><tr><th style="width:130px">月份</th><th style="width:150px">ASIN</th><th style="width:110px" class="num">数量</th><th>备注</th><th style="width:60px"></th></tr></thead><tbody>';
+  list.forEach(x => {
+    const i = idx.indexOf(x);
+    h += '<tr>'
+      + '<td><input type="month" value="' + esc(x.ym) + '" onchange="editOO(' + i + ',\'ym\',this.value,this)"></td>'
+      + '<td><input value="' + esc(x.asin) + '" onchange="editOO(' + i + ',\'asin\',this.value,this)"></td>'
+      + '<td class="num"><input class="num" type="number" min="1" step="1" value="' + esc(x.qty) + '" onchange="editOO(' + i + ',\'qty\',this.value,this)"></td>'
+      + '<td><input value="' + esc(x.note) + '" onchange="editOO(' + i + ',\'note\',this.value,this)"></td>'
+      + '<td><button class="icon-btn danger" onclick="delOO(' + i + ')">✕</button></td>'
+      + '</tr>';
+  });
+  $('ooTable').innerHTML = h + '</tbody></table>';
+}
+function renderRF(){
+  const list = fin.reviewFees.slice().sort((a, b) => (b.ym || '').localeCompare(a.ym || '') || (a.site || '').localeCompare(b.site || '') || (a.asin || '').localeCompare(b.asin || ''));
+  $('rfCount').textContent = list.length ? list.length + ' 条' : '';
+  if (!list.length) { $('rfTable').innerHTML = '<div class="empty">暂无记录 —— 用上面的表单添加，或批量导入</div>'; return; }
+  const idx = fin.reviewFees;
+  let h = '<table class="tbl"><thead><tr><th style="width:120px">月份</th><th style="width:80px">站点</th><th style="width:140px">ASIN</th>'
+        + '<th style="width:110px" class="num">金额</th><th style="width:90px">币种</th><th>备注</th><th style="width:60px"></th></tr></thead><tbody>';
+  list.forEach(x => {
+    const i = idx.indexOf(x);
+    const opts = ['USD','EUR','GBP','CNY','CAD','MXN','JPY','AUD','PLN','SEK']
+      .map(c => '<option' + (c === x.cur ? ' selected' : '') + '>' + c + '</option>').join('');
+    const sopts = SITES.map(s => '<option' + (s === x.site ? ' selected' : '') + '>' + s + '</option>').join('');
+    h += '<tr>'
+      + '<td><input type="month" value="' + esc(x.ym) + '" onchange="editRF(' + i + ',\'ym\',this.value,this)"></td>'
+      + '<td><select onchange="editRF(' + i + ',\'site\',this.value,this)">' + sopts + '</select></td>'
+      + '<td><input value="' + esc(x.asin) + '" placeholder="(留空=全站)" onchange="editRF(' + i + ',\'asin\',this.value,this)"></td>'
+      + '<td class="num"><input class="num" type="number" step="0.01" value="' + esc(x.amount) + '" onchange="editRF(' + i + ',\'amount\',this.value,this)"></td>'
+      + '<td><select onchange="editRF(' + i + ',\'cur\',this.value,this)">' + opts + '</select></td>'
+      + '<td><input value="' + esc(x.note) + '" onchange="editRF(' + i + ',\'note\',this.value,this)"></td>'
+      + '<td><button class="icon-btn danger" onclick="delRF(' + i + ')">✕</button></td>'
+      + '</tr>';
+  });
+  $('rfTable').innerHTML = h + '</tbody></table>';
+}
+
+// ================= 增删改 =================
+function addOO(){
+  const ym = normYm($('ooYm').value), asin = normAsin($('ooAsin').value), qty = numOf($('ooQty').value);
+  if (!isYm(ym)) { flash('请填写月份（YYYY-MM）'); return; }
+  if (!isAsin(asin)) { flash('ASIN 应为 10 位字母数字，如 B0H6QDGYY5'); return; }
+  if (!(qty > 0)) { flash('数量需大于 0'); return; }
+  const ex = fin.otherOrders.find(x => x.ym === ym && x.asin === asin);
+  if (ex) { ex.qty = Math.round((ex.qty + qty) * 100) / 100; flash('同 月份+ASIN 已存在 → 数量合并为 ' + ex.qty); }
+  else fin.otherOrders.push({ ym: ym, asin: asin, qty: qty, note: String($('ooNote').value || '').trim() });
+  $('ooAsin').value = ''; $('ooQty').value = ''; $('ooNote').value = '';
+  saveAll(false);
+}
+function editOO(i, k, v, el){
+  if (k === 'ym') { v = normYm(v); if (!isYm(v)) { flash('月份格式应为 YYYY-MM'); el.classList.add('bad'); return; } }
+  if (k === 'asin') { v = normAsin(v); if (!isAsin(v)) { flash('ASIN 应为 10 位字母数字'); el.classList.add('bad'); return; } }
+  if (k === 'qty') { v = numOf(v); if (!(v > 0)) { flash('数量需大于 0'); el.classList.add('bad'); return; } }
+  el.classList.remove('bad');
+  fin.otherOrders[i][k] = (k === 'note') ? String(v || '') : v;
+  saveAll(false);
+}
+function delOO(i){ fin.otherOrders.splice(i, 1); saveAll(true); flash('已删除 1 条'); }
+function clearOO(){
+  if (!fin.otherOrders.length) return;
+  if (!confirm('确定清空全部「其他渠道订单」记录？（' + fin.otherOrders.length + ' 条，清空后需重新保存）')) return;
+  fin.otherOrders = []; saveAll(true); flash('已清空其他渠道订单');
+}
+function addRF(){
+  const ym = normYm($('rfYm').value), site = $('rfSite').value, asin = normAsin($('rfAsin').value);
+  const amt = numOf($('rfAmt').value), cur = $('rfCur').value || SITE_CUR[site] || '';
+  if (!isYm(ym)) { flash('请填写月份（YYYY-MM）'); return; }
+  if (!site) { flash('请选择站点'); return; }
+  if (asin && !isAsin(asin)) { flash('ASIN 应为 10 位字母数字（或留空 = 全站）'); return; }
+  if (!amt) { flash('金额需为非 0 数值'); return; }
+  fin.reviewFees.push({ ym: ym, site: site, asin: asin, amount: amt, cur: cur, note: String($('rfNote').value || '').trim() });
+  $('rfAsin').value = ''; $('rfAmt').value = ''; $('rfNote').value = '';
+  saveAll(false);
+}
+function editRF(i, k, v, el){
+  if (k === 'ym') { v = normYm(v); if (!isYm(v)) { flash('月份格式应为 YYYY-MM'); el.classList.add('bad'); return; } }
+  if (k === 'asin') { v = normAsin(v); if (v && !isAsin(v)) { flash('ASIN 应为 10 位字母数字（或留空）'); el.classList.add('bad'); return; } }
+  if (k === 'amount') { v = numOf(v); if (!v) { flash('金额需为非 0 数值'); el.classList.add('bad'); return; } }
+  if (k === 'site') { if (!SITE_CUR[v]) { flash('未知站点'); return; } if (!fin.reviewFees[i].cur) fin.reviewFees[i].cur = SITE_CUR[v]; }
+  el.classList.remove('bad');
+  fin.reviewFees[i][k] = (k === 'note') ? String(v || '') : v;
+  saveAll(false);
+}
+function delRF(i){ fin.reviewFees.splice(i, 1); saveAll(true); flash('已删除 1 条'); }
+function clearRF(){
+  if (!fin.reviewFees.length) return;
+  if (!confirm('确定清空全部「测评费用」记录？（' + fin.reviewFees.length + ' 条，清空后需重新保存）')) return;
+  fin.reviewFees = []; saveAll(true); flash('已清空测评费用');
+}
+
+// ================= 导入 =================
+function switchTabView(v){
+  const isOO = v === 'oo';
+  $('tabBtnOO').classList.toggle('active', isOO);
+  $('tabBtnRF').classList.toggle('active', !isOO);
+  $('viewOO').classList.toggle('active', isOO);
+  $('viewRF').classList.toggle('active', !isOO);
+  try { history.replaceState(null, '', '#' + v); } catch(e){}
+}
+// CSV/制表符 → 二维数组（支持引号包裹与转义引号）
+function parseDelimited(text){
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ',' || c === '\t' || c === ';') { row.push(cur); cur = ''; }
+    else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+    else if (c === '\r') { /* skip */ }
+    else cur += c;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+function headerIndex(header, words){
+  for (let i = 0; i < header.length; i++){
+    const h = String(header[i] || '').trim().toLowerCase().replace(/[\s_\-()（）]/g, '');
+    if (!h) continue;
+    for (const w of words) if (h.indexOf(w.toLowerCase()) >= 0) return i;
+  }
+  return -1;
+}
+function parseTextToRows(text){
+  const t = String(text || '').trim();
+  if (!t) return [];
+  if (t[0] === '[' || t[0] === '{') {                 // JSON: 数组 或 {otherOrders:[]} / {reviewFees:[]}
+    const j = JSON.parse(t);
+    const arr = Array.isArray(j) ? j
+      : (Array.isArray(j.rows) ? j.rows
+      : (Array.isArray(j.otherOrders) ? j.otherOrders
+      : (Array.isArray(j.reviewFees) ? j.reviewFees : [])));
+    return arr.map(o => Object.keys(o).map(k => o[k]));
+  }
+  return parseDelimited(t);
+}
+function importOOFromText(){
+  try { importOORows(parseTextToRows($('ooText').value)); }
+  catch(e){ flash('导入失败: ' + e.message); }
+}
+function importOORows(rows){
+  if (!rows.length) { flash('没有可导入的内容'); return; }
+  const head = rows[0].map(x => String(x || ''));
+  let iYm = headerIndex(head, ['月份','月','ym','month','date','日期']);
+  let iAs = headerIndex(head, ['asin','子asin','子ASIN','asin号']);
+  let iQty = headerIndex(head, ['数量','件数','qty','quantity','units']);
+  let iNote = headerIndex(head, ['备注','note','remark','说明']);
+  // ⚠️ 表头判定不能用"任意一列命中关键词": 数据行的备注「10月」会命中关键词「月」,
+  //   于是整行被当成表头 → 只剩 0 行数据(2026-10-12 被 test_finance_inputs 抓到)。
+  //   改用两条硬信号: ①首格不像数据(不是可解析的月份、不是 10 位 ASIN) ②至少 2 列命中关键词
+  const looksData = isYm(normYm(head[0])) || isAsin(normAsin(head[0]));
+  const hitN = [iYm, iAs, iQty, iNote].filter(i => i >= 0).length;
+  const hasHead = !looksData && hitN >= 2;
+  if (!hasHead) { iYm = 0; iAs = 1; iQty = 2; iNote = 3; }     // 无表头 → 按 月份,ASIN,数量,备注
+  else { if (iYm < 0) iYm = 0; if (iAs < 0) iAs = 1; if (iQty < 0) iQty = 2; }
+  const body = hasHead ? rows.slice(1) : rows;
+  let ok = 0; const bad = [];
+  body.forEach((r, n) => {
+    const ym = normYm(r[iYm]), asin = normAsin(r[iAs]), qty = numOf(r[iQty]);
+    const note = iNote >= 0 ? String(r[iNote] || '').trim() : '';
+    if (!isYm(ym) || !isAsin(asin) || !(qty > 0)) { bad.push(n + 1 + (hasHead ? 1 : 0)); return; }
+    const ex = fin.otherOrders.find(x => x.ym === ym && x.asin === asin);
+    if (ex) ex.qty = Math.round((ex.qty + qty) * 100) / 100;
+    else fin.otherOrders.push({ ym: ym, asin: asin, qty: qty, note: note });
+    ok++;
+  });
+  if (ok) { $('ooText').value = ''; saveAll(true); }
+  flash('其他渠道订单：导入/合并 ' + ok + ' 行' + (bad.length ? '，跳过 ' + bad.length + ' 行（第 ' + bad.slice(0, 8).join(',') + ' 行格式不符）' : ''));
+}
+function importRFFromText(){
+  try { importRFRows(parseTextToRows($('rfText').value)); }
+  catch(e){ flash('导入失败: ' + e.message); }
+}
+function importRFRows(rows){
+  if (!rows.length) { flash('没有可导入的内容'); return; }
+  const head = rows[0].map(x => String(x || ''));
+  let iYm = headerIndex(head, ['月份','月','ym','month','date','日期']);
+  let iSite = headerIndex(head, ['站点','国家','site','country','marketplace']);
+  let iAs = headerIndex(head, ['asin','子asin']);
+  let iAmt = headerIndex(head, ['金额','费用','amount','fee','cost','测评费']);
+  let iCur = headerIndex(head, ['币种','货币','currency','cur']);
+  let iNote = headerIndex(head, ['备注','note','remark','说明']);
+  // 同 OO: 数据行的备注含「费用/金额」等词也会误命中 → 用"首格不像数据 + ≥2 列命中"两条硬信号
+  const looksDataR = isYm(normYm(head[0])) || isAsin(normAsin(head[0]));
+  const hitNR = [iYm, iSite, iAs, iAmt, iCur, iNote].filter(i => i >= 0).length;
+  const hasHead = !looksDataR && hitNR >= 2;
+  if (!hasHead) { iYm = 0; iSite = 1; iAs = 2; iAmt = 3; iCur = 4; iNote = 5; }
+  else { if (iYm < 0) iYm = 0; }
+  const body = hasHead ? rows.slice(1) : rows;
+  let ok = 0; const bad = [];
+  body.forEach((r, n) => {
+    const ym = normYm(r[iYm]);
+    const site = String(iSite >= 0 ? (r[iSite] || '') : '').trim().toUpperCase();
+    const asin = normAsin(iAs >= 0 ? r[iAs] : '');
+    const amt = numOf(iAmt >= 0 ? r[iAmt] : '');
+    let cur = String(iCur >= 0 ? (r[iCur] || '') : '').trim().toUpperCase();
+    const note = iNote >= 0 ? String(r[iNote] || '').trim() : '';
+    if (!isYm(ym) || !SITE_CUR[site] || !amt || (asin && !isAsin(asin))) { bad.push(n + 1 + (hasHead ? 1 : 0)); return; }
+    if (!cur) cur = SITE_CUR[site];
+    fin.reviewFees.push({ ym: ym, site: site, asin: asin, amount: amt, cur: cur, note: note });
+    ok++;
+  });
+  if (ok) { $('rfText').value = ''; saveAll(true); }
+  flash('测评费用：导入 ' + ok + ' 行' + (bad.length ? '，跳过 ' + bad.length + ' 行（第 ' + bad.slice(0, 8).join(',') + ' 行格式不符）' : ''));
+}
+
+// ================= 导出 =================
+function toCsvText(rows){
+  return rows.map(r => (r || []).map(c => {
+    const s = String(c === null || c === undefined ? '' : c);
+    return /[",\n\t]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }).join(',')).join('\r\n');
+}
+function downloadText(name, text){
+  const blob = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+}
+function exportOO(fmt){
+  if (!fin.otherOrders.length) { flash('没有可导出的内容'); return; }
+  const rows = [['月份','ASIN','数量','备注']];
+  fin.otherOrders.slice().sort((a,b) => a.ym.localeCompare(b.ym) || a.asin.localeCompare(b.asin))
+    .forEach(x => rows.push([x.ym, x.asin, x.qty, x.note || '']));
+  if (fmt === 'json') downloadText('其他渠道订单_' + todayStamp() + '.json', JSON.stringify(fin.otherOrders, null, 2));
+  else downloadText('其他渠道订单_' + todayStamp() + '.csv', toCsvText(rows));
+  flash('已导出 ' + fin.otherOrders.length + ' 条其他渠道订单');
+}
+function exportRF(fmt){
+  if (!fin.reviewFees.length) { flash('没有可导出的内容'); return; }
+  const rows = [['月份','站点','ASIN','金额','币种','备注']];
+  fin.reviewFees.slice().sort((a,b) => a.ym.localeCompare(b.ym) || a.site.localeCompare(b.site))
+    .forEach(x => rows.push([x.ym, x.site, x.asin || '', x.amount, x.cur || '', x.note || '']));
+  if (fmt === 'json') downloadText('测评费用_' + todayStamp() + '.json', JSON.stringify(fin.reviewFees, null, 2));
+  else downloadText('测评费用_' + todayStamp() + '.csv', toCsvText(rows));
+  flash('已导出 ' + fin.reviewFees.length + ' 条测评费用');
+}
+
+// ================= 文件选择 =================
+function fileExt(name){ return (name.split('.').pop() || '').toLowerCase(); }
+function readExcelToText(file, cb){
+  if (typeof XLSX === 'undefined'){ flash('Excel 解析库未加载（xlsx.full.min.js 缺失），请改用 JSON/CSV 格式'); return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const wb = XLSX.read(new Uint8Array(rd.result), { type: 'array' });
+      let ws = null, sname = '';
+      for (const n of wb.SheetNames){ if (wb.Sheets[n] && wb.Sheets[n]['!ref']) { ws = wb.Sheets[n]; sname = n; break; } }
+      if (!ws) { flash('Excel 文件中没有可读取的工作表'); return; }
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      if (!csv.trim()) { flash('工作表「' + sname + '」为空'); return; }
+      cb(csv);
+    } catch(e){ flash('解析 Excel 失败：' + e.message); }
+  };
+  rd.onerror = () => flash('读取文件失败');
+  rd.readAsArrayBuffer(file);
+}
+$('ooFile').addEventListener('change', function(){
+  const f = this.files[0]; if (!f) return;
+  const ext = fileExt(f.name);
+  if (ext === 'xls' || ext === 'xlsx') readExcelToText(f, csv => { $('ooText').value = csv; importOOFromText(); });
+  else { const rd = new FileReader(); rd.onload = () => { $('ooText').value = rd.result; importOOFromText(); }; rd.readAsText(f, 'utf-8'); }
+  this.value = '';
+});
+$('rfFile').addEventListener('change', function(){
+  const f = this.files[0]; if (!f) return;
+  const ext = fileExt(f.name);
+  if (ext === 'xls' || ext === 'xlsx') readExcelToText(f, csv => { $('rfText').value = csv; importRFFromText(); });
+  else { const rd = new FileReader(); rd.onload = () => { $('rfText').value = rd.result; importRFFromText(); }; rd.readAsText(f, 'utf-8'); }
+  this.value = '';
+});
+
+// ================= 启动 =================
+loadLocal();
+renderAll();
+const initHash = (location.hash || '').replace('#', '');
+if (initHash === 'oo' || initHash === 'rf') switchTabView(initHash);
+(async function seed(){
+  const got = await pullCloud(false);
+  if (got) return;
+  if (fin.otherOrders.length || fin.reviewFees.length) return;
+  // 云端与本机都没有 → 用构建期快照 finance_inputs.json 兜底（存在才用）
+  try {
+    const r = await fetch('./finance_inputs.json', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (Array.isArray(j.otherOrders)) fin.otherOrders = j.otherOrders;
+    if (Array.isArray(j.reviewFees)) fin.reviewFees = j.reviewFees;
+    if (fin.otherOrders.length || fin.reviewFees.length) { normAll(); saveLocal(); renderAll(); flash('已用构建快照 finance_inputs.json 预填充'); }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

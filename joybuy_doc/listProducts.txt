@@ -1,0 +1,490 @@
+URL: https://openplatform.joybuy.com/#/doc/apiAuthPackage?apiCateId=32&apiId=21&apiName=listProducts&apiCateName=%E8%AE%A2%E5%8D%95%E5%B1%A5%E7%BA%A6&gwType=0
+
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+mc5l5t625ku9dxd6l8wgx
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+订单履约
+listProducts
+putOrderShipments
+postOrderShipment
+getWayBillTraces
+listCarriers
+listOrders
+getOrder
+listOrderOaidAddresses
+Permission Package
+订单履约
+listProducts
+FBM
+查询商品列表
+User authorization required
+Version v0
+Updated:31/08/2026 14:39:16
+API Description
+Collapse
+APITools
+Collapse
+API Debugging Tool
+API Permission Query Tool
+API Log Troubleshooting Tool
+Signature Tool
+Request
+Request Address and Method
+Pre-release Environment Address
+	
+Production Environment Address
+	
+Call Method
+https://api-pre.joybuy.com/rest
+	
+https://api-eu.joybuy.com/rest
+	
+API invocation method， Click to view
+Common Request Parameters
+Collapse
+Name
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+X-JOS-App-Key
+	
+string
+	
+Yes
+	
+012D834080F3339C1FF301F8EC763E13
+	
+The appKey of the created application.
+
+
+X-JOS-Access-Token
+	
+string
+	
+No
+	
+7f1bcd13fc57d46bac21793a18e560
+	
+The authorization token issued by the platform to the application after user authorization succeeds. If this API document is labeled “User Authorization Required,” this parameter is required. If it is labeled “User Authorization Not Required,” this parameter is not required.
+
+
+X-JOS-Timestamp
+	
+long
+	
+Yes
+	
+1735660800000
+	
+Timestamp accurate to milliseconds. The JD API server allows a client request time deviation of up to 10 minutes.
+
+
+X-JOS-Sign
+	
+string
+	
+Yes
+	
+-
+	
+Signature. Click to view
+
+
+X-JOS-Sign-Method
+	
+string
+	
+No
+	
+md5
+	
+Signature encryption algorithm. Available options are md5, hmacmd5, and hmacsha256. The default is md5.
+
+
+X-JOS-Content-Type
+	
+string
+	
+No
+	
+application/json; charset=utf-8
+	
+Required when the request method is POST, PATCH, or PUT. Optional for GET and DELETE. Fixed value: application/json; charset=utf-8.
+
+
+X-JOS-Request-Identity
+	
+string
+	
+Yes
+	
+vender
+	
+When the API is a multi-business aggregation interface and supports multiple data dimensions, a business identity identifier must be passed in to ensure that data resources for the corresponding business scenario are returned. If the “API Data Dimension” label contains multiple options, this parameter is required. If the label contains only one option or there is no label, this parameter is not required. Available values include： vender: store-level data； supplier: supplier code-level data； userPin: supplier PIN-level data.
+
+
+X-JOS-Request-BizId
+	
+string
+	
+No
+	
+	
+When requesting POP merchant data, enter the venderId. When requesting supplier data, enter the venderCode.
+
+
+X-JOS-site
+	
+string
+	
+No
+	
+	
+UK-Site：UK Site；NL-Site：Netherlands Site；DE-Site：Germany Site；FR-Site：France Site
+
+
+X-JOS-timeZone
+	
+string
+	
+No
+	
+	
+Asia/Shanghai：Shanghai (China)；Asia/Tokyo：Tokyo (Japan)；Asia/Singapore：Singapore；Asia/Seoul：Seoul (Korea)
+
+
+X-JOS-currency
+	
+string
+	
+No
+	
+	
+CNY：CNY；USD：US Dollar；EUR：Euro；JPY：Japanese Yen；GBP：British Pound
+
+
+X-JOS-language
+	
+string
+	
+No
+	
+	
+zh_CN：Simplified Chinese；zh_HK：Traditional Chinese (Hong Kong & Macao)；zh_TW：Traditional Chinese (Taiwan)；en_US：English (US)；en_GB：English (UK)；fr_FR：French；de_DE：German；nl_NL：Dutch
+Request Parameters
+Name
+Expand
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+request
+	
+object
+	
+Yes
+	
+	
+Product list query parameters
+Response
+Response Parameters
+Name
+Expand
+	
+Type
+	
+Example
+	
+Description
+data
+	
+array
+	
+	
+Product Details
+
+
+success
+	
+boolean
+	
+true
+	
+Success status
+
+
+errorList
+	
+array
+	
+	
+Error Message Collection
+
+
+paginationData
+	
+object
+	
+	
+Paginated Output Parameters
+Response Example
+JSON
+1
+{
+2
+  "Response": {
+3
+    "data": [
+4
+      {
+5
+        "productInfo": {
+6
+          "productId": 143089,
+7
+          "lastCategoryId": 6109,
+8
+          "productName": "商品-002",
+9
+          "brandId": 1000081,
+10
+          "productStatus": [
+11
+            {
+12
+              "terminal": {
+13
+                "siteStr": "1100",
+14
+                "uaStr": "1"
+15
+              },
+16
+              "productStatusDTO": {
+17
+                "productStatus": 8,
+18
+                "onlineTime": 1762479360000,
+19
+                "offlineTime": 1762479386000
+20
+              }
+21
+            }
+22
+          ],
+23
+          "outerId": "11111",
+24
+          "itemNum": "001",
+25
+          "barCode": "adfaewf",
+26
+          "props": [
+27
+            {
+28
+              "attrId": "232334",
+29
+              "attrValues": "[\"123\",\"456\"]",
+30
+              "attrValueAlias": "[\"Light blue\"]",
+31
+              "index": 1,
+32
+              "features": [
+33
+                {
+Exception Example
+JSON
+	{
+
+	  "Response": {
+
+	    "errorList": [
+
+	      {
+
+	        "code": "10155001001",
+
+	        "details": "请求参数为空",
+
+	        "message": "请填写请求参数"
+
+	      }
+
+	    ],
+
+	    "success": false
+
+	  }
+
+	}
+Return Code
+Return Code
+	
+Return Message
+	
+Solution
+10155001001
+	
+ListProductsRequest is null
+	
+Please fill in the request parameters
+
+
+10155001002
+	
+ListProductsRequest shopId is null
+	
+Please fill in the merchant ID
+
+
+10155001003
+	
+remote jsf interface searchProduct4Valid error
+	
+Remote call to jsf interface searchProduct4Valid to obtain product pagination list, call error, please contact relevant R&D personnel to investigate the cause
+
+
+10155001004
+	
+remote jsf interface searchProduct4Valid return null
+	
+Remote call to the jsf interface searchProduct4Valid to retrieve the product pagination list returned empty. Please contact the relevant R&D personnel to investigate the cause
+
+
+10155001005
+	
+unsupported product status
+	
+The status of the query contains invalid product statuses. The product statuses can be listed as follows: 1. Never listed, 2. Self removed, 4. System removed, 8. For sale, 16 (reserved), 32 (reserved), 64 (disabled, temporarily reserved), 512 (pending review), 1024 (failed review)
+
+
+10155001006
+	
+Page number is empty
+	
+Please fill in the target page
+
+
+10155001007
+	
+The number of data entries per page is empty
+	
+Please fill in the size of each page
+
+
+10155001008
+	
+The number of data items per page is greater than 20
+	
+Exceeding the maximum number of data entries per page, please reduce it
+
+
+10155001009
+	
+The number of data items per page is less than 1
+	
+Below the minimum number of data entries per page, please increase it
+
+
+10155001010
+	
+Page number less than 1
+	
+Please fill in the target page, it must be greater than zero
+
+
+10155001011
+	
+ListProductsRequest languages Unsupported language
+	
+There are unsupported languages in the language encoding set. The supported languages are: zh_CN: Simplified Chinese; Th_TH: Thai language; En-US: American English; Id-ID: Indonesia; Ar_SA: Saudi Arabia; Fr_fR: French in France; Zh_TW: Traditional Chinese; De_de: German; Nl_nL: Dutch
+
+
+10155001012
+	
+ProductIdList length greater than 20
+	
+The collection of product IDs exceeds the maximum quantity limit
+
+
+10155001013
+	
+categoryIdList length greater than 10
+	
+Category ID collection exceeds the maximum quantity limit
+
+
+10155001014
+	
+brandIdList length greater than 20
+	
+Brand ID collection exceeds the maximum quantity limit
+
+
+10155001015
+	
+The sortBy field is illegal
+	
+The sorting field is invalid. Sorting field: created: creation time; Modified: modification time
+
+
+10155001016
+	
+The sortOrder field is illegal
+	
+The sorting type is invalid. Sorting types: asc, desc
+How to obtain this API
+Permission package that has this API
+	
+Application types that can obtain/apply for this API permission package
+全流程控制
+	
+
+
+1233
+	
+自营供应商,商家自研应用
+
+
+商品发布
+	
+物流仓储,ISV应用
+
+
+订单履约
+	
+物流仓储,ISV应用
+Request
+Request Address and Method
+Common Request Parameters
+Request Parameters
+Response
+Response Parameters
+Response Example
+Exception Example
+Return Code
+How to obtain this API

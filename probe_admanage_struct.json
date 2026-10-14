@@ -1,0 +1,144 @@
+{
+  "iframeInfo": [
+    {
+      "src": "https://ntvb7tr-eb.eccang.com/order/order-platform-list/list?resource=sso&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjdXJyZW50VGltZU1pbGxpcyI6IjE3ODcxMjI5MDIzNTgiLCJleHAiOjE3ODcxOTQ5MDIsImFjY291bnQiOiJZWS1QYWRkeX40MzgxMzd-U1NPX1NZU19VU0VSIn0.FmlmVDflQxwFtWx2elcJFTmTKG7QfJPhnhdBu8bLeQs&subjectCodeEncrypt=ntvb7tr&LANGUAGE=zh_CN&classification=&clusterPrefix=hn",
+      "error": "Failed to read a named property 'document' from 'Window': Blocked a frame with origin \"https://home.eccang.com\" from accessing a cross-origin frame."
+    },
+    {
+      "src": "",
+      "url": "about:blank",
+      "bodyText": ""
+    }
+  ],
+  "tables": [],
+  "campaignEls": [
+    {
+      "tag": "HTML",
+      "className": " ",
+      "text": ".video-js {\n        width: 300px;\n        height: 150px;\n      }\n\n      .vjs-fluid:not(.vjs-audio-on"
+    },
+    {
+      "tag": "BODY",
+      "className": "",
+      "text": "<strong>We're sorry but projects doesn't work properly without JavaScript enabled. Please enable it "
+    },
+    {
+      "tag": "SECTION",
+      "className": "entry-layout",
+      "text": "首页产品销售广告客服订单采购头程仓储自发货物流财务报表设置新功能麦多AI人工客服余明浩全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开"
+    },
+    {
+      "tag": "SECTION",
+      "className": "entry-layout",
+      "text": "全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-I"
+    },
+    {
+      "tag": "SECTION",
+      "className": "entry-multi-tab",
+      "text": "全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-I"
+    },
+    {
+      "tag": "DIV",
+      "className": "entry-multi-tab__menus entry-multi-tab-divider",
+      "text": "全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-I"
+    },
+    {
+      "tag": "DIV",
+      "className": "entry-multi-tab__menus__wrapper",
+      "text": "全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-I"
+    },
+    {
+      "tag": "DIV",
+      "className": "entry-multi-tab__menus__wrapper__main",
+      "text": "全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-I"
+    },
+    {
+      "tag": "DIV",
+      "className": "entry-menus-wrapper",
+      "text": "全部菜单全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-I"
+    },
+    {
+      "tag": "DIV",
+      "className": "entry-menus-wrapper__bd",
+      "text": "全球经营罗盘全球销售罗盘平台销售概览销售实时大屏销售日历(即时)库存罗盘市场归属设置产品开发一审模式产品开发WalmartWalmart-Item列表Walmart-退款退货Walmart-Item表"
+    }
+  ],
+  "tabs": [
+    "首页",
+    "产品",
+    "销售",
+    "广告",
+    "客服",
+    "订单",
+    "采购",
+    "头程",
+    "仓储",
+    "自发货",
+    "物流",
+    "财务",
+    "报表",
+    "设置"
+  ],
+  "bodyLines": [
+    "首页产品销售广告客服订单采购头程仓储自发货物流财务报表设置",
+    "新功能",
+    "麦多AI",
+    "人工客服",
+    "余明浩",
+    "订单管理",
+    "业务报告",
+    "直播/回放",
+    "操作指南",
+    "常用功能收藏夹",
+    "店铺数据",
+    "所有店铺统计",
+    "我的店铺统计",
+    "店铺出单高峰",
+    "店铺/产品表现",
+    "我的产品列表",
+    "日销量统计",
+    "补货建议",
+    "店铺业务报告",
+    "广告管理",
+    "广告首页",
+    "广告管理",
+    "广告概况",
+    "广告明细",
+    "重复投放",
+    "广告日报",
+    "广告日志",
+    "广告创意资源",
+    "批量创建商品广告",
+    "广告优化",
+    "分时调价",
+    "智能优化",
+    "预算规则",
+    "广告智能投放",
+    "广告监控",
+    "关键词排名监控",
+    "关键词抢位",
+    "广告投放词库",
+    "AI编写Listing",
+    "ChatGPT评论分析",
+    "广告爆单词库",
+    "广告搜索词变动分析",
+    "广告搜索词表现",
+    "广告诊断",
+    "广告智能诊断",
+    "Listing诊断",
+    "Listing广告诊断",
+    "店铺分析",
+    "广告分析",
+    "TOP广告分析",
+    "店铺分析",
+    "产品分析",
+    "广告活动预算分析",
+    "广告效果透视",
+    "产品广告透视",
+    "关键词投放透视",
+    "搜索词透视",
+    "出单高峰统计",
+    "选词&竞品",
+    "Amazon ABA数据选词"
+  ]
+}

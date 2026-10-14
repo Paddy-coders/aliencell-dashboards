@@ -1,0 +1,611 @@
+[
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popOrders",
+  "name": "Parent Orders",
+  "id": 91
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popGmv",
+  "name": "GMV",
+  "id": 31
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popOrders",
+  "name": "Parent Orders",
+  "id": 91
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popSoldUnits",
+  "name": "Units",
+  "id": 34
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popOrderCancelRate",
+  "name": "Order Cancel Rate",
+  "id": 35
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popRevenuePerOrder",
+  "name": "AOV",
+  "id": 99
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Transaction",
+  "key": "popPaidUsers",
+  "name": "Buyers",
+  "id": 40
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Traffic",
+  "key": "popPdpPv",
+  "name": "PDP PV",
+  "id": 37
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_TRANSACTIONS",
+  "group": "Traffic",
+  "key": "popAverageRevenuePerPaidUser",
+  "name": "ARPU",
+  "id": 42
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popOnSaleProducts",
+  "name": "Products on Sale",
+  "id": 49
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popVisitedProducts",
+  "name": "Visited Products",
+  "id": 50
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popCollectedProducts",
+  "name": "Collected Products",
+  "id": 52
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popAtcProducts",
+  "name": "Products Added to Cart",
+  "id": 54
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popActiveProducts",
+  "name": "Product with Sales",
+  "id": 56
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popOutOfStockProducts",
+  "name": "Out-of-Stock Products",
+  "id": 58
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Product",
+  "key": "popInactiveProducts",
+  "name": "Unsellable Stock Skus",
+  "id": 105
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Transaction",
+  "key": "popGmv",
+  "name": "GMV",
+  "id": 31
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Transaction",
+  "key": "popOrders",
+  "name": "Parent Orders",
+  "id": 91
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Transaction",
+  "key": "popSoldUnits",
+  "name": "Units",
+  "id": 34
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Transaction",
+  "key": "popAverageSellingPricePerUnits",
+  "name": "ASPU",
+  "id": 100
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Transaction",
+  "key": "popPaidUsers",
+  "name": "Buyers",
+  "id": 40
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popPdpPv",
+  "name": "PDP PV",
+  "id": 37
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popAtcUv",
+  "name": "ATC UV",
+  "id": 45
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popAtcUnits",
+  "name": "ATC Units",
+  "id": 46
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popPdpUvToAtcUvConversionRate",
+  "name": "PDP UV to ATC UV CR",
+  "id": 60
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_PRODUCTS",
+  "group": "Inventory",
+  "key": "popStockUnits",
+  "name": "Stock on Hand",
+  "id": 61
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpPv",
+  "name": "PDP PV",
+  "id": 37
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popAtcUv",
+  "name": "ATC UV",
+  "id": 45
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popAtcUnits",
+  "name": "ATC Units",
+  "id": 46
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpUvToAtcUvConversionRate",
+  "name": "PDP UV to ATC UV CR",
+  "id": 60
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popAverageSessionDuration",
+  "name": "Average Session Duration",
+  "id": 48
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popAverageRevenuePerPaidUser",
+  "name": "ARPU",
+  "id": 42
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popAverageVisitDepth",
+  "name": "Average Visit Depth",
+  "id": 103
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popGmv",
+  "name": "GMV",
+  "id": 31
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popOrders",
+  "name": "Parent Orders",
+  "id": 91
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popSoldUnits",
+  "name": "Units",
+  "id": 34
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popPaidUsers",
+  "name": "Buyers",
+  "id": 40
+ },
+ {
+  "report": "POP_PRODUCTS_ANALYTICS",
+  "group": "Inventory",
+  "key": "popStockUnits",
+  "name": "Stock on Hand",
+  "id": 61
+ },
+ {
+  "report": "POP_API_BUSINESS_GROWTH",
+  "group": "Transaction",
+  "key": "popGmv",
+  "name": "GMV",
+  "id": 31
+ },
+ {
+  "report": "POP_API_BUSINESS_GROWTH",
+  "group": "Transaction",
+  "key": "popOrders",
+  "name": "Parent Orders",
+  "id": 91
+ },
+ {
+  "report": "POP_API_BUSINESS_GROWTH",
+  "group": "Transaction",
+  "key": "popPaidUsers",
+  "name": "Buyers",
+  "id": 40
+ },
+ {
+  "report": "POP_API_BUSINESS_GROWTH",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_API_BUSINESS_GROWTH",
+  "group": "Traffic",
+  "key": "popStoreUv",
+  "name": "Store UV",
+  "id": 44
+ },
+ {
+  "report": "POP_API_BUSINESS_GROWTH",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popKeywordPdpUv",
+  "name": "PDP UV",
+  "id": 92
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popKeywordPdpPvToOrdersConversionRate",
+  "name": "PDP PV to Order CR",
+  "id": 88
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popStorePv",
+  "name": "Store PV",
+  "id": 43
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popStoreUv",
+  "name": "Store UV",
+  "id": 44
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpPv",
+  "name": "PDP PV",
+  "id": 37
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAtcUv",
+  "name": "ATC UV",
+  "id": 45
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAtcUnits",
+  "name": "ATC Units",
+  "id": 46
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAverageSessionDuration",
+  "name": "Average Session Duration",
+  "id": 48
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAverageRevenuePerPaidUser",
+  "name": "ARPU",
+  "id": 42
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAverageVisitDepth",
+  "name": "Average Visit Depth",
+  "id": 103
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpPv",
+  "name": "PDP PV",
+  "id": 37
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAtcUv",
+  "name": "ATC UV",
+  "id": 45
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAtcUnits",
+  "name": "ATC Units",
+  "id": 46
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAverageSessionDuration",
+  "name": "Average Session Duration",
+  "id": 48
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Traffic",
+  "key": "popAverageRevenuePerPaidUser",
+  "name": "ARPU",
+  "id": 42
+ },
+ {
+  "report": "POP_TRAFFIC",
+  "group": "Transaction",
+  "key": "popPaidUsers",
+  "name": "Buyers",
+  "id": 40
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popGmv",
+  "name": "GMV",
+  "id": 31
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popOrders",
+  "name": "Parent Orders",
+  "id": 91
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popSoldUnits",
+  "name": "Units",
+  "id": 34
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popRevenuePerOrder",
+  "name": "AOV",
+  "id": 99
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Transaction",
+  "key": "popPaidUsers",
+  "name": "Buyers",
+  "id": 40
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpUv",
+  "name": "PDP UV",
+  "id": 36
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpPv",
+  "name": "PDP PV",
+  "id": 37
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpPvToOrdersConversionRate",
+  "name": "PDP UV to Orders CR",
+  "id": 38
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popPdpUvToPaidUserConversionRate",
+  "name": "PDP UV to Buyers CR",
+  "id": 39
+ },
+ {
+  "report": "POP_TRANSACTIONS_ANALYTICS",
+  "group": "Traffic",
+  "key": "popAverageRevenuePerPaidUser",
+  "name": "ARPU",
+  "id": 42
+ }
+]

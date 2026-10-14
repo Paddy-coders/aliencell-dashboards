@@ -1,0 +1,7 @@
+{
+  "note": "财务手工录入(其他渠道订单 / 测评费用)。云端权威源 = Supabase mapping.data.finance；本文件是构建期快照，由 sync_finance_inputs.py 从云端拉取生成。",
+  "howto": "在 finance_inputs.html 里录入或批量导入 → 保存(写入云端) → 跑 sync_finance_inputs.py 刷新本文件 → 重建看板。",
+  "updatedAt": "",
+  "otherOrders": [],
+  "reviewFees": []
+}

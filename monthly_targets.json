@@ -1,0 +1,2422 @@
+{
+  "sample": false,
+  "note": "正式目标表: Aliencell 海外电商2026年度目标（E1低价版）.xlsx 亚马逊Sheet; 纯收入(人民币)→销售额, 广告费%→广告占比, 月销量→销量; 全零行已跳过",
+  "targets": [
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "滚轴",
+      "units": 10.0,
+      "sales": 16659.33,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "滚轴",
+      "units": 25.0,
+      "sales": 37689.61,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "滚轴",
+      "units": 40.0,
+      "sales": 52437.38,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "滚轴",
+      "units": 60.0,
+      "sales": 90455.07,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "吸尘器",
+      "units": 2.0,
+      "sales": 2053.84,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "吸尘器",
+      "units": 2.0,
+      "sales": 1992.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "吸尘器",
+      "units": 2.0,
+      "sales": 1992.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "吸尘器",
+      "units": 2.0,
+      "sales": 1992.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "吸尘器",
+      "units": 2.0,
+      "sales": 1992.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "滚轴",
+      "units": 1.0,
+      "sales": 1988.26,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "滚轴",
+      "units": 5.0,
+      "sales": 8644.57,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "滚轴",
+      "units": 3.0,
+      "sales": 5964.79,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-07",
+      "country": "US",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 36719.86,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 4.0,
+      "sales": 70502.14,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 7.0,
+      "sales": 120808.35,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 170429.34,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 14.0,
+      "sales": 238601.08,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 20.0,
+      "sales": 337270.7,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 23341.41,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 46682.83,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 67430.74,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 67430.74,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 44953.83,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "净化器",
+      "units": 3.0,
+      "sales": 16589.76,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "净化器",
+      "units": 7.0,
+      "sales": 36773.97,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "净化器",
+      "units": 10.0,
+      "sales": 48268.26,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "净化器",
+      "units": 20.0,
+      "sales": 90058.5,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "净化器",
+      "units": 15.0,
+      "sales": 73942.86,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 0.0,
+      "sales": 0.0,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 4.0,
+      "sales": 52767.74,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 10.0,
+      "sales": 131099.34,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 15.0,
+      "sales": 200789.0,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 18.0,
+      "sales": 238462.81,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 12239.93,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 23745.47,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 6.0,
+      "sales": 70793.61,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 120473.33,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 14.0,
+      "sales": 166923.87,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-07",
+      "country": "US",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 135999.32,
+      "adShare": 18.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 25.0,
+      "sales": 306848.39,
+      "adShare": 14.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 35.0,
+      "sales": 413879.76,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 50.0,
+      "sales": 570540.49,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 90.0,
+      "sales": 1032406.6,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 110.0,
+      "sales": 1256897.02,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 4.0,
+      "sales": 69887.65,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 6.0,
+      "sales": 104831.48,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 165983.13,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 13.0,
+      "sales": 215778.06,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 165983.13,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 6.0,
+      "sales": 50918.01,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 15.0,
+      "sales": 117989.02,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 25.0,
+      "sales": 200788.33,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 30.0,
+      "sales": 235978.03,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 14959.86,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 5.0,
+      "sales": 35903.67,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 9.0,
+      "sales": 58994.41,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 12.0,
+      "sales": 80315.2,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 15.0,
+      "sales": 98324.02,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "材料包",
+      "units": 2.0,
+      "sales": 599.63,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "材料包",
+      "units": 4.0,
+      "sales": 1199.25,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "材料包",
+      "units": 6.0,
+      "sales": 1825.33,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "材料包",
+      "units": 10.0,
+      "sales": 3042.22,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "材料包",
+      "units": 8.0,
+      "sales": 2433.78,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "滚轴",
+      "units": 2.0,
+      "sales": 3870.85,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "滚轴",
+      "units": 5.0,
+      "sales": 8630.37,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "滚轴",
+      "units": 12.0,
+      "sales": 18011.1,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "滚轴",
+      "units": 10.0,
+      "sales": 17260.75,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "材料包",
+      "units": 0.5,
+      "sales": 202.66,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "材料包",
+      "units": 0.8,
+      "sales": 324.25,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "材料包",
+      "units": 1.0,
+      "sales": 405.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "材料包",
+      "units": 1.0,
+      "sales": 405.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-07",
+      "country": "US",
+      "product": "吸尘器",
+      "units": 3.0,
+      "sales": 2651.8,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "吸尘器",
+      "units": 5.0,
+      "sales": 4287.07,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "吸尘器",
+      "units": 8.0,
+      "sales": 6859.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "吸尘器",
+      "units": 10.0,
+      "sales": 8700.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "吸尘器",
+      "units": 14.0,
+      "sales": 12180.32,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "吸尘器",
+      "units": 20.0,
+      "sales": 17400.46,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "材料包",
+      "units": 1.0,
+      "sales": 355.42,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "材料包",
+      "units": 1.0,
+      "sales": 348.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "材料包",
+      "units": 1.0,
+      "sales": 348.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "材料包",
+      "units": 2.0,
+      "sales": 696.63,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "材料包",
+      "units": 2.0,
+      "sales": 696.63,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "吸尘器",
+      "units": 1.0,
+      "sales": 1171.08,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "吸尘器",
+      "units": 1.0,
+      "sales": 1171.08,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "吸尘器",
+      "units": 1.0,
+      "sales": 1171.08,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "吸尘器",
+      "units": 1.0,
+      "sales": 1171.08,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "吸尘器",
+      "units": 1.0,
+      "sales": 1171.08,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 157999.21,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 15.0,
+      "sales": 227518.86,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 20.0,
+      "sales": 285188.5,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 30.0,
+      "sales": 427782.75,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1主机+40W蓝光头+气泵",
+      "units": 25.0,
+      "sales": 352733.14,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 0.0,
+      "sales": 0.0,
+      "adShare": 25.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 35.0,
+      "sales": 402693.76,
+      "adShare": 18.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 150.0,
+      "sales": 1636325.37,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 240.0,
+      "sales": 2490608.43,
+      "adShare": 9.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 280.0,
+      "sales": 2874798.03,
+      "adShare": 9.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1系列蜂窝板",
+      "units": 15.0,
+      "sales": 22513.81,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1系列蜂窝板",
+      "units": 8.0,
+      "sales": 11147.86,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1系列蜂窝板",
+      "units": 15.0,
+      "sales": 19740.94,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1系列蜂窝板",
+      "units": 30.0,
+      "sales": 39481.88,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1系列蜂窝板",
+      "units": 20.0,
+      "sales": 30966.45,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L/X1通用增高底座",
+      "units": 4.0,
+      "sales": 12239.73,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L/X1通用增高底座",
+      "units": 15.0,
+      "sales": 39743.01,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L/X1通用增高底座",
+      "units": 30.0,
+      "sales": 79486.01,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L/X1通用增高底座",
+      "units": 35.0,
+      "sales": 104325.68,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 0.0,
+      "sales": 0.0,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 0.0,
+      "sales": 0.0,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 1.0,
+      "sales": 17380.91,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 1.0,
+      "sales": 17380.91,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 1.0,
+      "sales": 17380.91,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 15642.81,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 15642.81,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 15642.81,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 15642.81,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1系列蜂窝板",
+      "units": 20.0,
+      "sales": 25321.87,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1系列蜂窝板",
+      "units": 50.0,
+      "sales": 59972.67,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1系列蜂窝板",
+      "units": 80.0,
+      "sales": 91957.79,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1系列蜂窝板",
+      "units": 120.0,
+      "sales": 137936.69,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1系列蜂窝板",
+      "units": 140.0,
+      "sales": 170392.93,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1系列60W蓝光激光头",
+      "units": 2.0,
+      "sales": 23699.84,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1系列60W蓝光激光头",
+      "units": 3.0,
+      "sales": 33416.78,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1系列60W蓝光激光头",
+      "units": 4.0,
+      "sales": 44555.7,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1系列60W蓝光激光头",
+      "units": 5.0,
+      "sales": 48268.63,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1系列60W蓝光激光头",
+      "units": 5.0,
+      "sales": 48268.63,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1系列蜂窝板",
+      "units": 2.0,
+      "sales": 3243.06,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1系列蜂窝板",
+      "units": 5.0,
+      "sales": 7657.2,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1系列蜂窝板",
+      "units": 10.0,
+      "sales": 15314.4,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1系列蜂窝板",
+      "units": 5.0,
+      "sales": 9008.55,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-07",
+      "country": "US",
+      "product": "净化器",
+      "units": 0.0,
+      "sales": 0.0,
+      "adShare": 20.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "净化器",
+      "units": 6.0,
+      "sales": 27702.8,
+      "adShare": 16.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "净化器",
+      "units": 25.0,
+      "sales": 113048.38,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "净化器",
+      "units": 60.0,
+      "sales": 233492.11,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "净化器",
+      "units": 100.0,
+      "sales": 393293.45,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "净化器",
+      "units": 120.0,
+      "sales": 556408.05,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 7899.92,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 7425.93,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 7425.93,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 6683.33,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 6683.33,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "净化器",
+      "units": 2.0,
+      "sales": 12357.62,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "净化器",
+      "units": 3.0,
+      "sales": 18536.44,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "净化器",
+      "units": 5.0,
+      "sales": 30894.06,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "净化器",
+      "units": 8.0,
+      "sales": 49430.49,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "净化器",
+      "units": 10.0,
+      "sales": 61788.12,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 3.0,
+      "sales": 46682.74,
+      "adShare": 18.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 5.0,
+      "sales": 67703.58,
+      "adShare": 16.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 10.0,
+      "sales": 136863.14,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 7.0,
+      "sales": 100709.11,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 10.0,
+      "sales": 136511.24,
+      "adShare": 18.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 15.0,
+      "sales": 189361.89,
+      "adShare": 14.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 20.0,
+      "sales": 257854.48,
+      "adShare": 11.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 18.0,
+      "sales": 238041.48,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 2.0,
+      "sales": 20966.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 2.0,
+      "sales": 20966.23,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-07",
+      "country": "US",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 10879.93,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 31334.2,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 5.0,
+      "sales": 51135.68,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 8.0,
+      "sales": 78659.48,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 12.0,
+      "sales": 117989.21,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 15.0,
+      "sales": 144381.54,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 13977.51,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 27955.03,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 26207.83,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 26207.83,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 26207.83,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 4739.92,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 4455.53,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 4455.53,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 4455.53,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 4455.53,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1系列60W蓝光激光头",
+      "units": 1.0,
+      "sales": 9587.94,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1系列60W蓝光激光头",
+      "units": 4.0,
+      "sales": 38351.74,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1系列60W蓝光激光头",
+      "units": 6.0,
+      "sales": 58373.61,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1系列60W蓝光激光头",
+      "units": 10.0,
+      "sales": 84317.35,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1系列60W蓝光激光头",
+      "units": 14.0,
+      "sales": 118044.29,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 4.0,
+      "sales": 85319.68,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 8.0,
+      "sales": 162107.4,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 12.0,
+      "sales": 229225.52,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 12.0,
+      "sales": 231690.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1主机+60W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 188967.27,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1系列60W蓝光激光头",
+      "units": 1.0,
+      "sales": 13103.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1系列60W蓝光激光头",
+      "units": 1.0,
+      "sales": 13103.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1系列60W蓝光激光头",
+      "units": 2.0,
+      "sales": 26207.83,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1系列60W蓝光激光头",
+      "units": 3.0,
+      "sales": 39311.74,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1系列60W蓝光激光头",
+      "units": 3.0,
+      "sales": 39311.74,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 8735.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 8735.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 8735.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1L/X1通用增高底座",
+      "units": 1.0,
+      "sales": 4094.91,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L/X1通用增高底座",
+      "units": 2.0,
+      "sales": 7862.23,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L/X1通用增高底座",
+      "units": 4.0,
+      "sales": 15724.45,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L/X1通用增高底座",
+      "units": 3.0,
+      "sales": 11793.34,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 2.0,
+      "sales": 30177.85,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 4.0,
+      "sales": 60355.7,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 7.0,
+      "sales": 105622.47,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 5.0,
+      "sales": 75444.62,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 1.0,
+      "sales": 13580.02,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 27160.05,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 40740.07,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L主机+60W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 27160.05,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 101999.32,
+      "adShare": 15.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 15.0,
+      "sales": 143819.04,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 25.0,
+      "sales": 208550.9,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 40.0,
+      "sales": 337269.41,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 65.0,
+      "sales": 583942.83,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 27663.83,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 33005.45,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 4.0,
+      "sales": 44480.46,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 33005.45,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 6391.94,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 6391.94,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1系列40W蓝光激光头",
+      "units": 2.0,
+      "sales": 12971.87,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1系列40W蓝光激光头",
+      "units": 2.0,
+      "sales": 11674.67,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1系列40W蓝光激光头",
+      "units": 2.0,
+      "sales": 11674.67,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 36402.97,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 5.0,
+      "sales": 55694.63,
+      "adShare": 8.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 7.0,
+      "sales": 74322.67,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L主机+40W蓝光头+气泵",
+      "units": 5.0,
+      "sales": 55102.13,
+      "adShare": 4.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1系列40W蓝光激光头",
+      "units": 1.0,
+      "sales": 10483.11,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-08",
+      "country": "US",
+      "product": "X1系列20W蓝光激光头",
+      "units": 3.0,
+      "sales": 11505.41,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "US",
+      "product": "X1系列20W蓝光激光头",
+      "units": 3.0,
+      "sales": 11505.41,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "X1系列20W蓝光激光头",
+      "units": 3.0,
+      "sales": 11674.61,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "X1系列20W蓝光激光头",
+      "units": 3.0,
+      "sales": 11674.61,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "X1系列20W蓝光激光头",
+      "units": 3.0,
+      "sales": 11674.61,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-07",
+      "country": "EU",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 0.0,
+      "sales": 0.0,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "EU",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 40289.76,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 6.0,
+      "sales": 77356.34,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 120079.25,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 12.0,
+      "sales": 145611.89,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1主机+20W蓝光头+气泵",
+      "units": 10.0,
+      "sales": 118815.26,
+      "adShare": 1.0
+    },
+    {
+      "month": "2026-08",
+      "country": "UK",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 5459.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "UK",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 5459.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 5459.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 5459.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "X1系列20W蓝光激光头",
+      "units": 1.0,
+      "sales": 5459.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "E1主机+20W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 2.0,
+      "sales": 14724.47,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "E1主机+20W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 9.0,
+      "sales": 65577.0,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "E1主机+20W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 15.0,
+      "sales": 119231.01,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 1.0,
+      "sales": 9195.52,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 4.0,
+      "sales": 33369.3,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 5.0,
+      "sales": 41711.62,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 3.0,
+      "sales": 19871.8,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 18.0,
+      "sales": 118609.81,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 30.0,
+      "sales": 217451.52,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 1.0,
+      "sales": 10592.31,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 5.0,
+      "sales": 52961.56,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 4.0,
+      "sales": 42369.25,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 2.0,
+      "sales": 16684.65,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 9.0,
+      "sales": 67899.82,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头+滚轴",
+      "units": 7.0,
+      "sales": 52810.97,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "E1主机+20W蓝光头",
+      "units": 20.0,
+      "sales": 105982.68,
+      "adShare": 20.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "E1主机+20W蓝光头",
+      "units": 128.0,
+      "sales": 667690.85,
+      "adShare": 14.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "E1主机+20W蓝光头",
+      "units": 180.0,
+      "sales": 1039542.45,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "E1主机+20W蓝光头",
+      "units": 1.0,
+      "sales": 8917.91,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "E1主机+20W蓝光头",
+      "units": 6.0,
+      "sales": 53507.46,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "E1主机+20W蓝光头",
+      "units": 5.0,
+      "sales": 44589.55,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头",
+      "units": 5.0,
+      "sales": 32231.62,
+      "adShare": 15.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头",
+      "units": 28.0,
+      "sales": 169879.48,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "E1主机+20W蓝光头",
+      "units": 20.0,
+      "sales": 127583.5,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "E1主机+10W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 5.0,
+      "sales": 28444.92,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "E1主机+10W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 16.0,
+      "sales": 79486.94,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "E1主机+10W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 38.0,
+      "sales": 201367.08,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 1.0,
+      "sales": 6513.47,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 6.0,
+      "sales": 33416.55,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头+滚轴+E1系列蜂窝板",
+      "units": 5.0,
+      "sales": 31224.38,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 12.0,
+      "sales": 59304.71,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 100.0,
+      "sales": 430553.38,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 120.0,
+      "sales": 550612.13,
+      "adShare": 5.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 2.0,
+      "sales": 13308.57,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 11.0,
+      "sales": 68317.27,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 8.0,
+      "sales": 56783.29,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 4.0,
+      "sales": 39436.5,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 6.0,
+      "sales": 63705.14,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 8.0,
+      "sales": 78872.99,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板",
+      "units": 6.0,
+      "sales": 59154.74,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 2.0,
+      "sales": 18201.45,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 27302.17,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 4.0,
+      "sales": 33369.3,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L主机+20W蓝光头+气泵",
+      "units": 3.0,
+      "sales": 25026.97,
+      "adShare": 0.0
+    },
+    {
+      "month": "2026-09",
+      "country": "EU",
+      "product": "X1L/X1通用增高底座",
+      "units": 1.0,
+      "sales": 3554.92,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "X1L/X1通用增高底座",
+      "units": 3.0,
+      "sales": 10238.17,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "X1L/X1通用增高底座",
+      "units": 6.0,
+      "sales": 20476.34,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "X1L/X1通用增高底座",
+      "units": 4.0,
+      "sales": 13650.9,
+      "adShare": 2.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 4.0,
+      "sales": 22633.2,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 22.0,
+      "sales": 108449.53,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头+滚轴",
+      "units": 18.0,
+      "sales": 101316.15,
+      "adShare": 3.0
+    },
+    {
+      "month": "2026-10",
+      "country": "US",
+      "product": "E1主机+10W蓝光头",
+      "units": 50.0,
+      "sales": 180259.22,
+      "adShare": 30.0
+    },
+    {
+      "month": "2026-11",
+      "country": "US",
+      "product": "E1主机+10W蓝光头",
+      "units": 400.0,
+      "sales": 1167454.06,
+      "adShare": 15.0
+    },
+    {
+      "month": "2026-12",
+      "country": "US",
+      "product": "E1主机+10W蓝光头",
+      "units": 650.0,
+      "sales": 2063058.74,
+      "adShare": 10.0
+    },
+    {
+      "month": "2026-10",
+      "country": "UK",
+      "product": "E1主机+10W蓝光头",
+      "units": 4.0,
+      "sales": 19619.24,
+      "adShare": 15.0
+    },
+    {
+      "month": "2026-11",
+      "country": "UK",
+      "product": "E1主机+10W蓝光头",
+      "units": 22.0,
+      "sales": 98096.04,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-12",
+      "country": "UK",
+      "product": "E1主机+10W蓝光头",
+      "units": 19.0,
+      "sales": 100626.12,
+      "adShare": 6.0
+    },
+    {
+      "month": "2026-10",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头",
+      "units": 10.0,
+      "sales": 42145.73,
+      "adShare": 25.0
+    },
+    {
+      "month": "2026-11",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头",
+      "units": 100.0,
+      "sales": 371292.57,
+      "adShare": 12.0
+    },
+    {
+      "month": "2026-12",
+      "country": "EU",
+      "product": "E1主机+10W蓝光头",
+      "units": 70.0,
+      "sales": 282854.36,
+      "adShare": 8.0
+    }
+  ]
+}

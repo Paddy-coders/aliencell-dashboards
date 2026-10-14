@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 每日数据看板</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#ffffff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --shadow:0 1px 3px rgba(16,24,40,.08);
+    --up:#dc2626; --down:#059669; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:14px 20px 10px; overflow:hidden; display:flex; flex-direction:column; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:12px; flex:none; }
+  .header h1 { font-size:18px; font-weight:700; }
+  .header .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.5; }
+  /* 数据完整性提示（2026-09-24）：源数据延迟时告诉用户"数字为什么不对" */
+  .note-ok { color:#2f855a; font-weight:600; }
+  .note-calib { color:#2b6cb0; background:#ebf5ff; border:1px solid #bcdcff; border-radius:6px; padding:2px 8px; font-weight:600; }
+  .note-warn { color:#b26a00; background:#fff7e6; border:1px solid #ffe0a3; border-radius:6px; padding:2px 8px; font-weight:600; }
+  .badge { display:inline-block; background:#eef4ff; color:var(--primary); border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:12px 16px; margin-bottom:10px; flex:none; }
+  /* 表格卡片占满剩余高度: 筛选区固定, 表格区域内部滚动, 页面保持一屏不出现整体滚动条 */
+  .card-table { flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:6px; }
+  .card-table .toolbar { flex:none; }
+  .card-table .table-wrap { flex:1; min-height:0; }
+  .card-table .note { flex:none; margin-top:6px; }
+  .footer { flex:none; }
+  .card-title { font-size:14px; font-weight:600; margin-bottom:10px; }
+  /* ---- 下拉筛选 ---- */
+  .filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+  .dd { position:relative; min-width:190px; }
+  .dd-btn { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    padding:7px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer;
+    font-size:13px; color:var(--text); transition:all .15s; user-select:none; }
+  .dd-btn:hover { border-color:var(--primary); }
+  .dd-btn .dd-label { font-weight:600; white-space:nowrap; }
+  .dd-btn .dd-summary { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:right; }
+  .dd-btn .dd-arrow { font-size:10px; color:var(--muted); transition:transform .15s; }
+  .dd.open .dd-btn .dd-arrow { transform:rotate(180deg); }
+  .dd-panel { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:50; min-width:340px; max-width:640px;
+    background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(16,24,40,.14); padding:10px; }
+  .dd.open .dd-panel { display:block; }
+  .dd-panel .dd-tools { display:flex; gap:6px; margin-bottom:8px; align-items:center; flex-wrap:wrap; }
+  .dd-panel .dd-hint { margin-left:auto; font-size:11px; color:#999; white-space:nowrap; }
+  .dd-search { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; margin-bottom:8px; outline:none; }
+  .dd-search:focus { border-color:var(--primary); }
+  .dd-panel .dd-list { max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:2px; }
+  .dd-opt { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .dd-opt:hover { background:#f1f5f9; }
+  .dd-opt .opt-name { font-weight:500; }
+  .dd-opt .opt-sub { color:var(--muted); font-size:11px; margin-left:auto; text-align:right; }
+  .dd-opt.sel { background:#eef4ff; }
+  .dd-opt.dim { opacity:.42; }
+  .dd-opt.dim .opt-name, .dd-opt.dim .opt-sub { cursor:default; }
+  .dd-opt input { accent-color:var(--primary); }
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:3px 12px; border-radius:6px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); }
+  /* ---- 日历日期筛选 ---- */
+  .date-filter { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 2px 2px; }
+  .date-filter input[type="date"] { padding:5px 8px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; color:var(--text); background:#fff; outline:none; }
+  .date-filter input[type="date"]:focus { border-color:var(--primary); }
+  .date-filter .sep { color:var(--muted); font-size:13px; }
+  .date-filter .quick { display:flex; gap:6px; margin-left:4px; }
+  .date-filter .lbl { font-size:12px; color:var(--muted); font-weight:600; }
+  /* ---- 表格 ---- */
+  .toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+  .table-wrap { overflow:auto; border:1px solid var(--border); border-radius:8px; }
+  table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+  th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:right; white-space:nowrap; }
+  th { background:#f8fafc; font-weight:600; color:var(--muted); position:sticky; top:0; z-index:2; }
+  td:first-child, th:first-child { text-align:left; }
+  .frozen { position:sticky; left:0; background:#fff; z-index:1; box-shadow:2px 0 0 var(--border); }
+  thead .frozen { background:#f8fafc; z-index:3; }
+  tr.total-row td { background:#f0f4ff; font-weight:700; border-top:2px solid var(--border); }
+  tr.total-row .frozen { background:#f0f4ff; }
+  /* 指标单元格: 主值 + 环比小字 */
+  .cell-main { font-size:14px; font-weight:600; }
+  .cell-cmp { font-size:11px; margin-top:2px; font-weight:500; }
+  .cmp-up { color:var(--up); }
+  .cmp-down { color:var(--down); }
+  .cmp-flat { color:var(--muted); }
+  .cell-na { color:#b6c0d0; }
+  .wk-day { font-size:11px; color:var(--muted); font-weight:500; }
+  .empty { text-align:center; padding:36px; color:var(--muted); font-size:14px; }
+  .footer { text-align:center; color:var(--muted); font-size:12px; margin-top:4px; flex:none; }
+  .note { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.7; }
+  @media (max-width: 900px) { .kpis { grid-template-columns:repeat(2, 1fr); } }
+</style>
+<style>
+/* note-fold: 解释块折叠 (2026-10-12) */
+.noteFold{margin-top:8px;border:1px solid var(--border);border-radius:8px;background:rgba(127,127,127,.045);}
+.noteFold>summary{cursor:pointer;list-style:none;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none;}
+.noteFold>summary::-webkit-details-marker{display:none;}
+.noteFold>summary::marker{content:'';}
+.noteFold>summary::before{content:'▸';font-size:11px;display:inline-block;transition:transform .15s;}
+.noteFold[open]>summary::before{transform:rotate(90deg);}
+.noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
+.noteFold[open]>summary::after{content:'收起';}
+.noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+</style>
+<script>
+/* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
+(function(){
+  function sync(){
+    var ds = document.querySelectorAll('details.noteFold');
+    for (var i = 0; i < ds.length; i++) {
+      var b = ds[i].querySelector('.note,.foot-note');
+      ds[i].style.display = (b && b.textContent.trim()) ? '' : 'none';
+    }
+  }
+  window.__syncNoteFold = sync;      // 供动态填充说明块的页面（JoyBuy）在填充后调用
+  function boot(){
+    sync();
+    // 说明块常由 JS 异步填充（如 JoyBuy 的 #filterNote/#footNote）：
+    // 填充前被判为空块而 display:none，填充后必须重跑，否则说明块永久消失。
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function(){ sync(); });
+      var ds = document.querySelectorAll('details.noteFold');
+      for (var i = 0; i < ds.length; i++) mo.observe(ds[i], { childList: true, characterData: true, subtree: true });
+    }
+    setTimeout(sync, 0); setTimeout(sync, 800);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+
+<div class="header">
+  <div>
+    <h1>📅 Aliencell 每日数据看板</h1>
+    <div class="sub">业务报告 + 广告数据 · 北京时间日期 · 环比 = 前一周同日 &nbsp;|&nbsp; 更新: <span id="genTime">__GEN_TIME__</span> &nbsp;|&nbsp; <span id="dataNote">__DATA_NOTE__</span></div>
+  </div>
+  <span class="badge" id="rangeBadge">—</span>
+</div>
+
+<div class="card">
+  <div class="card-title">🔎 筛选</div>
+  <div class="filter-bar">
+    <div class="dd" id="ddChannel">
+      <button class="dd-btn" onclick="toggleDD('ddChannel')">
+        <span class="dd-label">🏪 销售店铺</span>
+        <span class="dd-summary" id="ddChannelSummary">全部（合并）</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn" onclick="setAll('channel',false)">合并看（全部）</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddChannelList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddCountry">
+      <button class="dd-btn" onclick="toggleDD('ddCountry')">
+        <span class="dd-label">🌍 国家</span>
+        <span class="dd-summary" id="ddCountrySummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('country',true)">全选</button>
+          <button class="btn" onclick="setAll('country',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddCountryList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddAsin">
+      <button class="dd-btn" onclick="toggleDD('ddAsin')">
+        <span class="dd-label">🔑 ASIN</span>
+        <span class="dd-summary" id="ddAsinSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddAsinSearch" placeholder="搜索 ASIN / SKU / 产品系列 / 产品名…" oninput="buildAsinOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('asin',true)">全选</button>
+          <button class="btn" onclick="setAll('asin',false)">清空</button>
+          <span class="dd-hint">单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddAsinList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddSeries">
+      <button class="dd-btn" onclick="toggleDD('ddSeries')">
+        <span class="dd-label">🏷️ 产品系列</span>
+        <span class="dd-summary" id="ddSeriesSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddSeriesSearch" placeholder="🔍 搜索产品系列…" oninput="buildSeriesOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('series',true)">全选</button>
+          <button class="btn" onclick="setAll('series',false)">清空</button>
+          <span class="dd-hint">未匹配的 ASIN 归为「无」· 单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddSeriesList"></div>
+      </div>
+    </div>
+    <div class="dd" id="ddName">
+      <button class="dd-btn" onclick="toggleDD('ddName')">
+        <span class="dd-label">📦 产品名</span>
+        <span class="dd-summary" id="ddNameSummary">全部</span>
+        <span class="dd-arrow">▼</span>
+      </button>
+      <div class="dd-panel">
+        <input class="dd-search" id="ddNameSearch" placeholder="🔍 搜索产品名…" oninput="buildNameOptions()" onclick="event.stopPropagation()">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="setAll('name',true)">全选</button>
+          <button class="btn" onclick="setAll('name',false)">清空</button>
+          <span class="dd-hint">级联：仅显示所选系列下的产品名 · 单击=单选 · Ctrl=多选</span>
+        </div>
+        <div class="dd-list" id="ddNameList"></div>
+      </div>
+    </div>
+  </div>
+  <div class="date-filter">
+    <span class="lbl">📆 日期范围</span>
+    <input type="date" id="dateFrom" onchange="onDateChange()">
+    <span class="sep">至</span>
+    <input type="date" id="dateTo" onchange="onDateChange()">
+    <span class="quick">
+      <button class="btn" onclick="quickRange(0)">全部</button>
+      <button class="btn" onclick="quickRange(30)">最近30天</button>
+      <button class="btn" onclick="quickRange(14)">最近14天</button>
+      <button class="btn" onclick="quickRange(7)">最近7天</button>
+    </span>
+    <span class="dd-hint" style="font-size:11px;color:#999;margin-left:6px;">业务报告约延迟2~3天，未出数据的天显示 —</span>
+  </div>
+</div>
+
+<div class="card card-table">
+  <div class="toolbar">
+    <div class="card-title" style="margin:0">📊 每日指标 <span style="font-weight:400;color:var(--muted);font-size:12px;">（单元格下方为环比：前一周同日 · 红涨绿跌）</span></div>
+    <div class="dd" id="ddCols">
+      <button class="btn" onclick="toggleDD('ddCols')">⚙️ 列选择 <span id="colCount"></span></button>
+      <div class="dd-panel" style="left:auto;right:0;min-width:240px;">
+        <div class="dd-tools">
+          <button class="btn primary" onclick="allCols(event)">全选</button>
+          <button class="btn" onclick="clearCols(event)">清空</button>
+          <span class="dd-hint">勾选要显示的指标列</span>
+        </div>
+        <div class="dd-list" id="ddColList"></div>
+      </div>
+    </div>
+  </div>
+  <div class="table-wrap" id="tableWrap"></div>
+  <details class="noteFold">
+  <summary>📖 指标口径与说明（毛利 / VAT / 退款 / 多渠道等）</summary>
+  <div class="note">指标口径：流量=买家访问次数(Sessions) · 订单量=业务报告订单商品数 · 销售额=订购商品销售额(Ordered Product Sales) · 转换率=订单件数÷流量 · 广告点击=广告点击数 · 广告订单量=广告接口订单数 · 自然流量=流量−广告点击 · 广告转换率=广告订单÷广告点击 · CPC=广告花费÷广告点击 · ACOS=广告花费÷广告销售额。业务报告未出数据时对应业务指标显示 —；广告数据当天无投放广告时广告指标显示 —。币种口径：默认（未选国家或多国混合）销售额/广告花费/广告销售额/CPC 统一按 <b>USD</b> 显示（各站点原币种按每月 1 号 ECB 汇率折算，汇率源 frankfurter.dev）；筛选的国家同属一种币种时（如单选 US 或多选欧盟国）按该币种原值显示，不做换算。<b>毛利</b>=销售额−促销折扣−销售佣金−配送费−广告花费(本看板值)−商品成本−FBA仓储费(月仓租+长期仓租, 按 月×ASIN×站点×店铺 的<b>日行数</b>均摊，列合计=ERP 月度值)−其他费用(推广服务费+服务费+5 项库存费, 按日期×国家产品行数均摊)−<b>VAT</b>(仅欧洲与英国)−<b>FBA退货处理费</b>−<b>退款净额</b>−<b>头程(成本表预估)</b>−<b>测评费</b>+<b>其他渠道剔除加回</b>；毛利率=毛利÷利润报表销售额；数据源=易仓「财务-营收利润→利润报表(ASIN)」<b>结算口径</b>（费用按结算日期归属，日视图存在跨天归集；结算数据滞后 1~2 天由自动化回填修订；数据自 2026-07 起）；不含税费/其他交易费；有销量但成本为 0 的行（成本未配置）会使毛利偏高。<b>VAT</b>（2026-10-10 新增）：易仓利润报表的「产品税」与「亚马逊代扣代缴税款」正好互相抵消（净额 0）⇒ 报表没把 VAT 从毛利里扣掉，看板按 <b>(利润报表销售额 − 促销折扣) × 税率</b> 手动扣减（即「销售价 − 优惠价」后的价格为基数）；税率见 `vat_rates.json`（UK 20%、DE 19%、FR 20%、IT 22%、ES 21%、NL/BE 21%、IE/PL 23%、SE 25%），非欧洲站点为 0。若确认报表销售额已是不含税口径而无需再扣，把该文件税率置 0 重跑构建即可。<b>广告费归属</b>：优先取条目自带 ASIN，其次活动名里的 ASIN（运营给广告标题加上 ASIN 码后自动按该 ASIN 归属）；品牌推广（SB）报表不含 ASIN，按活动名的「系列+瓦数」兜底，且<b>按站点区分</b>（同一 SKU 在北美与欧洲是不同 ASIN）。若归属到的 ASIN 在该站点没有利润报表行，该笔广告费仍计入「广告花费」列与合计行的毛利扣减，但该 ASIN 行自身的毛利显示 —。<b>销售店铺</b>：默认合并看（Aliencell官方店铺 = 本看板原有亚马逊数据 + Woot店铺 = 由「Woot 数据管理」页注入的行），可单独筛；Woot 行只有订单/销售额/广告，在易仓利润报表里没有对应行，因此其毛利不走易仓口径，改按下方 Woot 毛利公式单独计算。Woot 毛利口径（采购价 × Woot订单量 − 产品成本 − 头程 − Woot广告费）；成本与头程优先取「Woot 数据管理 → 💵 Woot 成本设置」里逐 ASIN 的手工配置，<b>未配置时自动回退「产品关系管理」</b>——按 ASIN 匹配到的产品名取产品成本表的采购成本与 US 头程，÷ 当月 CNY/USD 折成 USD/台；两处都取不到则该 ASIN 不入毛利（显示 —，避免按 0 成本算虚高）。<b>费用占比列</b>（2026-10-10 新增）：成本%=商品成本÷报表销售额；FBA / FBA% =配送费；promotion / promotion% =促销折扣；仓储 / 仓储% =FBA 仓储费；头程 / 头程% =头程费用；其他费用 / 其他费用% =推广服务费+服务费；VAT / VAT% =增值税（仅欧洲与英国）。占比分母统一为<b>利润报表销售额</b>，除成本外其他费用同时列出绝对值（取正数显示）。<b>头程</b>取产品成本表「头程费用/RMB × 利润报表销量 ÷ 当月 CNY 汇率」，目前为<b>预估值</b>，后续以实际推移头程替换；成本表未覆盖的 ASIN/站点头程按 0 计。<b>尾程</b>（海外仓尾程配送）仅 FBM 订单计入，FBA 订单不计——本看板店铺均走 FBA，故不入成本口径。<b>FBA 库存费 8 细项 / 退款（2026-10-12 第二轮新增）</b>：易仓利润报表的「FBA库存与入境服务费汇总」已按官方公式拆成 8 项单列 —— <b>FBA退货处理费</b>、<b>其他FBA库存和入境服务费</b>、<b>超量费</b>、<b>合仓费</b>、<b>合作承运费</b>、<b>移除费用</b>、<b>FBA月仓租费</b>、<b>FBA长期仓租费</b>（该汇总里还有一项「FBA物流国际货运费」，与「头程」是同一笔成本的两个来源，按确认口径<b>既不展示也不计入毛利</b>）。入账规则：<b>FBA退货处理费</b>、<b>仓储费</b>（=FBA月仓租费+FBA长期仓租费，即「仓储」列）独立计入毛利；其余 5 项（其他FBA库存和入境服务费 / 超量费 / 合仓费 / 合作承运费 / 移除费用）<b>合并进「其他费用」</b>一起分摊计入毛利 —— 所以那 5 列是「其他费用」的明细，<b>不要与「其他费用」相加</b>。库存费全部按 月×ASIN×站点×店铺 的<b>日行数</b>均摊（列合计 = ERP 月度值）。<b>退款</b>：新增「退款金额 / 促销折扣退款 / 销售佣金退款 / 退款净额 / 退款率」——毛利<b>减去退款金额与买家运费退款</b>，<b>加回促销折扣退款、销售佣金退款与配送费退款</b>（按易仓原始符号直接相加，「退款净额」列即这些项的绝对值合计）；<b>退款率 = 退款件数 ÷ 利润报表销量</b>（与易仓界面一致的数量口径）。<b>毛利(RMB)</b>「毛利」列前一列：把显示币种毛利折成人民币，汇率 = <b>CNY/USD × USD/显示币种</b>，与看板其余折算同源（每月 1 号 ECB）。<b>毛利列币种</b>：未选国家或多国混合时按 <b>USD</b> 显示；筛选到的国家同属一种币种（如单选 US、或多选欧盟国）时按<b>当地货币</b>显示。入境货运费 / 多渠道 / 测评费 / 其他渠道剔除（2026-10-12 第一轮）：①「多渠道销量 / 多渠道损失」（及明细列的 多渠道产品成本 / 头程 / 配送费）= 多渠道（MCF）订单的销量与损失，损失 = 产品成本 + 头程 + 配送费；这三项<b>本来就含在商品成本与配送费里</b>（ERP 公式：fbaFeesTotal 含多渠道配送费、productCostTotal 含多渠道订单采购成本与头程），故单独列示而<b>不重复扣减</b>。②「测评费」由「财务数据录入」页按月导入（月份+站点+ASIN+金额+币种），按销量占比摊到行并<b>计入毛利</b>。③「其他渠道已剔除」= 你在录入页导入的其他渠道订单（月份+ASIN+数量）所对应的多渠道成本，已按数量比例<b>从亚马逊毛利中移出</b>（作为加回项）。</div>
+</details>
+</div>
+
+<div class="footer">Aliencell 每日数据看板 · 每天 15:00 自动刷新最近14天 · 历史从业务报表有数据起持续累积 · 产品映射 <b id="mapStat">0/0</b>（未匹配归「无」，可在左侧导航「产品映射」中维护） · 表格内部滚动<span id="wootFoot"></span></div>
+
+<script>
+const DATA = __DATA_JSON__;
+const PROFIT = __PROFIT_JSON__;
+// 毛利行索引: 日期 → 行[] (行=日期×站点×ASIN, 原币种; 广告费由本看板聚合值扣除)
+const PROFIT_BY_DAY = {};
+(PROFIT.rows || []).forEach(r => { (PROFIT_BY_DAY[r.d] = PROFIT_BY_DAY[r.d] || []).push(r); });
+const GEN_TIME = "__GEN_TIME__";
+const CN_MONEY = {'US':'$','DE':'€','BE':'€','CA':'C$','ES':'€','FR':'€','IE':'€','IT':'€','MX':'MX$','NL':'€','PL':'zł','SE':'kr','UK':'£'};
+const CUR_OF = {'US':'USD','CA':'CAD','MX':'MXN','UK':'GBP','JP':'JPY','AU':'AUD','DE':'EUR','FR':'EUR','IT':'EUR','ES':'EUR','NL':'EUR','BE':'EUR','IE':'EUR','PL':'PLN','SE':'SEK'};
+const CUR_SYM = {'USD':'$','EUR':'€','GBP':'£','CAD':'C$','MXN':'MX$','PLN':'zł','SEK':'kr','JPY':'JP¥','AUD':'A$'};
+const FX = __FX_JSON__;
+// ---------- 头程成本表 (2026-10-10 用户口径) ----------
+// products: {产品名: {US/EU/UK: 头程RMB/台}}(预估值, 后续以用户推移后的实际头程为准);
+// months: {ym: CNY per 1 USD}(与 fx_rates.json 同源, 每月1号)
+const HF = __HF_JSON__;
+// Woot 成本表 (2026-10-13): {产品名: 采购成本RMB/台} —— Woot 行经「产品关系管理」匹配到产品名后取此表
+const COSTRMB = __COST_JSON__;
+function hfCnyPerUsd(month){
+  const m = HF.months || {};
+  if (m[month]) return m[month];
+  const ks = Object.keys(m).sort();
+  let best = null;
+  for (const k of ks) { if (k <= month) best = k; }
+  if (!best && ks.length) best = ks[0];
+  return best ? m[best] : null;
+}
+// 站点 → 成本表地区(US/UK/EU; CA/MX/JP/AU 无头程数据, 不计)
+function hfRegion(site){
+  if (site === 'UK') return 'UK';
+  if (site === 'US') return 'US';
+  return ['DE','FR','IT','ES','NL','BE','IE','PL','SE'].indexOf(site) >= 0 ? 'EU' : null;
+}
+function headRmbOf(asin, site){
+  const meta = (typeof asinMetaOf === 'function') ? asinMetaOf(asin) : null;
+  const p = meta && HF.products && HF.products[meta.name];
+  const rg = hfRegion(site);
+  return (p && rg) ? (Number(p[rg]) || 0) : 0;
+}
+function usdToDisp(vUsd, ym){
+  if (DISP_CUR === 'USD') return vUsd;
+  const r = fxToUsd(ym, DISP_CUR);
+  return r ? vUsd / r : vUsd;
+}
+// 头程绝对值(显示币种) = 头程RMB × 数量 ÷ (CNY/USD) [→ 非USD显示时再折算]
+function convHead(rmb, qty, ym){
+  const r = Number(rmb) || 0, q = Number(qty) || 0;
+  if (!r || !q) return 0;
+  const cny = hfCnyPerUsd(ym);
+  return cny ? usdToDisp(r * q / cny, ym) : 0;
+}
+// 毛利(RMB) 用: CNY per 1 显示币种 = (CNY/USD) × (USD/显示币种) —— 与看板折算共用同一套汇率源
+function cnyPerDisp(ym, cur){
+  const u = hfCnyPerUsd(ym);                 // CNY per 1 USD
+  if (!u) return null;
+  if (!cur || cur === 'USD') return u;
+  const r = fxToUsd(ym, cur);                // USD per 1 cur
+  return r ? u * r : null;
+}
+const COUNTRY_CN = {'US':'美国','DE':'德国','BE':'比利时','CA':'加拿大','ES':'西班牙','FR':'法国','IE':'爱尔兰','IT':'意大利','MX':'墨西哥','NL':'荷兰','PL':'波兰','SE':'瑞典','UK':'英国'};
+const WEEK_CN = ['周日','周一','周二','周三','周四','周五','周六'];
+// ---------- 广告 ASIN 归属（与构建期 ad_asin_rules.py 四级规则保持一致） ----------
+// ① 条目自带 Asin（SP/SD 有值） ② 活动/广告组名里的 ASIN 字面量（运营给 SB 标题加 ASIN 后自动命中）
+// ③ SPECIAL_ASIN 精确名映射 ④ 系列兜底（Lite / X1，**必须按站点区分**）
+// ⚠️ 品牌推广(SB)报表的 Asin 字段为空，只能靠 ②③④；不按站点区分会把欧洲款错归到美国款。
+const SPECIAL_ASIN = {'X1-SBV-片段2':'B0H69JJZ1M','X1-SB-定投旗舰店-LC-B2B':'B0H69JJZ1M','X1-SB-定投旗舰店首页-B2B':'B0H69JJZ1M'};
+const ASIN_RE = /B0[A-Z0-9]{8}/;
+const LITE_FALLBACK = 'B0H9YBM4H1';
+const X1_FALLBACK = { US:'B0H69JJZ1M', CA:'B0H69JJZ1M', MX:'B0H69JJZ1M' };  // 北美款 X1 40W
+const X1_FALLBACK_DEFAULT = 'B0HH8J6SSL';                                    // 欧洲款 X1 40W
+function extractAsin(it, cc){
+  const a = (it.Asin||'').trim(); if (a) return a;
+  const c = (it.CampaignName||it.Name||'').trim(); if (!c) return null;
+  const m = c.match(ASIN_RE); if (m) return m[0];
+  if (SPECIAL_ASIN[c]) return SPECIAL_ASIN[c];
+  if (/X1\d/i.test(c)) return null;                        // X140 等另一条产品线，不吃兜底
+  const key = c + ' ' + (it.PortfolioName || '');
+  if (/lite/i.test(key)) return LITE_FALLBACK;
+  if (/X1(?!\d)/i.test(key)) return X1_FALLBACK[String(cc||'').toUpperCase()] || X1_FALLBACK_DEFAULT;
+  return null;
+}
+
+// ---------- 数据预处理 ----------
+const DAYS = Object.keys(DATA.days).sort();
+const dayIndex = {};
+DAYS.forEach((d, i) => dayIndex[d] = i);
+
+// ---------- Woot 店铺数据并入 (并入 US, 美元; 按子 ASIN 归到对应产品) ----------
+// 记录来自「Woot 数据管理」页 (云端/本机缓存 pc_woot)。逐日记录精确落到当天; 周/月汇总记录按重叠天数比例分摊。
+// 未识别子 ASIN 的记录归入伪 ASIN WOOT-STORE (兼容旧数据)。
+const WOOT_ASIN = 'WOOT-STORE';
+// ---------- Woot 毛利接入口 (2026-10-10, 采购价支持「每行可填」) ----------
+// 用户口径: 采购价 = Woot 付给我们的**供货价**(收入侧); 报表 sales 是零售价(≈1,899.98/台), 不能当收入。
+//   公式: Woot 毛利 = Σ(采购价 × 订单量) − 产品成本 × 订单量 − 运费 × 订单量 − Woot 广告费
+// 采购价取值: **该行自己的 price 优先**(上传时表里带「采购价/供货价」列, 或在「Woot 数据管理」列表逐行改)
+//   → 该行没填才用「默认采购价」(WOOT_PRICE, 默认 1380)。所以聚合的是「采购价收入」而不是「默认价 × 订单量」,
+//   同一 ASIN 不同批次采购价不同也能算准。
+// 配置来源: Woot 数据管理页「💵 Woot 成本设置」→ localStorage `pc_woot_cfg` / 云端 `mapping.data.wootCfg`
+// ⚠️ 未配置成本时**完全不参与毛利**: 按 0 成本算会把 Woot 毛利显示成「采购价全额」(虚高),
+//   宁可显示 — 也不要给错数。所以逐 ASIN 判断 —— 某个 ASIN 没配成本, 它就不入账。
+// (必须在 wootAllocByAsin 之前定义: 分摊时就要按行取采购价算收入)
+const WOOT_CFG = (function(){
+  try { const j = JSON.parse(localStorage.getItem('pc_woot_cfg') || 'null'); return (j && typeof j === 'object') ? j : {}; }
+  catch (e) { return {}; }
+})();
+const WOOT_PRICE = Number(WOOT_CFG.price) > 0 ? Number(WOOT_CFG.price) : 1380;   // 默认采购价(行内未填时兜底)
+function wootPriceOf(v){ const p = Number(v); return p > 0 ? p : WOOT_PRICE; }   // 逐行采购价(空 → 默认价)
+// Woot 成本解析 (2026-10-13): ①「Woot 成本设置」逐 ASIN 手工配置优先
+//   ② 未配置 → 回退「产品关系管理」: asinMap 匹配到的产品名 → 成本表 costRMB(采购成本) 与
+//      headRMB.US(头程运费), 再 ÷ (CNY/USD, 取最新可用月份) 折成 USD/台
+//   两处都没有 → null(该 ASIN 不入毛利 —— 不按 0 成本算, 否则毛利虚高)
+function wootCostFromMap(asin){
+  const meta = (typeof asinMetaOf === 'function') ? asinMetaOf(asin) : null;
+  const name = meta && meta.name;
+  const costRmb = (name && COSTRMB && Number(COSTRMB[name])) ? Number(COSTRMB[name]) : 0;
+  if (!(costRmb > 0)) return null;
+  const ks = Object.keys((HF && HF.months) || {}).sort();
+  const rate = ks.length ? (Number(HF.months[ks[ks.length - 1]]) || 0) : 0;
+  if (!rate) return null;
+  const headRmb = (typeof headRmbOf === 'function') ? headRmbOf(asin, 'US') : 0;
+  return { unit: costRmb / rate, freight: headRmb > 0 ? headRmb / rate : 0, src: 'map' };
+}
+function wootUnitCost(asin){
+  const c = (WOOT_CFG.cost || {})[asin];
+  if (c) return { unit: Number(c.unit) || 0, freight: Number(c.freight) || 0, src: 'cfg' };
+  return wootCostFromMap(asin);
+}
+// 是否具备算 Woot 毛利的条件: 至少要有一条 ASIN 配了成本(否则视作未接入)
+const WOOT_PROFIT_READY = Object.keys(WOOT_CFG.cost || {}).length > 0;
+// 单行单 ASIN 的 Woot 毛利 = 采购价 × 订单量 − 产品成本 − 运费(未减广告费; 广告费在看板合计里统一扣)
+// ⚠️ 该 ASIN 未配成本 → 返回 null(算不出), 不能按 0 成本算 —— 那会让毛利虚高
+function wootProfitOf(orders, asin, price){
+  if (!orders) return 0;
+  const c = wootUnitCost(asin);
+  if (!c) return null;
+  return wootPriceOf(price) * orders - (c.unit + c.freight) * orders;
+}
+// Woot 成本配置状态(未接入时提示去哪配)
+const WOOT_CFG_N = Object.keys(WOOT_CFG.cost || {}).length;
+function wootEntriesLocal(){ try { const a = JSON.parse(localStorage.getItem('pc_woot') || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+function wootLen(a, b){ return Math.round((new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z')) / 86400000) + 1; }
+// 返回 Map<asin, {orders,sales,adCost,adClicks,adOrders,adImpr,adSales,rev,name}>
+// rev = Σ(该行采购价 × 订单量 × 分摊系数) —— 毛利口径的收入侧(逐行价格, 不是默认价 × 订单量)
+function wootAllocByAsin(es, qs, qe){
+  const out = new Map();
+  for (const en of es) {
+    const L = wootLen(en.start, en.end); if (!L) continue;
+    const s = en.start > qs ? en.start : qs, e = en.end < qe ? en.end : qe;
+    if (s > e) continue;
+    const k = (Math.round((new Date(e+'T00:00:00Z') - new Date(s+'T00:00:00Z')) / 86400000) + 1) / L;
+    const key = en.asin || WOOT_ASIN;
+    let o = out.get(key);
+    if (!o) { o = { orders:0, sales:0, adCost:0, adClicks:0, adOrders:0, adImpr:0, adSales:0, rev:0, name:'' }; out.set(key, o); }
+    const m = en.metrics || {};
+    o.orders += (+m.orders || 0) * k;
+    o.sales += (+m.sales || 0) * k; o.adCost += (+m.adCost || 0) * k; o.adClicks += (+m.adClicks || 0) * k;
+    o.adOrders += (+m.adOrders || 0) * k; o.adImpr += (+m.adImpr || 0) * k; o.adSales += (+m.adSales || 0) * k;
+    o.rev += wootPriceOf(en.price) * (+m.orders || 0) * k;    // 采购价(每行可填) × 订单量
+    if (en.name && !o.name) o.name = en.name;
+  }
+  return out;
+}
+const WOOT_INJECTED = (function(){
+  const es = wootEntriesLocal();
+  if (!es.length) return { days: 0, asins: 0 };
+  let n = 0; const asins = new Set();
+  for (const d of DAYS) {
+    const m = wootAllocByAsin(es, d, d);
+    if (!m.size) continue;
+    const biz = DATA.days[d].biz = DATA.days[d].biz || [];
+    const ads = DATA.days[d].ads = DATA.days[d].ads || {};
+    for (const [asin, al] of m) {
+      const od = Math.round(al.orders);
+      if (!(al.sales || od || al.adCost || al.adClicks || al.adOrders || al.adImpr || al.adSales)) continue;
+      asins.add(asin);
+      // wootRev = 该行(当天)的采购价收入 = Σ 采购价 × 订单量(逐行价格; 空则默认价)
+      // 订单量取整后按同比例缩放, 保证 rev/od == 加权平均单台采购价
+      const wRev = al.orders ? al.rev * (od / al.orders) : 0;
+      biz.push({ asin: asin, site: 'US', date: d, sessions: 0, units_ordered: od, total_order_items: od,
+        ordered_product_sales_amount: al.sales, seller_sku: 'Woot', item_name: al.name || 'Woot 店铺活动', woot: true, channel: 'woot', wootRev: wRev });
+      if (al.adCost || al.adClicks || al.adOrders || al.adImpr || al.adSales) {
+        ads.US = ads.US || [];
+        ads.US.push({ CampaignName: 'Woot 广告', Asin: asin === WOOT_ASIN ? '' : asin, woot: true, channel: 'woot',
+          Report: { Cost: al.adCost, Clicks: Math.round(al.adClicks), Orders: Math.round(al.adOrders),
+            SalesAmount: al.adSales, Impressions: Math.round(al.adImpr) } });
+      }
+      n++;
+    }
+  }
+  return { days: n, asins: asins.size };
+})();
+// ---------- 产品映射 (ASIN → 产品系列/产品名) ----------
+// 优先级: 本机浏览器维护(localStorage, 由页面底部「产品映射」管理) > 构建时内嵌(product_map.json, 供分享给同事)
+const EMBED_MAP = __MAP_JSON__;
+const localMeta = (() => {
+  try {
+    const raw = localStorage.getItem('pc_asinmap');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      const m = {};
+      (Array.isArray(arr) ? arr : []).forEach(x => { if (x && x.asin) m[x.asin] = { series: x.series || '无', name: x.name || '无' }; });
+      return Object.keys(m).length ? m : null;
+    }
+  } catch (e) {}
+  return null;
+})();
+const embeddedMeta = (() => {
+  const m = {};
+  (EMBED_MAP && Array.isArray(EMBED_MAP.asinMap) ? EMBED_MAP.asinMap : []).forEach(x => { if (x && x.asin) m[x.asin] = { series: x.series || '无', name: x.name || '无' }; });
+  return m;
+})();
+// 未匹配的 ASIN 默认归属「无」
+function asinMetaOf(a) {
+  if (a === WOOT_ASIN) return { series: 'Woot', name: 'Woot 店铺活动' };
+  if (!a) return { series: '无', name: '无' };
+  if (localMeta && localMeta[a]) return localMeta[a];
+  if (embeddedMeta[a]) return embeddedMeta[a];
+  return { series: '无', name: '无' };
+}
+// ---------- Woot 毛利率状态提示 ----------
+// (采购价/成本/wotProfitOf 的定义已前移到 wootAllocByAsin 之前 —— 分摊时就要按行取采购价)
+if (WOOT_INJECTED.days) {
+  const el = document.getElementById('wootFoot');
+  const wNMap = (function(){ const s = new Set();
+    try { wootEntriesLocal().forEach(function(e){ if (e && e.asin && wootCostFromMap(e.asin)) s.add(e.asin); }); } catch (err) {}
+    return s.size; })();
+  const note = (WOOT_CFG_N || wNMap)
+    ? `<b style="color:#059669">Woot 毛利已启用（成本来源：手工配置 ${WOOT_CFG_N} 个子 ASIN${wNMap ? ' + 产品关系管理回退 ' + wNMap + ' 个' : ''}）</b>`
+    : `<b>Woot 毛利率待产品成本接入</b>（去「Woot 数据管理 → 💵 Woot 成本设置」填成本表，或先在「产品关系管理」把该 ASIN 匹配到产品名）`;
+  if (el) el.innerHTML = ` · <b style="color:#7c3aed">Woot 数据已并入 US（${WOOT_INJECTED.days} 条日记录 · ${WOOT_INJECTED.asins} 个 ASIN · 按子 ASIN 归入对应产品）</b>：仅补订单/销售额/广告（店铺维度），<b>会话为 ASIN 全平台口径、不重复计入</b>；左侧「销售店铺」可切换合并看 / 单看 · ${note}`;
+}
+
+// ASIN -> SKU / 名称 (来自 biz 行)
+const asinInfo = {};
+for (const d of DAYS) {
+  for (const r of DATA.days[d].biz) {
+    const a = r.asin;
+    if (!asinInfo[a]) asinInfo[a] = { sku: r.seller_sku || '', name: r.item_name || '' };
+    else { if (!asinInfo[a].sku) asinInfo[a].sku = r.seller_sku || ''; if (!asinInfo[a].name) asinInfo[a].name = r.item_name || ''; }
+  }
+}
+// SKU 字段安全转文本: 易仓接口的 seller_sku 可能是数组/字符串/数字, 统一转显示文本(2026-09-17)
+function skuText(v) {
+  if (Array.isArray(v)) return v.filter(x => x !== null && x !== undefined && String(x).trim() !== '').join(' / ');
+  return v === null || v === undefined ? '' : String(v);
+}
+// 全部国家(13国, 有数据的亮起)
+const allCountries = Object.keys(COUNTRY_CN).sort();
+// ASIN 全集: biz 行 asin + 广告 extractAsin
+const allAsins = new Set();
+for (const d of DAYS) {
+  for (const r of DATA.days[d].biz) if (r.asin) allAsins.add(r.asin);
+  for (const [cc, items] of Object.entries(DATA.days[d].ads)) for (const it of items) { const a = extractAsin(it, cc); if (a) allAsins.add(a); }
+}
+const asinList = [...allAsins].sort();
+
+// (产品映射块已于 2026-10-13 上移到「Woot 毛利率状态提示」之前 MAPHOIST ——
+//  该状态块在装配期就会调 wootCostFromMap→asinMetaOf, 留在原处会踩 localMeta 的 TDZ)
+// 全部 ASIN 涉及的产品系列（含「无」）
+const seriesList = [...new Set(asinList.map(a => asinMetaOf(a).series))].sort((x, y) => x === '无' ? 1 : (y === '无' ? -1 : x.localeCompare(y, 'zh')));
+// 指定系列下的产品名（系列为空=全部系列）
+function namesIn(seriesSet) {
+  const names = new Set();
+  for (const a of asinList) {
+    const m = asinMetaOf(a);
+    if (seriesSet && seriesSet.size && !seriesSet.has(m.series)) continue;
+    names.add(m.name);
+  }
+  return [...names].sort((x, y) => x === '无' ? 1 : (y === '无' ? -1 : x.localeCompare(y, 'zh')));
+}
+
+// ===== 云端映射同步 (Supabase)：拉取最新映射写入本机后刷新，保证打开即最新 =====
+(async function cloudMapSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.catalog) || !Array.isArray(j.asinMap)) return;
+    if (!j.catalog.length && !j.asinMap.length) return;
+    let curSig = null;
+    try { curSig = JSON.stringify({ catalog: JSON.parse(localStorage.getItem('pc_catalog') || '[]'), asinMap: JSON.parse(localStorage.getItem('pc_asinmap') || '[]') }); } catch (e) {}
+    const newSig = JSON.stringify({ catalog: j.catalog, asinMap: j.asinMap });
+    if (curSig === newSig) return;
+    localStorage.setItem('pc_catalog', JSON.stringify(j.catalog));
+    localStorage.setItem('pc_asinmap', JSON.stringify(j.asinMap));
+    location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端 Woot 数据同步：拉取最新 Woot 记录写本机后刷新（与映射同一存储行 data.woot）=====
+(async function cloudWootSync(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch('https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1', {
+      headers: { 'apikey': 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s', 'Authorization': 'Bearer sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s' },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j) return;
+    let dirty = false;
+    // ① 成本设置(毛利口径)同步 —— Woot 成本由别人在 woot.html 录入, 不拉下来就只有录入者本人看得到
+    if (j.wootCfg && typeof j.wootCfg === 'object') {
+      const cfg = { price: Number(j.wootCfg.price) > 0 ? Number(j.wootCfg.price) : 1380,
+                    cost: (j.wootCfg.cost && typeof j.wootCfg.cost === 'object') ? j.wootCfg.cost : {} };
+      let curCfg = null;
+      try { curCfg = JSON.parse(localStorage.getItem('pc_woot_cfg') || 'null'); } catch (e) {}
+      if (JSON.stringify(cfg) !== JSON.stringify(curCfg)) { localStorage.setItem('pc_woot_cfg', JSON.stringify(cfg)); dirty = true; }
+    }
+    // ② Woot 记录同步(云端无 woot 键 = 旧数据 → 不动本机)
+    if (Array.isArray(j.woot)) {
+      let cur = null;
+      try { cur = JSON.parse(localStorage.getItem('pc_woot') || 'null'); } catch(e) {}
+      if (JSON.stringify(j.woot) !== JSON.stringify(Array.isArray(cur) ? cur : [])) {
+        localStorage.setItem('pc_woot', JSON.stringify(j.woot)); dirty = true;
+      }
+    }
+    if (dirty) location.reload();
+  } catch (e) {}
+})();
+
+// ===== 云端更新提示：静默轮询(60s / 切回前台)，发现新数据只在顶部提示，点击才刷新 =====
+// 用途：别人上传 Woot 报表或改动产品映射后，已经打开着的看板能主动告知，而不是等人自己发现。
+// 只提示、不自动刷新：看板筛选(国家/ASIN/系列/产品名)是内存状态，自动 reload 会清空用户正在看的筛选。
+//
+// 三路比对(缺一不可)：
+//   BASE_SIG  = 本页渲染时所依据的本机缓存快照
+//   localSig  = 此刻本机缓存          → 与本浏览器别的标签页(如 Woot 上传页)写入后立刻不同
+//   cloudSig  = 云端最新              → 别人在别的电脑上传/改映射后不同
+// 只看云端会漏掉「同一浏览器上传」场景：那时本机已被写新，但当前页面渲染的还是旧数据。
+(function cloudUpdateWatch(){
+  const SB_ROW = 'https://oovvqvgrjqwogjwswaxx.supabase.co/rest/v1/mapping?select=data&id=eq.1';
+  const SB_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+  const POLL_MS = 60000;
+
+  function lsGet(k, dflt){
+    try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v === null ? dflt : v; } catch (e) { return dflt; }
+  }
+  // ★ 稳定序列化：对象的 key 先排序再拼 —— 两侧「同一份数据、不同键顺序」必须判为相等。
+  //   踩过的坑(2026-10-14)：云端 wootCfg 存的是 {"cost":{},"price":1380}，而看板 load 同步
+  //   会把它规范化成 {"price":1380,"cost":{}} 再写本机；JSON.stringify 保留插入顺序 ⇒
+  //   两串永不相等 ⇒ 判定「云端有新数据」永远成立 ⇒ 提示条常驻、点「立即刷新」也不消失。
+  function stable(v){
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') {
+      return '{' + Object.keys(v).sort().map(function(k){ return JSON.stringify(k) + ':' + stable(v[k]); }).join(',') + '}';
+    }
+    return JSON.stringify(v === undefined ? null : v);
+  }
+  // wootCfg 规范化：与看板 load 同步里的写法完全同款(price 兜底 1380 / cost 兜底 {})，确保两侧可比
+  function normCfg(c){
+    if (!c || typeof c !== 'object') return null;
+    return { price: Number(c.price) > 0 ? Number(c.price) : 1380,
+             cost: (c.cost && typeof c.cost === 'object') ? c.cost : {} };
+  }
+  function localSig(){
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    return stable(lsGet('pc_woot', [])) + '\u0001' + stable(lsGet('pc_catalog', [])) + '\u0001'
+      + stable(lsGet('pc_asinmap', [])) + '\u0001'
+      // 本机没有成本设置(广告看板不消费 wootCfg) ⇒ 该段恒为空、不参与判定，避免误报常驻
+      + (lc === null ? '' : stable(lc));
+  }
+  function cloudSig(j){
+    if (!j || !Array.isArray(j.woot)) return null;   // 云端仍是旧结构(无 woot 键) → 不提示
+    const lc = normCfg(lsGet('pc_woot_cfg', null));
+    const cc = normCfg(j.wootCfg);
+    return stable(j.woot) + '\u0001'
+      + stable(Array.isArray(j.catalog) ? j.catalog : []) + '\u0001'
+      + stable(Array.isArray(j.asinMap) ? j.asinMap : []) + '\u0001'
+      // 云端缺 wootCfg 时沿用本机值 ⇒ 该段不参与判定(避免删配置后提示条永不消失)
+      + (lc === null ? '' : stable(cc === null ? lc : cc));
+  }
+
+  const BASE_SIG = localSig();
+  let bar = null, latest = null, offKey = null, cloudSigCache = null;
+  const keyOf = (cs, ls) => cs + '#' + ls;
+
+  function mk(tag, txt, css){
+    const e = document.createElement(tag);
+    if (txt !== null) e.textContent = txt;
+    e.style.cssText = css;
+    return e;
+  }
+  function ensureBar(){
+    if (bar) return bar;
+    bar = mk('div', null, 'position:fixed;z-index:2147483000;left:50%;top:12px;transform:translateX(-50%);display:none;align-items:center;gap:10px;max-width:92vw;padding:9px 12px;border-radius:10px;border:1px solid #854F0B;background:#FAEEDA;color:#412402;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:13px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.45');
+    bar.id = 'wbUpdateBar';
+    bar.setAttribute('role', 'status');
+    const label = mk('span', '云端数据已更新', 'font-weight:500;white-space:nowrap');
+    const btn = mk('button', '立即刷新', 'cursor:pointer;border:1px solid #854F0B;background:#fff;color:#412402;border-radius:6px;padding:3px 10px;font-size:12px;font-family:inherit;white-space:nowrap');
+    btn.type = 'button';
+    btn.title = '刷新页面载入最新数据（会重置当前筛选条件）';
+    btn.onclick = apply;
+    const x = mk('button', '×', 'cursor:pointer;border:0;background:transparent;color:#854F0B;font-size:16px;font-family:inherit;line-height:1;padding:0 2px');
+    x.type = 'button';
+    x.title = '本次不再提示';
+    x.onclick = function(){ offKey = keyOf(cloudSigCache, localSig()); hide(); };
+    bar.appendChild(label); bar.appendChild(btn); bar.appendChild(x);
+    (document.body || document.documentElement).appendChild(bar);
+    return bar;
+  }
+  function show(){ ensureBar().style.display = 'flex'; }
+  function hide(){ if (bar) bar.style.display = 'none'; }
+
+  function apply(){
+    const ls = localSig();
+    // 本机缓存已被别的标签页更新过(同浏览器上传场景) → 不用云端值回写，直接重载出新数据
+    if (ls === BASE_SIG && latest) {
+      try {
+        if (Array.isArray(latest.woot)) localStorage.setItem('pc_woot', JSON.stringify(latest.woot));
+        if (Array.isArray(latest.catalog)) localStorage.setItem('pc_catalog', JSON.stringify(latest.catalog));
+        if (Array.isArray(latest.asinMap)) localStorage.setItem('pc_asinmap', JSON.stringify(latest.asinMap));
+      } catch (e) {}
+    }
+    location.reload();
+  }
+
+  async function check(){
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 8000);
+      const r = await fetch(SB_ROW, { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }, signal: ctl.signal });
+      clearTimeout(t);
+      if (!r.ok) return;
+      const rows = await r.json();
+      const j = rows && rows[0] && rows[0].data;
+      const cs = cloudSig(j);
+      if (cs === null) return;
+      latest = j; cloudSigCache = cs;
+      const ls = localSig();
+      if (keyOf(cs, ls) === offKey) { hide(); return; }
+      if (cs === ls && ls === BASE_SIG) { hide(); return; }
+      show();
+    } catch (e) {}
+  }
+
+  setTimeout(check, 5000);
+  setInterval(check, POLL_MS);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
+})();
+// ---------- 筛选状态 ----------
+let selCountry = new Set();
+let selAsin = new Set();
+let selSeries = new Set();
+let selName = new Set();
+// 销售店铺(渠道): 空集 = 合并看(亚马逊 + Woot 相加)。仅供视图切换, 不影响任何数据的计算口径。
+//   amazon = 看板原有数据(易仓业务报告 + 易仓广告 + 易仓利润报表) = Aliencell 官方店铺
+//   woot   = 由 Woot 数据管理页注入的行(localStorage/云端 pc_woot, 带 channel:'woot')
+// ⚠️ 利润报表目前只有亚马逊店铺行 ⇒ Woot 没有易仓口径毛利，改由「Woot 毛利公式」单独计算。
+//   2026-10-13 起 Woot 成本经「产品关系管理」可解析 ⇒ 单看 Woot **有**毛利；两处都解析不到才显示 —。
+//    成本来源(2026-10-13): 手工「Woot 成本设置」优先, 否则按「产品关系管理」匹配到的产品名取成本表。
+//    口径: `采购价 × 订单量 − 产品成本 × 订单量 − 运费 × 订单量 − 广告费`(见 §Woot 毛利)。
+const CHANNELS = [
+  { id: 'amazon', label: 'Aliencell官方店铺' },
+  { id: 'woot',   label: 'Woot店铺' },
+];
+const CHANNEL_CN = { amazon: 'Aliencell官方店铺', woot: 'Woot店铺' };
+function channelOf(r) { return (r && r.channel === 'woot') ? 'woot' : 'amazon'; }
+let selChannel = new Set();
+let dateFrom = '';
+let dateTo = '';
+
+// 某天某国家集合的 biz 行 (按 ASIN / 产品系列 / 产品名 过滤)
+function filterRows(date, countryCodes, asinSet) {
+  const day = DATA.days[date];
+  if (!day) return { biz: [], ads: [] };
+  const countryOk = c => !countryCodes || countryCodes.size === 0 || countryCodes.has(c);
+  const asinOk = a => !asinSet || asinSet.size === 0 || asinSet.has(a);
+  const metaOk = a => {
+    if (!a) return true;
+    const m = asinMetaOf(a);
+    if (selSeries.size && !selSeries.has(m.series)) return false;
+    if (selName.size && !selName.has(m.name)) return false;
+    return true;
+  };
+  const chOk = r => !selChannel.size || selChannel.has(channelOf(r));
+  const biz = day.biz.filter(r => chOk(r) && countryOk(r.site || r.user_account || 'US') && asinOk(r.asin) && metaOk(r.asin));
+  const ads = {};
+  for (const [cc, items] of Object.entries(day.ads)) {
+    if (!countryOk(cc)) continue;
+    const filtered = items.filter(it => { const a = extractAsin(it, cc); return chOk(it) && asinOk(a) && metaOk(a); });
+    if (filtered.length) ads[cc] = filtered;
+  }
+  return { biz, ads };
+}
+
+// 聚合指标
+function aggRows(date, countryCodes, asinSet) {
+  const { biz, ads } = filterRows(date, countryCodes, asinSet);
+  const r = {
+    bizCount: biz.length, adCount: Object.values(ads).reduce((s, v) => s + v.length, 0),
+    sessions: 0, units: 0, orders: 0, sales: 0,
+    adClicks: 0, adCost: 0, adOrders: 0, adSales: 0, adImpr: 0,
+    countries: new Set()
+  };
+  for (const row of biz) {
+    r.sessions += Number(row.sessions) || 0;
+    r.units += Number(row.units_ordered) || 0;
+    r.orders += Number(row.total_order_items) || 0;
+    r.sales += convAmt(row.ordered_product_sales_amount, row.site || 'US', date.slice(0, 7));
+    r.countries.add(row.site || 'US');
+    // Woot 行额外记订单量、采购价收入与毛利(口径与亚马逊利润报表不同: 供货价收入 − 产品成本 − 运费)
+    // 渠道筛选在 filterRows 上游已生效 → 单看官方店铺时这里拿不到 Woot 行, 自然不参与
+    if (row.woot) {
+      const od = Number(row.units_ordered) || 0;
+      const c = wootUnitCost(row.asin);              // 未配成本的 ASIN → 不入账(按 0 成本算会虚高)
+      if (c && od > 0) {
+        const rev = Number(row.wootRev) || 0;        // = Σ 采购价 × 订单量(逐行价格, 非默认价)
+        r.wootOrders = (r.wootOrders || 0) + od;
+        r.wootRev    = (r.wootRev || 0) + rev;
+        r.wootProfit = (r.wootProfit || 0) + rev - (c.unit + c.freight) * od;
+        r.wootHead   = (r.wootHead || 0) + c.freight * od;   // 头程(USD, wootCfg.freight 即头程)
+      }
+    }
+  }
+  for (const [cc, items] of Object.entries(ads)) {
+    for (const it of items) {
+      const rep = it.Report || {};
+      r.adClicks += rep.Clicks || 0;
+      r.adCost += convAmt(rep.Cost, cc, date.slice(0, 7));
+      r.adOrders += rep.Orders || 0;
+      r.adSales += convAmt(rep.SalesAmount, cc, date.slice(0, 7));
+      r.adImpr += rep.Impressions || 0;
+    }
+    r.countries.add(cc);
+  }
+  // 毛利(易仓利润报表·结算口径): 行=日期×站点×ASIN, 按当前筛选对齐; 广告费扣看板自身值
+  const metaOkP = a => {
+    if (!a) return true;
+    const m = asinMetaOf(a);
+    if (selSeries.size && !selSeries.has(m.series)) return false;
+    if (selName.size && !selName.has(m.name)) return false;
+    return true;
+  };
+  const countryOkP = c => !countryCodes || countryCodes.size === 0 || countryCodes.has(c);
+  const asinOkP = a => !asinSet || asinSet.size === 0 || asinSet.has(a);
+  // 渠道: 利润报表行目前全部属于亚马逊店铺(无 channel 字段) ⇒ 单看 Woot 时 pRows 只由 Woot 行自己贡献
+  const chOkP = pr => !selChannel.size || selChannel.has(channelOf(pr));
+  const prows = (PROFIT_BY_DAY[date] || []).filter(pr => chOkP(pr) && countryOkP(pr.site) && asinOkP(pr.as) && metaOkP(pr.as));
+  r.pRows = prows.length;
+  r.pSales = 0; r.pPromo = 0; r.pComm = 0; r.pFba = 0; r.pCost = 0; r.pStorage = 0; r.pOther = 0; r.pMiss = 0; r.pHead = 0; r.pVat = 0;
+  // 2026-10-12 第一轮: 多渠道 / 剔除加回 / 测评费
+  r.pMqty = 0; r.pMcost = 0; r.pMhead = 0; r.pMship = 0; r.pMcAdj = 0; r.pReview = 0;
+  // 2026-10-12 第二轮: FBA 库存费 8 细项 + 退款(退款日粒度有值, 直接透传)
+  //   ※「FBA物流国际货运费(入境)」按用户口径**不展示也不计入毛利**(头程用成本表预估替代)
+  r.pFbRet = 0; r.pFbOth = 0; r.pFbOvr = 0; r.pFbCon = 0; r.pFbCar = 0; r.pFbRem = 0; r.pFbMst = 0; r.pFbLst = 0;
+  r.pRefSales = 0; r.pRefPromo = 0; r.pRefComm = 0; r.pRefShip = 0; r.pRefFba = 0; r.pRefQty = 0;
+  r.pSalesQty = 0;                 // 利润报表销量(退款率分母)
+  for (const pr of prows) {
+    const ym = date.slice(0, 7);
+    r.pSales   += convAmt(pr.sales,   pr.site, ym);
+    r.pPromo   += convAmt(pr.promo,   pr.site, ym);
+    r.pComm    += convAmt(pr.comm,    pr.site, ym);
+    r.pFba     += convAmt(pr.fba,     pr.site, ym);
+    r.pCost    += convAmt(pr.cost,    pr.site, ym);
+    r.pStorage += convAmt(pr.storage, pr.site, ym);
+    r.pOther   += convAmt(pr.other,   pr.site, ym);
+    r.pVat     += convAmt(pr.vat,     pr.site, ym);   // EU/UK 增值税(正数, 从毛利扣)
+    r.pHead    += convHead(headRmbOf(pr.as, pr.site), pr.qty, ym);   // 头程(成本表RMB×销量→显示币种)
+    r.pMqty    += Number(pr.mqty) || 0;               // 多渠道销量(台)
+    r.pMcost   += convAmt(pr.mcost,   pr.site, ym);   // 多渠道产品成本(负; 已含在 pCost 内)
+    r.pMhead   += convAmt(pr.mhead,   pr.site, ym);   // 多渠道头程(负; 已含在 pCost 内)
+    r.pMship   += convAmt(pr.mship,   pr.site, ym);   // 多渠道配送费(负; 已含在 pFba 内)
+    r.pMcAdj   += convAmt(pr.mcAdj,   pr.site, ym);   // 其他渠道订单剔除加回(正数)
+    r.pReview  += convAmt(pr.review,  pr.site, ym);   // 测评费(正数, 费用)
+    // ---- 8 细项: fbMst/fbLst 是「仓储」列的构成, 其余 5 项是「其他费用」列的构成 ----
+    r.pFbRet   += convAmt(pr.fbRet,   pr.site, ym);   // FBA退货处理费(负)
+    r.pFbOth   += convAmt(pr.fbOth,   pr.site, ym);   // 其他FBA库存和入境服务费(负; 已含在其他费用)
+    r.pFbOvr   += convAmt(pr.fbOvr,   pr.site, ym);   // 超量费(负; 已含在其他费用)
+    r.pFbCon   += convAmt(pr.fbCon,   pr.site, ym);   // 合仓费(负; 已含在其他费用)
+    r.pFbCar   += convAmt(pr.fbCar,   pr.site, ym);   // 合作承运费(负; 已含在其他费用)
+    r.pFbRem   += convAmt(pr.fbRem,   pr.site, ym);   // 移除费用(负; 已含在其他费用)
+    r.pFbMst   += convAmt(pr.fbMst,   pr.site, ym);   // FBA月仓租费(负)
+    r.pFbLst   += convAmt(pr.fbLst,   pr.site, ym);   // FBA长期仓租费(负)
+    // ---- 退款(用户口径: 减退款 + 加回促销折扣退款与销售佣金退款) ----
+    r.pRefSales += convAmt(pr.refSales, pr.site, ym);  // 退款商品金额(负)
+    r.pRefPromo += convAmt(pr.refPromo, pr.site, ym);  // 促销折扣退款(正)
+    r.pRefComm  += convAmt(pr.refComm,  pr.site, ym);  // 销售佣金退款
+    r.pRefShip  += convAmt(pr.refShip,  pr.site, ym);  // 买家运费退款(负)
+    r.pRefFba   += convAmt(pr.refFba,   pr.site, ym);  // 配送费退款
+    r.pRefQty   += Number(pr.refQty) || 0;             // 退款件数(退款率分子)
+    r.pSalesQty += Number(pr.qty) || 0;                // 利润报表销量(退款率分母)
+    if (pr.miss) r.pMiss++;
+  }
+  // ---------- Woot 毛利入账 (2026-10-10) ----------
+  // 与亚马逊利润报表同构: Woot 供货价收入计入 pSales(也是毛利率的分母 — 逐行采购价, 不是默认价×订单量),
+  // 产品成本计入 pCost(负数, 与 ERP 费用为负一致); **运费单列到 pHead(头程)**; 广告费由 adCost 统一扣
+  //   ⇒ 净额 = Σ(采购价 × 订单量) − 产品成本 − 头程(运费) − Woot 广告费   ← 正是用户口径
+  // pRows += 1 让「单看 Woot」时 profOk 成立(否则该视图毛利恒为 —)。
+  // ⚠️ 成本表未接入时 r.wootProfit 为 undefined → 以下完全跳过, 行为与接入前一致。
+  // ⚠️ 2026-10-12: 头程正式计入毛利(profitOf 减去 pHead)后, pCost **不能再含运费** —— 否则
+  //    wootProfitOf 已扣一次运费、pHead 再扣一次 → 单台虚减 FREIGHT(被 test_woot_margin 抓到)。
+  //    这里把运费从 pCost 里加回、原样落到 pHead: 「成本」列=产品成本、「头程」列=运费, 两者之和不变。
+  if (r.wootProfit) {
+    const wh = usdToDisp(r.wootHead || 0, date.slice(0, 7));   // Woot 头程(= 运费, USD→显示币种)
+    r.pSales += r.wootRev;
+    r.pCost  += r.wootProfit - r.wootRev + wh;
+    r.pHead  += wh;
+    r.pRows  += 1;
+  }
+  // 毛利(RMB) 折算率: 该日所在月的 CNY per 1 显示币种 (与看板汇率同源)
+  //   ⚠️ date 可能为 null(renderTable 里 prevDate 越界时传入), 必须容错 —— 否则整表渲染中断
+  r.pCnyPer = date ? cnyPerDisp(date.slice(0, 7), DISP_CUR) : 1;
+  return r;
+}
+
+// 7 指标取值 (无数据返回 null)
+function metricVals(a) {
+  const bizOk = a.bizCount > 0;
+  const adOk = a.adCount > 0;
+  const profOk = a.pRows > 0;
+  // 毛利口径 (2026-10-12 第二轮): 报表各项(费用为负) + 退货处理费 + 退款各项(减退款、加回促销折扣退款与销售佣金退款)
+  //   − VAT − 头程(成本表预估) + 其他渠道剔除加回 − 测评费 − 本看板广告花费
+  const profit = profOk ? (a.pSales + a.pPromo + a.pComm + a.pFba + a.pCost + a.pStorage + a.pOther
+                           + a.pFbRet
+                           + a.pRefSales + a.pRefShip + a.pRefPromo + a.pRefComm + a.pRefFba
+                           - a.pVat - a.pHead + a.pMcAdj - a.pReview - a.adCost) : null;
+  return {
+    traffic:   bizOk ? a.sessions : null,
+    orders:    bizOk ? a.orders : null,
+    sales:     bizOk ? a.sales : null,
+    conv:      bizOk && a.sessions > 0 ? a.units / a.sessions * 100 : (bizOk ? null : null),
+    adClicks:  adOk ? a.adClicks : null,
+    adOrders:  adOk ? a.adOrders : null,
+    natural:   (bizOk && adOk) ? Math.max(a.sessions - a.adClicks, 0) : null,
+    adConv:    adOk && a.adClicks > 0 ? a.adOrders / a.adClicks * 100 : (adOk ? null : null),
+    adCost:    adOk ? a.adCost : null,
+    cpc:       adOk && a.adClicks > 0 ? a.adCost / a.adClicks : (adOk ? null : null),
+    acos:      adOk && a.adSales > 0 ? a.adCost / a.adSales * 100 : (adOk ? null : null),
+    // 毛利(RMB): 显示币种金额 × (CNY per 1 显示币种), 汇率与看板其余折算同源
+    profitRmb: (profit !== null && a.pCnyPer) ? profit * a.pCnyPer : null,
+    profit,
+    margin:    profOk && a.pSales > 0 ? profit / a.pSales * 100 : (profOk ? null : null),
+    // ---------- 费用占比 (2026-10-10 用户口径): 分母=利润报表销售额; 除成本外同时给绝对值 ----------
+    costPct:    profOk && a.pSales > 0 ? -a.pCost / a.pSales * 100 : null,
+    fbaAbs:     profOk ? -a.pFba : null,
+    fbaPct:     profOk && a.pSales > 0 ? -a.pFba / a.pSales * 100 : null,
+    promoAbs:   profOk ? -a.pPromo : null,
+    promoPct:   profOk && a.pSales > 0 ? -a.pPromo / a.pSales * 100 : null,
+    storageAbs: profOk ? -a.pStorage : null,
+    storagePct: profOk && a.pSales > 0 ? -a.pStorage / a.pSales * 100 : null,
+    headAbs:    profOk ? a.pHead : null,
+    headPct:    profOk && a.pSales > 0 ? a.pHead / a.pSales * 100 : null,
+    otherAbs:   profOk ? -a.pOther : null,
+    otherPct:   profOk && a.pSales > 0 ? -a.pOther / a.pSales * 100 : null,
+    vatAbs:     profOk ? a.pVat : null,
+    vatPct:     profOk && a.pSales > 0 ? a.pVat / a.pSales * 100 : null,
+    // ---------- 2026-10-12 第一轮 ----------
+    // 多渠道: 产品成本/头程/配送费 本来就含在 pCost / pFba 内, 这里只单独列示
+    mcfQty:     profOk ? a.pMqty : null,
+    mcfCost:    profOk ? -a.pMcost : null,
+    mcfHead:    profOk ? -a.pMhead : null,
+    mcfShip:    profOk ? -a.pMship : null,
+    mcfLoss:    profOk ? -(a.pMcost + a.pMhead + a.pMship) : null,
+    mcfAdj:     profOk ? a.pMcAdj : null,
+    reviewAbs:  profOk ? a.pReview : null,
+    reviewPct:  profOk && a.pSales > 0 ? a.pReview / a.pSales * 100 : null,
+    // ---------- 2026-10-12 第二轮: FBA 库存费 8 细项(绝对值, 取正显示) ----------
+    //   fbRet 独立计入毛利; fbMst/fbLst 构成「仓储」列; 其余 5 项并入「其他费用」列, 此处仅列明细
+    fbRetAbs:   profOk ? -a.pFbRet : null,
+    fbOthAbs:   profOk ? -a.pFbOth : null,
+    fbOvrAbs:   profOk ? -a.pFbOvr : null,
+    fbConAbs:   profOk ? -a.pFbCon : null,
+    fbCarAbs:   profOk ? -a.pFbCar : null,
+    fbRemAbs:   profOk ? -a.pFbRem : null,
+    fbMstAbs:   profOk ? -a.pFbMst : null,
+    fbLstAbs:   profOk ? -a.pFbLst : null,
+    // ---------- 2026-10-12 第二轮: 退款 ----------
+    refAbs:     profOk ? -a.pRefSales : null,                                  // 退款商品金额(绝对值)
+    refShipAbs: profOk ? -a.pRefShip : null,                                   // 买家运费退款(绝对值)
+    refPromo:   profOk ? a.pRefPromo : null,                                   // 促销折扣退款(正)
+    refComm:    profOk ? -a.pRefComm : null,                                   // 销售佣金退款(取正显示)
+    refNetAbs:  profOk ? -(a.pRefSales + a.pRefShip + a.pRefPromo + a.pRefComm + a.pRefFba) : null,   // 退款净额(绝对值)
+    refRate:    profOk && a.pSalesQty > 0 ? a.pRefQty / a.pSalesQty * 100 : null,                     // 退款率=退款件数÷销量
+  };
+}
+
+// ---------- 指标列定义 (可选列) ----------
+const METRICS = [
+  { key:'traffic',  label:'流量',       fmt:(v,cs)=>fmtNum(v) },
+  { key:'orders',   label:'订单量',     fmt:(v,cs)=>fmtNum(v), isNew:true },
+  { key:'sales',    label:'销售额',     fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'conv',     label:'转换率',     fmt:(v,cs)=>fmtPct(v) },
+  { key:'adClicks', label:'广告点击',   fmt:(v,cs)=>fmtNum(v) },
+  { key:'adOrders', label:'广告订单量', fmt:(v,cs)=>fmtNum(v), isNew:true },
+  { key:'natural',  label:'自然流量',   fmt:(v,cs)=>fmtNum(v) },
+  { key:'adConv',   label:'广告转换率', fmt:(v,cs)=>fmtPct(v) },
+  { key:'adCost',   label:'广告花费',   fmt:(v,cs)=>fmtMoney(v,cs) },
+  { key:'cpc',      label:'CPC',        fmt:(v,cs)=>fmtCpc(v,cs) },
+  { key:'acos',     label:'ACOS',       fmt:(v,cs)=>fmtPct(v) },
+  // 毛利(RMB): 2026-10-12 第二轮新增, 紧邻「毛利」之前; 汇率与看板其余折算同源(CNY/USD × USD/显示币种)
+  { key:'profitRmb',label:'毛利(RMB)',  fmt:(v,cs)=>fmtRmb(v), isNew:true },
+  { key:'profit',   label:'毛利',       fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'margin',   label:'毛利率',     fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'costPct',    label:'成本%',   fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'fbaAbs',     label:'FBA',      fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbaPct',     label:'FBA%',     fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'promoAbs',   label:'promotion',fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'promoPct',   label:'promotion%',fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'storageAbs', label:'仓储',     fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'storagePct', label:'仓储%',    fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'headAbs',    label:'头程',     fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'headPct',    label:'头程%',    fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'otherAbs',   label:'其他费用',  fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'otherPct',   label:'其他费用%', fmt:(v,cs)=>fmtPct(v), isNew:true },
+  { key:'vatAbs',     label:'VAT',      fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'vatPct',     label:'VAT%',     fmt:(v,cs)=>fmtPct(v), isNew:true },
+  // ---------- 2026-10-12 第一轮: 多渠道 / 剔除 / 测评费 ----------
+  { key:'mcfQty',     label:'多渠道销量',    fmt:(v,cs)=>fmtNum(v), isNew:true },
+  { key:'mcfLoss',    label:'多渠道损失',    fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'mcfCost',    label:'多渠道产品成本', fmt:(v,cs)=>fmtMoney(v,cs), isNew:true, hidden:true },
+  { key:'mcfHead',    label:'多渠道头程',    fmt:(v,cs)=>fmtMoney(v,cs), isNew:true, hidden:true },
+  { key:'mcfShip',    label:'多渠道配送费',  fmt:(v,cs)=>fmtMoney(v,cs), isNew:true, hidden:true },
+  { key:'mcfAdj',     label:'其他渠道已剔除', fmt:(v,cs)=>fmtMoney(v,cs), isNew:true, hidden:true },
+  { key:'reviewAbs',  label:'测评费',        fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'reviewPct',  label:'测评费%',       fmt:(v,cs)=>fmtPct(v), isNew:true, hidden:true },
+  // ---------- 2026-10-12 第二轮: FBA 库存费 8 细项(用户要求逐项单列) ----------
+  //   ※「FBA物流国际货运费(入境)」按用户口径不展示、不计入毛利 → 无此列
+  { key:'fbRetAbs',   label:'FBA退货处理费',          fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbOthAbs',   label:'其他FBA库存和入境服务费', fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbOvrAbs',   label:'超量费',                 fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbConAbs',   label:'合仓费',                 fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbCarAbs',   label:'合作承运费',             fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbRemAbs',   label:'移除费用',               fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbMstAbs',   label:'FBA月仓租费',            fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'fbLstAbs',   label:'FBA长期仓租费',          fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  // ---------- 2026-10-12 第二轮: 退款 ----------
+  { key:'refAbs',     label:'退款金额',       fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'refShipAbs', label:'买家运费退款',   fmt:(v,cs)=>fmtMoney(v,cs), isNew:true, hidden:true },
+  { key:'refPromo',   label:'促销折扣退款',   fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'refComm',    label:'销售佣金退款',   fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'refNetAbs',  label:'退款净额',       fmt:(v,cs)=>fmtMoney(v,cs), isNew:true },
+  { key:'refRate',    label:'退款率',         fmt:(v,cs)=>fmtPct(v), isNew:true },
+];
+// 列显示状态 (localStorage 持久化; 存储格式 {key:bool}, 兼容旧数组格式; 新增列默认显示, hidden:true 的默认隐藏)
+let colState = {};
+(function initCols(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('dailyCols') || 'null'); } catch(e){}
+  if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+    METRICS.forEach(m => colState[m.key] = saved[m.key] === undefined ? !m.hidden : !!saved[m.key]);
+  } else if (Array.isArray(saved)) {
+    METRICS.forEach(m => colState[m.key] = saved.includes(m.key) ? true : false);
+  } else {
+    METRICS.forEach(m => colState[m.key] = !m.hidden);
+  }
+})();
+function saveCols(){
+  const map = {};
+  METRICS.forEach(m => map[m.key] = !!colState[m.key]);
+  try { localStorage.setItem('dailyCols', JSON.stringify(map)); } catch(e){}
+}
+function buildColOptions(){
+  const list = document.getElementById('ddColList');
+  if (!list) return;
+  const n = METRICS.filter(m => colState[m.key]).length;
+  list.innerHTML = METRICS.map(m => {
+    const on = colState[m.key];
+    return `<div class="dd-opt" onclick="toggleCol('${m.key}')">
+      <input type="checkbox" ${on?'checked':''} style="pointer-events:none">
+      <span class="opt-name" style="${on?'font-weight:700;color:var(--primary);':'font-weight:400;color:var(--muted);'}">${m.label}</span>
+    </div>`;
+  }).join('');
+  const c = document.getElementById('colCount');
+  if (c) c.textContent = `已选 ${n}/${METRICS.length} 项`;
+}
+function toggleCol(k){ colState[k] = !colState[k]; saveCols(); buildColOptions(); renderTable(); }
+function allCols(e){ e.stopPropagation(); METRICS.forEach(m => colState[m.key] = true); saveCols(); buildColOptions(); renderTable(); }
+function clearCols(e){ e.stopPropagation(); METRICS.forEach(m => colState[m.key] = false); saveCols(); buildColOptions(); renderTable(); }
+
+// ---------- 格式化 ----------
+// -0 归一为 0 (否则 toLocaleString 会渲染成 "$-0.00")
+function nz(v) { return Number(v) === 0 ? 0 : v; }   // -0 归一为 0: 否则 toLocaleString 渲染成 "$-0.00"
+function fmtNum(v) { return v === null || v === undefined ? '—' : nz(v).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+function fmtMoney(v, cs) {
+  if (v === null || v === undefined) return '—';
+  const sym = cs || '$';
+  return sym + nz(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtPct(v) { return v === null || v === undefined ? '—' : v.toFixed(2) + '%'; }
+function fmtCpc(v, cs) { return v === null || v === undefined ? '—' : (cs || '$') + v.toFixed(2); }
+function fmtRmb(v) { return v === null || v === undefined ? '—' : '¥' + nz(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+// 环比单元格
+function cmpCell(nowV, prevV, fmt, opts) {
+  if (nowV === null || nowV === undefined) return '<div class="cell-main cell-na">—</div><div class="cell-cmp cell-na">—</div>';
+  const main = fmt(nowV);
+  if (prevV === null || prevV === undefined) return `<div class="cell-main">${main}</div><div class="cell-cmp cell-na">上周 —</div>`;
+  let diffPct = null;
+  if (prevV !== 0) diffPct = (nowV - prevV) / Math.abs(prevV) * 100;
+  let cls = 'cmp-flat', arrow = '—';
+  if (diffPct !== null && Math.abs(diffPct) > 0.005) {
+    cls = diffPct > 0 ? 'cmp-up' : 'cmp-down';
+    arrow = diffPct > 0 ? '▲' : '▼';
+  }
+  const pctTxt = diffPct === null ? '' : ` ${arrow}${Math.abs(diffPct).toFixed(1)}%`;
+  return `<div class="cell-main">${main}</div><div class="cell-cmp ${cls}">上周 ${fmt(prevV)}${pctTxt}</div>`;
+}
+
+// 当前生效币种: 未选国家(全部)或多国混合币种 → USD(按每月1号汇率折算);
+// 选中的国家同属一种币种 → 该币种原值(不做换算)
+function dispCur() {
+  if (selCountry.size > 0) {
+    const curs = new Set([...selCountry].map(c => CUR_OF[c] || 'USD'));
+    if (curs.size === 1) return [...curs][0];
+  }
+  return 'USD';
+}
+let DISP_CUR = 'USD';  // renderTable 开始时更新, aggRows 换算用
+let FX_MISS = false;   // 汇率缺失标记(缺项按原值显示并提示)
+function curSym() { return CUR_SYM[DISP_CUR] || '$'; }
+// 汇率: 1 CUR = ? USD (该日期所在月的1号汇率; 缺失时回退最近可用月份)
+function fxToUsd(month, cur) {
+  if (cur === 'USD') return 1;
+  const months = FX.months || {};
+  if (months[month] && months[month][cur]) return months[month][cur];
+  const ks = Object.keys(months).sort();
+  let best = null;
+  for (const k of ks) { if (k <= month && months[k][cur]) best = k; }
+  if (!best) for (const k of ks) { if (months[k][cur]) { best = k; break; } }
+  return best ? months[best][cur] : null;
+}
+// 金额换算到显示币种 (v 为原币种金额, site 为站点国家)
+function convAmt(v, site, month) {
+  const num = Number(v) || 0;
+  if (!num) return 0;
+  const cur = CUR_OF[site] || 'USD';
+  if (cur === DISP_CUR) return num;
+  const r = fxToUsd(month, cur);
+  if (r === null) { FX_MISS = true; return num; }
+  return num * r;
+}
+
+// ---------- 渲染 ----------
+function renderTable() {
+  DISP_CUR = dispCur(); FX_MISS = false;
+  const cs = curSym();
+  const cols = METRICS.filter(m => colState[m.key]);
+  const wrap = document.getElementById('tableWrap');
+  let html = `<table><thead><tr>
+    <th class="frozen">日期</th>
+    ${cols.map(m => `<th>${m.label}</th>`).join('')}
+  </tr></thead><tbody>`;
+  const range = DAYS.filter(d => (!dateFrom || d >= dateFrom) && (!dateTo || d <= dateTo)).reverse();
+  if (range.length === 0) {
+    html += `<tr><td colspan="${cols.length + 1}" class="empty">所选日期范围内无数据</td></tr></tbody></table>`;
+    wrap.innerHTML = html;
+    document.getElementById('rangeBadge').textContent = '—';
+    return;
+  }
+  const tot = { sessions:0, units:0, orders:0, sales:0, adClicks:0, adCost:0, adOrders:0, adSales:0, pSales:0, profit:0, profitRmb:0, pAny:false,
+    pFba:0, pPromo:0, pCost:0, pStorage:0, pOther:0, pHead:0, pVat:0,
+    pMqty:0, pMcost:0, pMhead:0, pMship:0, pMcAdj:0, pReview:0,
+    pFbRet:0, pFbOth:0, pFbOvr:0, pFbCon:0, pFbCar:0, pFbRem:0, pFbMst:0, pFbLst:0,
+    pRefSales:0, pRefPromo:0, pRefComm:0, pRefShip:0, pRefFba:0, pRefQty:0, pSalesQty:0 };
+  for (const d of range) {
+    const a = aggRows(d, selCountry, selAsin);
+    const pv = metricVals(aggRows(prevDate(d), selCountry, selAsin));
+    const cv = metricVals(a);
+    tot.sessions += a.sessions; tot.units += a.units; tot.orders += a.orders; tot.sales += a.sales; tot.adClicks += a.adClicks; tot.adCost += a.adCost; tot.adOrders += a.adOrders; tot.adSales += a.adSales;
+    if (cv.profit !== null) { tot.pAny = true; tot.pSales += a.pSales; tot.profit += cv.profit;
+      tot.profitRmb += (cv.profitRmb || 0);
+      tot.pFba += a.pFba; tot.pPromo += a.pPromo; tot.pCost += a.pCost; tot.pStorage += a.pStorage; tot.pOther += a.pOther; tot.pHead += a.pHead; tot.pVat += a.pVat;
+      tot.pMqty += a.pMqty; tot.pMcost += a.pMcost; tot.pMhead += a.pMhead; tot.pMship += a.pMship;
+      tot.pMcAdj += a.pMcAdj; tot.pReview += a.pReview;
+      tot.pFbRet += a.pFbRet; tot.pFbOth += a.pFbOth; tot.pFbOvr += a.pFbOvr; tot.pFbCon += a.pFbCon;
+      tot.pFbCar += a.pFbCar; tot.pFbRem += a.pFbRem; tot.pFbMst += a.pFbMst; tot.pFbLst += a.pFbLst;
+      tot.pRefSales += a.pRefSales; tot.pRefPromo += a.pRefPromo; tot.pRefComm += a.pRefComm;
+      tot.pRefShip += a.pRefShip; tot.pRefFba += a.pRefFba; tot.pRefQty += a.pRefQty; tot.pSalesQty += a.pSalesQty; }
+    const wd = WEEK_CN[new Date(d + 'T00:00:00').getDay()];
+    const isToday = d === DAYS[DAYS.length - 1];
+    html += `<tr>
+      <td class="frozen"><b>${d.slice(5)}</b> <span class="wk-day">${wd}${isToday ? ' · 今天' : ''}</span></td>
+      ${cols.map(m => `<td>${cmpCell(cv[m.key], pv[m.key], v => m.fmt(v, cs))}</td>`).join('')}
+    </tr>`;
+  }
+  // 合计行 (无环比)
+  const convT = tot.sessions > 0 ? tot.units / tot.sessions * 100 : null;
+  const adConvT = tot.adClicks > 0 ? tot.adOrders / tot.adClicks * 100 : null;
+  const cpcT = tot.adClicks > 0 ? tot.adCost / tot.adClicks : null;
+  const acosT = tot.adSales > 0 ? tot.adCost / tot.adSales * 100 : null;
+  const totMap = {
+    traffic:  tot.sessions,
+    orders:   tot.orders,
+    sales:    tot.sales || null,
+    conv:     convT,
+    adClicks: tot.adClicks,
+    adOrders: tot.adOrders,
+    natural:  tot.sessions > 0 ? Math.max(tot.sessions - tot.adClicks, 0) : null,
+    adConv:   adConvT,
+    adCost:   tot.adCost || null,
+    cpc:      cpcT,
+    acos:     acosT,
+    profitRmb: tot.pAny ? tot.profitRmb : null,
+    profit:   tot.pAny ? tot.profit : null,
+    margin:   tot.pAny && tot.pSales > 0 ? tot.profit / tot.pSales * 100 : (tot.pAny ? null : null),
+    costPct:    tot.pAny && tot.pSales > 0 ? -tot.pCost / tot.pSales * 100 : null,
+    fbaAbs:     tot.pAny ? -tot.pFba : null,
+    fbaPct:     tot.pAny && tot.pSales > 0 ? -tot.pFba / tot.pSales * 100 : null,
+    promoAbs:   tot.pAny ? -tot.pPromo : null,
+    promoPct:   tot.pAny && tot.pSales > 0 ? -tot.pPromo / tot.pSales * 100 : null,
+    storageAbs: tot.pAny ? -tot.pStorage : null,
+    storagePct: tot.pAny && tot.pSales > 0 ? -tot.pStorage / tot.pSales * 100 : null,
+    headAbs:    tot.pAny ? tot.pHead : null,
+    headPct:    tot.pAny && tot.pSales > 0 ? tot.pHead / tot.pSales * 100 : null,
+    otherAbs:   tot.pAny ? -tot.pOther : null,
+    otherPct:   tot.pAny && tot.pSales > 0 ? -tot.pOther / tot.pSales * 100 : null,
+    vatAbs:     tot.pAny ? tot.pVat : null,
+    vatPct:     tot.pAny && tot.pSales > 0 ? tot.pVat / tot.pSales * 100 : null,
+    mcfQty:     tot.pAny ? tot.pMqty : null,
+    mcfCost:    tot.pAny ? -tot.pMcost : null,
+    mcfHead:    tot.pAny ? -tot.pMhead : null,
+    mcfShip:    tot.pAny ? -tot.pMship : null,
+    mcfLoss:    tot.pAny ? -(tot.pMcost + tot.pMhead + tot.pMship) : null,
+    mcfAdj:     tot.pAny ? tot.pMcAdj : null,
+    reviewAbs:  tot.pAny ? tot.pReview : null,
+    reviewPct:  tot.pAny && tot.pSales > 0 ? tot.pReview / tot.pSales * 100 : null,
+    fbRetAbs:   tot.pAny ? -tot.pFbRet : null,
+    fbOthAbs:   tot.pAny ? -tot.pFbOth : null,
+    fbOvrAbs:   tot.pAny ? -tot.pFbOvr : null,
+    fbConAbs:   tot.pAny ? -tot.pFbCon : null,
+    fbCarAbs:   tot.pAny ? -tot.pFbCar : null,
+    fbRemAbs:   tot.pAny ? -tot.pFbRem : null,
+    fbMstAbs:   tot.pAny ? -tot.pFbMst : null,
+    fbLstAbs:   tot.pAny ? -tot.pFbLst : null,
+    refAbs:     tot.pAny ? -tot.pRefSales : null,
+    refShipAbs: tot.pAny ? -tot.pRefShip : null,
+    refPromo:   tot.pAny ? tot.pRefPromo : null,
+    refComm:    tot.pAny ? -tot.pRefComm : null,
+    refNetAbs:  tot.pAny ? -(tot.pRefSales + tot.pRefShip + tot.pRefPromo + tot.pRefComm + tot.pRefFba) : null,
+    refRate:    tot.pAny && tot.pSalesQty > 0 ? tot.pRefQty / tot.pSalesQty * 100 : null
+  };
+  html += `<tr class="total-row">
+    <td class="frozen">合计</td>
+    ${cols.map(m => {
+      const v = totMap[m.key];
+      return `<td>${v === null || v === undefined ? '—' : m.fmt(v, cs)}</td>`;
+    }).join('')}
+  </tr>`;
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  document.getElementById('rangeBadge').textContent = `${range.length} 天 · ${range[range.length-1].slice(5)} ~ ${range[0].slice(5)} · 币种:${curSym()}${DISP_CUR === 'USD' && selCountry.size === 0 ? '(默认)' : ''}${FX_MISS ? ' ⚠汇率缺失' : ''}`;
+}
+
+function prevDate(d) {
+  const i = dayIndex[d];
+  return i !== undefined && i - 7 >= 0 ? DAYS[i - 7] : null;
+}
+
+// ---------- 筛选面板 ----------
+function toggleDD(id) {
+  const el = document.getElementById(id);
+  const willOpen = !el.classList.contains('open');
+  document.querySelectorAll('.dd.open').forEach(d => { if (d.id !== id) d.classList.remove('open'); });
+  el.classList.toggle('open', willOpen);
+  if (id === 'ddAsin' && willOpen) {
+    const s = document.getElementById('ddAsinSearch');
+    s.value = '';
+    setTimeout(() => s.focus(), 30);
+  }
+  if ((id === 'ddSeries' || id === 'ddName') && willOpen) {
+    const s = document.getElementById(id === 'ddSeries' ? 'ddSeriesSearch' : 'ddNameSearch');
+    if (s) {
+      s.value = '';
+      if (id === 'ddSeries') buildSeriesOptions(); else buildNameOptions();
+      setTimeout(() => s.focus(), 30);
+    }
+  }
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dd')) document.querySelectorAll('.dd').forEach(d => d.classList.remove('open'));
+});
+
+function handleOptClick(e, set, key, render) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (e.ctrlKey || e.metaKey) {
+    set.has(key) ? set.delete(key) : set.add(key);
+  } else {
+    if (set.has(key) && set.size === 1) set.clear(); // 单击唯一已选项 → 清空(全部)
+    else { set.clear(); set.add(key); }              // 单击 → 单选替换
+  }
+  render();
+}
+function setAll(kind, v) {
+  if (kind === 'channel') { selChannel.clear(); if (v) CHANNELS.forEach(c => selChannel.add(c.id)); renderAll(); return; }
+  const s = kind === 'country' ? selCountry : kind === 'asin' ? selAsin : kind === 'series' ? selSeries : kind === 'name' ? selName : null;
+  if (!s) return;
+  s.clear();
+  if (v) {
+    if (kind === 'country') allCountries.forEach(c => { if (countryScope().has(c)) s.add(c); });
+    else if (kind === 'asin') asinList.forEach(a => { if (asinScope().has(a)) s.add(a); });
+    else if (kind === 'series') seriesList.forEach(s_ => { if (seriesScope().has(s_)) s.add(s_); });
+    else if (kind === 'name') namesIn(selSeries).forEach(n => { if (nameScope().has(n)) s.add(n); });
+  }
+  renderAll();
+}
+
+// ---------- 国家 ↔ ASIN ↔ 系列/产品名 联动隐藏 ----------
+// 当前 ASIN 侧(ASIN + 系列/产品名)筛选下有数据的国家集 (始终计算, 与 ad 看板一致)
+function countryScope() {
+  const out = new Set();
+  for (const d of DAYS) {
+    const { biz, ads } = filterRows(d, null, selAsin); // 按 ASIN + 系列/产品名 过滤(国家不过滤)
+    for (const r of biz) out.add(r.site || 'US');
+    for (const cc of Object.keys(ads)) out.add(cc);
+  }
+  return out;
+}
+// 当前 国家(+系列/产品名)筛选下有数据的 ASIN 集
+function asinScope() {
+  const out = new Set();
+  for (const d of DAYS) {
+    const { biz, ads } = filterRows(d, selCountry, null); // 按 国家 + 系列/产品名 过滤(ASIN 不过滤)
+    for (const r of biz) out.add(r.asin);
+    for (const [cc, items] of Object.entries(ads)) for (const it of items) out.add(extractAsin(it, cc));
+  }
+  return out;
+}
+// 联动清理: 被隐藏的已选项自动取消, 3次迭代确保级联稳定 (与 ad 看板 pruneSelections 一致)
+function pruneSelections() {
+  for (let i = 0; i < 3; i++) {
+    const cs = countryScope();
+    [...selCountry].forEach(c => { if (!cs.has(c)) selCountry.delete(c); });
+    const as = asinScope();
+    [...selAsin].forEach(a => { if (!as.has(a)) selAsin.delete(a); });
+    const ss = seriesScope();
+    [...selSeries].forEach(s => { if (!ss.has(s)) selSeries.delete(s); });
+    const ns = nameScope();
+    [...selName].forEach(n => { if (!ns.has(n)) selName.delete(n); });
+  }
+}
+
+// 国家有数据的判定 (任意日期, 该国有 biz 行或 ads items)
+function countryHasData(c) {
+  for (const d of DAYS) {
+    const day = DATA.days[d];
+    if (day.biz.some(r => (r.site || 'US') === c)) return true;
+    if ((day.ads[c] || []).length > 0) return true;
+  }
+  return false;
+}
+// ASIN 在当前国家筛选下有数据的判定
+function asinHasData(a) {
+  for (const d of DAYS) {
+    const { biz, ads } = filterRows(d, selCountry, null);
+    if (biz.some(r => r.asin === a)) return true;
+    for (const [cc, items] of Object.entries(ads)) if (items.some(it => extractAsin(it, cc) === a)) return true;
+  }
+  return false;
+}
+
+function buildChannelOptions() {
+  const list = document.getElementById('ddChannelList');
+  if (!list) return;
+  // 有数据的渠道: Woot 只有在确实注入过数据时才亮起(否则置灰, 避免选了空白)
+  const hasWoot = WOOT_INJECTED.days > 0;
+  const has = { amazon: true, woot: hasWoot };
+  list.innerHTML = CHANNELS.map(c => {
+    const sel = selChannel.has(c.id) ? ' sel' : '';
+    const ok = has[c.id];
+    const oc = ok ? `handleOptClick(event, selChannel, '${c.id}', renderAll)` : 'void 0';
+    const tag = ok ? (c.id === 'woot' ? `(${WOOT_INJECTED.days} 条日记录)` : '') : '(当前无数据)';
+    return `<div class="dd-opt${sel}${ok ? '' : ' dim'}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${ok?'':'disabled'} style="pointer-events:none">
+      <span class="opt-name">${c.label}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('');
+  const el = document.getElementById('ddChannelSummary');
+  if (el) el.textContent = selChannel.size === 0 ? '全部（合并）'
+    : (selChannel.size === CHANNELS.length ? '全部（合并）' : [...selChannel].map(x => CHANNEL_CN[x] || x).join(' + '));
+}
+
+function buildCountryOptions() {
+  const list = document.getElementById('ddCountryList');
+  const scope = countryScope(); // 始终计算: 有数据的国家集
+  list.innerHTML = allCountries.map(c => {
+    const sel = selCountry.has(c) ? ' sel' : '';
+    const has = scope.has(c);
+    const dim = has ? '' : ' dim';
+    const tag = has ? '' : ' (当前无数据)';
+    const oc = has ? `handleOptClick(event, selCountry, '${c}', renderAll)` : 'void 0';
+    return `<div class="dd-opt${sel}${dim}" onclick="${oc}">
+      <input type="checkbox" ${sel?'checked':''} ${dim?'disabled':''} style="pointer-events:none">
+      <span class="opt-name">${COUNTRY_CN[c]} ${c}</span><span class="opt-sub">${tag}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ddCountrySummary').textContent = selCountry.size === 0 ? '全部' : `已选 ${selCountry.size}/${allCountries.length} 项`;
+}
+
+function buildAsinOptions() {
+  const q = (document.getElementById('ddAsinSearch').value || '').trim().toLowerCase();
+  const list = document.getElementById('ddAsinList');
+  const scope = asinScope(); // 始终计算: 有数据的 ASIN 集
+  let cands = asinList.filter(a => scope.has(a));
+  cands = cands.filter(a => {
+    if (!q) return true;
+    const info = asinInfo[a] || {};
+    const m = asinMetaOf(a);
+    return a.toLowerCase().includes(q) || skuText(info.sku).toLowerCase().includes(q) || (info.name || '').toLowerCase().includes(q)
+      || m.series.toLowerCase().includes(q) || m.name.toLowerCase().includes(q);
+  });
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">无匹配的 ASIN</div>';
+  } else {
+    list.innerHTML = cands.map(a => {
+      const sel = selAsin.has(a) ? ' sel' : '';
+      const info = asinInfo[a] || {};
+      const m = asinMetaOf(a);
+      const skuTxt = skuText(info.sku);
+      const metaTxt = (m.series !== '无' || m.name !== '无') ? m.series + ' / ' + m.name : '未匹配';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selAsin, '${a}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${a}</span><span class="opt-sub">${skuTxt}${skuTxt ? ' · ' : ''}${metaTxt}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddAsinSummary').textContent = selAsin.size === 0 ? '全部' : `已选 ${selAsin.size}/${asinList.length} 项`;
+}
+
+// ---------- 产品系列 / 产品名 筛选 (级联 + 国家双重过滤) ----------
+// 当前 国家(+产品名) 筛选下有数据的系列集(含"无") (始终计算)
+function seriesScope() {
+  const out = new Set();
+  for (const d of DAYS) {
+    const day = DATA.days[d];
+    if (!day) continue;
+    for (const r of day.biz) {
+      if (selCountry.size && !selCountry.has(r.site || r.user_account || 'US')) continue;
+      if (selAsin.size && !selAsin.has(r.asin)) continue;
+      const m = asinMetaOf(r.asin);
+      if (selName.size && !selName.has(m.name)) continue;
+      out.add(m.series);
+    }
+    for (const [cc, items] of Object.entries(day.ads)) {
+      if (selCountry.size && !selCountry.has(cc)) continue;
+      for (const it of items) {
+        const a = extractAsin(it, cc);
+        if (selAsin.size && !selAsin.has(a)) continue;
+        const m = asinMetaOf(a);
+        if (selName.size && !selName.has(m.name)) continue;
+        out.add(m.series);
+      }
+    }
+  }
+  return out;
+}
+// 当前 国家(+系列) 筛选下有数据的产品名集(含"无") (始终计算)
+function nameScope() {
+  const out = new Set();
+  for (const d of DAYS) {
+    const day = DATA.days[d];
+    if (!day) continue;
+    for (const r of day.biz) {
+      if (selCountry.size && !selCountry.has(r.site || r.user_account || 'US')) continue;
+      if (selAsin.size && !selAsin.has(r.asin)) continue;
+      const m = asinMetaOf(r.asin);
+      if (selSeries.size && !selSeries.has(m.series)) continue;
+      out.add(m.name);
+    }
+    for (const [cc, items] of Object.entries(day.ads)) {
+      if (selCountry.size && !selCountry.has(cc)) continue;
+      for (const it of items) {
+        const a = extractAsin(it, cc);
+        if (selAsin.size && !selAsin.has(a)) continue;
+        const m = asinMetaOf(a);
+        if (selSeries.size && !selSeries.has(m.series)) continue;
+        out.add(m.name);
+      }
+    }
+  }
+  return out;
+}
+function buildSeriesOptions() {
+  const q = (document.getElementById('ddSeriesSearch').value || '').trim().toLowerCase();
+  const list = document.getElementById('ddSeriesList');
+  const scope = seriesScope(); // 始终计算: 有数据的系列集
+  let cands = seriesList.filter(s => scope.has(s));
+  cands = cands.filter(s => !q || s.toLowerCase().includes(q));
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">' + (scope.size === 0 ? '当前筛选下无产品系列(全部归「无」)' : '无匹配的产品系列') + '</div>';
+  } else {
+    list.innerHTML = cands.map(s => {
+      const sel = selSeries.has(s) ? ' sel' : '';
+      const tag = s === '无' ? '未匹配' : '';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selSeries, '${s}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${s}</span><span class="opt-sub">${tag}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddSeriesSummary').textContent = selSeries.size === 0 ? '全部' : `已选 ${selSeries.size}/${seriesList.length} 项`;
+}
+function buildNameOptions() {
+  // 级联: 产品名列表来自 所选系列 ∩ 当前国家下有数据 的集合
+  const scope = nameScope(); // 始终计算
+  let validAll = namesIn(selSeries).filter(n => scope.has(n));
+  const valid = new Set(validAll);
+  const q = (document.getElementById('ddNameSearch').value || '').trim().toLowerCase();
+  const cands = [...valid].filter(n => !q || n.toLowerCase().includes(q));
+  const list = document.getElementById('ddNameList');
+  if (cands.length === 0) {
+    list.innerHTML = '<div class="dd-opt cell-na" style="cursor:default">' + (valid.size === 0 ? '当前筛选下无产品名(全部归「无」)' : '无匹配的产品名') + '</div>';
+  } else {
+    list.innerHTML = cands.map(n => {
+      const sel = selName.has(n) ? ' sel' : '';
+      return `<div class="dd-opt${sel}" onclick="handleOptClick(event, selName, '${n}', renderAll)">
+        <input type="checkbox" ${sel?'checked':''} style="pointer-events:none">
+        <span class="opt-name">${n}</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ddNameSummary').textContent = selName.size === 0 ? '全部' : `已选 ${selName.size}/${validAll.length} 项`;
+}
+
+// ---------- 日期(日历) ----------
+function initDateInputs() {
+  const from = document.getElementById('dateFrom');
+  const to = document.getElementById('dateTo');
+  from.min = DAYS[0]; from.max = DAYS[DAYS.length - 1];
+  to.min = DAYS[0]; to.max = DAYS[DAYS.length - 1];
+  // 默认显示全部历史数据 (可用日历或快捷按钮自定义范围收窄)
+  dateFrom = DAYS[0]; dateTo = DAYS[DAYS.length - 1];
+  from.value = dateFrom; to.value = dateTo;
+}
+function onDateChange() {
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  if (from && to && from > to) { alert('开始日期不能晚于结束日期'); return; }
+  dateFrom = from; dateTo = to;
+  renderTable();
+}
+function quickRange(n) {
+  const from = document.getElementById('dateFrom');
+  const to = document.getElementById('dateTo');
+  if (n === 0) { dateFrom = DAYS[0]; dateTo = DAYS[DAYS.length - 1]; from.value = dateFrom; to.value = dateTo; }
+  else {
+    const end = DAYS[DAYS.length - 1];
+    const start = DAYS.length > n ? DAYS[DAYS.length - n] : DAYS[0];
+    dateFrom = start; dateTo = end; from.value = start; to.value = end;
+  }
+  renderTable();
+}
+
+// ---------- 启动 ----------
+function refreshMapStat() {
+  const el = document.getElementById('mapStat');
+  if (!el) return;
+  const mapped = asinList.filter(a => { const m = asinMetaOf(a); return m.series !== '无' || m.name !== '无'; }).length;
+  el.textContent = `${mapped}/${asinList.length}`;
+}
+function renderAll() {
+  pruneSelections(); // 联动清理: 被隐藏的已选项自动取消(3次迭代确保级联稳定)
+  buildChannelOptions();
+  buildCountryOptions();
+  buildAsinOptions();
+  buildSeriesOptions();
+  buildNameOptions();
+  buildColOptions();
+  renderTable();
+  refreshMapStat();
+}
+initDateInputs();
+renderAll();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+{
+  "note": "JoyBuy 利润模型配置。物流费口径：承运商 = Amazon Logistics → 按 MCF 费用结算；其它承运商 → 按成本表「海外仓尾程配送」结算。",
+  "source": "运费/成本口径沿用 product_cost_table.json（用户 2026-10-10 提供）",
+  "updatedAt": "2026-10-12",
+
+  "region": {
+    "UK-Site": "UK",
+    "DE-Site": "EU",
+    "NL-Site": "EU",
+    "FR-Site": "EU"
+  },
+  "countryOf": {
+    "_note": "site → 国家。MCF 费率分区按**目的地国家**取列（发货仓固定德国仓），所以必须有这一层；region(EU) 粒度不够。",
+    "UK-Site": "UK",
+    "DE-Site": "DE",
+    "NL-Site": "NL",
+    "FR-Site": "FR"
+  },
+  "currencyOf": {
+    "UK-Site": "GBP",
+    "DE-Site": "EUR",
+    "NL-Site": "EUR",
+    "FR-Site": "EUR"
+  },
+
+  "logistics": {
+    "kindKey": "logisticsBasis",
+    "mcfCarrierPattern": "amazon\\s*(logistics|shipping|freight|transportation)?",
+    "mcfFee": {
+      "_note": "MCF 尾程费 = 按**官方费率卡 + 产品包装尺寸**自动匹配（2026-10-12 接通）。source=rateCard 时用 mcf_fee.py 按尺寸分段算；default/bySku 是「手动统一单价」覆盖通道，非空时优先于费率卡（用于对账官方实际扣费）。",
+      "_rateCardFacts": {
+        "source": "Amazon 官方 EU27 zonal rate card（2026-05-29 生效）+ UK rate card + US Seller Central",
+        "effective": "2026-05-29",
+        "fuelSurcharge": "1.5%（官方公告：MCF 的燃油与物流附加费自 2026-05-02 起在 UK/FR/DE/IT/ES 生效，按配送费计、不含售价）",
+        "speed": "Standard（费率卡默认；Expedited 约贵 15~20%，本模型未启用）",
+        "unitBasis": "1 UPO = 每个订单 1 件。官方口径：按件费用取决于每单件数（1/2/3+ UPO），与尺寸分段无关。费率卡只列 1 UPO 价 ⇒ 多件订单按此估算会偏高，代码会记 mcfUpoApprox 提示。",
+        "crossBorder": "跨境改为按目的地分区计价（德国仓发货：DE 本国列 / NL=ZONE1 / FR·IT=ZONE2 / ES=ZONE3）",
+        "dimWeight": "欧洲 长×宽×高(cm) ÷ 5000 → g；计费重取「单位重 vs 体积重」较大者（信封类不计体积重）"
+      },
+      "source": "rateCard",
+      "rateCardFile": "mcf_rate_card.json",
+      "dimsFile": "product_dims.json",
+      "speed": "Standard",
+      "default": null,
+      "bySku": {}
+    },
+    "tailFromCostTable": "tailLocal"
+  },
+
+  "feeNameMap": {
+    "_note": "账单明细 feeName → 模型字段。开放平台/后台同一套费项编码。",
+    "Product Payment": "goods",
+    "Commission": "commission",
+    "Transanction Fee": "txnFee",
+    "Ads Credit": "adsCredit",
+    "VAT": "vat",
+    "Overseas Logistics and Warehousing Service Fee": "joybuyLogistics"
+  },
+  "feeNamePatterns": {
+    "_note": "正则兜底（新费项自动归类；未命中的进 otherFees 并在 selfCheck 里列出，不静默丢弃）。顺序敏感，先匹配先赢。",
+    "refundCommission": "(refund|return|退回)[^a-z]*(commission|佣金)|(commission|佣金)[^a-z]*(refund|return|退回)",
+    "returnServiceFee": "(return|退货)[^a-z]*(service|handling|处理|服务)|restock",
+    "refund": "refund|退款|chargeback"
+  },
+  "signRule": {
+    "_note": "direction 1 = 商家应收(加)，−1 = 商家应付(减)。字段口径见 fetch_joybuy_bills.js。",
+    "receivable": 1,
+    "payable": -1
+  },
+
+  "costTableProductRules": {
+    "_note": "JoyBuy SKU（经 joybuy_sku_map.json 得到 series/name/bundle）→ product_cost_table.json 里的产品名。按顺序匹配。",
+    "rules": [
+      { "match": { "series": "Honeycomb Table" }, "product": "X1系列蜂窝板" },
+      { "match": { "series": "Starter Kit" }, "product": "材料包" },
+      { "match": { "series": "Vacuum Cleaner" }, "product": "吸尘器" },
+      { "match": { "series": "Air Purifier", "name": "主机" }, "product": "净化器" },
+      { "match": { "series": "Laser Module", "name": "60W" }, "product": "X1系列60W蓝光激光头" },
+      { "match": { "series": "Laser Module", "name": "40W" }, "product": "X1系列40W蓝光激光头" },
+      { "match": { "series": "Laser Module", "name": "20W" }, "product": "X1系列20W蓝光激光头" },
+      { "match": { "series": "X1", "name": "60W", "bundle": "独立主机" }, "product": "X1主机+60W蓝光头+气泵" },
+      { "match": { "series": "X1", "name": "40W", "bundle": "独立主机" }, "product": "X1主机+40W蓝光头+气泵" },
+      { "match": { "series": "X1", "name": "20W", "bundle": "独立主机" }, "product": "X1主机+20W蓝光头+气泵" }
+    ],
+    "fallback": null
+  },
+
+  "skuOverrides": {
+    "_note": "按 skuId 强制指定成本表产品名（优先级最高）。实测本期 3 单：X1 60W 标配 走「X1主机+60W蓝光头+气泵」。",
+    "100012780037577": "X1主机+60W蓝光头+气泵",
+    "100013703333614": "X1主机+60W蓝光头+气泵",
+    "100013020071365": "X1系列蜂窝板",
+    "100014170021919": "材料包"
+  }
+}

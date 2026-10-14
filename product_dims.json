@@ -1,0 +1,302 @@
+{
+ "_src": "利润计算器成本表（解密抽取，仅保留尺寸/重量，不含成本）",
+ "_srcFile": "2026-10-08-10-47-30/profit-calculator.html → COST_BLOB",
+ "_extractedAt": "2026-10-12",
+ "_unit": "cm / kg (毛重)",
+ "products": {
+  "滚轴": {
+   "dimsCm": [
+    33.8,
+    17,
+    11
+   ],
+   "weightKg": 1.9,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L/X1通用增高底座": {
+   "dimsCm": [
+    94.6,
+    52.6,
+    39.8
+   ],
+   "weightKg": 30.56,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "材料包": {
+   "dimsCm": [
+    33.2,
+    32,
+    4
+   ],
+   "weightKg": 1.47,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "吸尘器": {
+   "dimsCm": [
+    32,
+    25.5,
+    17
+   ],
+   "weightKg": 1.81,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1系列蜂窝板": {
+   "dimsCm": [
+    78,
+    58.7,
+    7.2
+   ],
+   "weightKg": 5.91,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "净化器": {
+   "dimsCm": [
+    55.5,
+    34,
+    69
+   ],
+   "weightKg": 24.34,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "气泵": {
+   "dimsCm": [
+    27,
+    27,
+    20.5
+   ],
+   "weightKg": 2.39,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L主机+60W蓝光头+气泵+滚轴+X1系列蜂窝板": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 54.07,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L主机+60W蓝光头+气泵": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 47.95,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1主机+60W蓝光头+气泵": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 47.95,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1系列60W蓝光激光头": {
+   "dimsCm": [
+    23,
+    16.5,
+    13
+   ],
+   "weightKg": 1.15,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L主机+40W蓝光头+气泵+滚轴+X1系列蜂窝板": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 53.9,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L主机+40W蓝光头+气泵": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 47.78,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1主机+40W蓝光头+气泵": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 47.78,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1系列40W蓝光激光头": {
+   "dimsCm": [
+    23,
+    16.5,
+    13
+   ],
+   "weightKg": 0.92,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L主机+20W蓝光头+气泵+滚轴+X1系列蜂窝板": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 53.37,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1L主机+20W蓝光头+气泵": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 47.61,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1主机+20W蓝光头+气泵": {
+   "dimsCm": [
+    103,
+    92.5,
+    34
+   ],
+   "weightKg": 47.61,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "X1系列20W蓝光激光头": {
+   "dimsCm": [
+    23,
+    16.5,
+    13
+   ],
+   "weightKg": 0.85,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "E1主机+20W蓝光头": {
+   "dimsCm": [
+    59,
+    61,
+    29
+   ],
+   "weightKg": 20.34,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  },
+  "E1主机+10W蓝光头": {
+   "dimsCm": [
+    59,
+    61,
+    29
+   ],
+   "weightKg": 20.34,
+   "regions": [
+    "EU",
+    "UK",
+    "US"
+   ],
+   "regionConsistent": true
+  }
+ }
+}

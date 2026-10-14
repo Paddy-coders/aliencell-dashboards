@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户管理 · Aliencell</title>
+<style>
+  :root { --primary:#2563eb; --primary-soft:#eff6ff; --border:#e5e7eb; --text:#1f2937; --muted:#6b7280; --danger:#dc2626; --green:#16a34a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; background:#f3f5f9; color:var(--text); font-size:14px; }
+  .topbar { display:flex; align-items:center; gap:12px; padding:12px 20px; background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; flex-wrap:wrap; }
+  .topbar h1 { font-size:16px; white-space:nowrap; }
+  .topbar .sub { color:var(--muted); font-size:12px; white-space:nowrap; }
+  .spacer { flex:1; }
+  .btn { padding:6px 14px; border-radius:8px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; color:var(--text); }
+  .btn:hover { background:#f8fafc; }
+  .btn.primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .btn.primary:hover { background:#1d4ed8; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .wrap { max-width:960px; margin:20px auto; padding:0 16px; }
+  .msg { padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:13px; display:none; }
+  .msg.ok { background:#f0fdf4; color:var(--green); border:1px solid #bbf7d0; }
+  .msg.err { background:#fef2f2; color:var(--danger); border:1px solid #fecaca; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .loading, .empty { text-align:center; color:var(--muted); padding:40px 0; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+  th { color:var(--muted); font-weight:600; background:#fafbfc; white-space:nowrap; }
+  td { word-break:break-all; }
+  tr:last-child td { border-bottom:none; }
+  .me { font-size:11px; color:var(--primary); background:var(--primary-soft); border-radius:4px; padding:1px 6px; }
+  .role-sel { padding:4px 8px; border-radius:6px; border:1px solid var(--border); font-size:12px; background:#fff; cursor:pointer; }
+  .role-sel:disabled { cursor:not-allowed; }
+  .role-sel.admin { color:var(--primary); background:var(--primary-soft); }
+  .muted { color:var(--muted); font-size:12px; }
+  /* 弹窗 */
+  .modal { position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; align-items:center; justify-content:center; z-index:100; }
+  .modal-box { background:#fff; border-radius:14px; padding:22px; width:340px; box-shadow:0 20px 50px rgba(0,0,0,.18); }
+  .modal-box h3 { font-size:15px; margin-bottom:6px; }
+  .modal-box .m-user { font-size:12px; color:var(--muted); margin-bottom:14px; word-break:break-all; }
+  .modal-box input { width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; margin-bottom:10px; }
+  .modal-box input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+  .tip { font-size:12px; color:var(--muted); margin-top:12px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn" onclick="goBack()">◀ 返回</button>
+  <h1>👥 用户管理</h1>
+  <span class="sub">管理员专用 · 重置密码 / 角色管理</span>
+  <span class="spacer"></span>
+  <button class="btn" onclick="loadUsers()">🔄 刷新</button>
+</div>
+
+<div class="wrap">
+  <div id="msg" class="msg"></div>
+  <div class="card">
+    <div id="loading" class="loading">加载用户列表…</div>
+    <div id="tableWrap" style="display:none">
+      <table>
+        <thead>
+          <tr><th>邮箱</th><th>角色</th><th>注册时间</th><th>最后登录</th><th>操作</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="empty" class="empty" style="display:none">暂无用户</div>
+  </div>
+  <div class="tip">提示：角色即时生效（管理员可进入"用户管理"，访客不可）。重置密码后新密码立即生效；"不能修改自己的角色"防止误操作锁死。如需修改自己的密码，请使用登录页"忘记密码"。</div>
+</div>
+
+<!-- 重置密码弹窗 -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3>🔑 重置密码</h3>
+    <p class="m-user" id="mUser"></p>
+    <input type="password" id="mPwd" placeholder="输入新密码（至少 6 位）" autocomplete="new-password">
+    <input type="password" id="mPwd2" placeholder="再次输入新密码" autocomplete="new-password">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn primary" onclick="doReset()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // === 认证守卫 ===
+  var SUPABASE_URL = 'https://oovvqvgrjqwogjwswaxx.supabase.co';
+  var FN_URL = SUPABASE_URL + '/functions/v1/admin-users';
+  var AUTH = null;
+  try { AUTH = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+  if (!AUTH || !AUTH.access_token) { location.replace('login.html?reason=invalid'); }
+
+  var curUid = null;
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+  function fmt(t) { return t ? new Date(t).toLocaleString('zh-CN', { hour12:false }).replace(/\//g, '-') : '—'; }
+
+  function msg(text, ok) {
+    var el = $('msg');
+    el.textContent = text;
+    el.className = 'msg ' + (ok ? 'ok' : 'err');
+    el.style.display = 'block';
+    clearTimeout(msg._t);
+    msg._t = setTimeout(function () { el.style.display = 'none'; }, 4500);
+  }
+
+  function api(path, opts) {
+    opts = opts || {};
+    return fetch(FN_URL + path, {
+      method: opts.method || 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + AUTH.access_token,
+        'Content-Type': 'application/json'
+      },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      if (res.status === 401) {
+        try { localStorage.removeItem('wb_auth'); } catch (e) {}
+        location.replace('login.html?reason=invalid');
+        throw new Error('unauthorized');
+      }
+      return res.text().then(function (text) {
+        var d = {};
+        try { d = JSON.parse(text); } catch (e) { d = { error: text || ('HTTP ' + res.status + ' 非JSON响应') }; }
+        if (!res.ok) throw new Error(d.error || ('请求失败 HTTP ' + res.status));
+        return d;
+      });
+    });
+  }
+
+  function loadUsers() {
+    $('loading').style.display = 'block';
+    $('tableWrap').style.display = 'none';
+    $('empty').style.display = 'none';
+    api('/users').then(function (d) {
+      $('loading').style.display = 'none';
+      var users = d.users || [];
+      if (!users.length) { $('empty').style.display = 'block'; return; }
+      var meId = (AUTH.user && AUTH.user.id) || '';
+      var rows = users.map(function (u) {
+        var isMe = u.id === meId;
+        return '<tr>' +
+          '<td>' + esc(u.email || '(无邮箱)') + (isMe ? ' <span class="me">我</span>' : '') + '</td>' +
+          '<td><select class="role-sel" data-uid="' + u.id + '" ' + (isMe ? 'disabled' : '') + ' onchange="changeRole(this)">' +
+            '<option value="admin"' + (u.role === 'admin' ? ' selected' : '') + '>管理员</option>' +
+            '<option value="viewer"' + (u.role === 'viewer' ? ' selected' : '') + '>访客</option>' +
+          '</select></td>' +
+          '<td class="muted">' + fmt(u.created_at) + '</td>' +
+          '<td class="muted">' + fmt(u.last_sign_in_at) + '</td>' +
+          '<td><button class="btn" onclick="openReset(\'' + u.id + '\', \'' + escAttr(u.email || '') + '\')" ' + (isMe ? 'disabled title="不能重置自己的密码"' : '') + '>重置密码</button></td>' +
+          '</tr>';
+      }).join('');
+      $('tbody').innerHTML = rows;
+      $('tableWrap').style.display = 'block';
+    }).catch(function (e) {
+      $('loading').style.display = 'none';
+      if (e.message !== 'unauthorized') msg(e.message, false);
+    });
+  }
+  function escAttr(s) { return esc(s).replace(/'/g, '&#39;'); }
+
+  function openReset(uid, email) {
+    curUid = uid;
+    $('mUser').textContent = '目标用户：' + email;
+    $('mPwd').value = ''; $('mPwd2').value = '';
+    $('modal').style.display = 'flex';
+    $('mPwd').focus();
+  }
+  function closeModal() { $('modal').style.display = 'none'; curUid = null; }
+
+  function doReset() {
+    var p1 = $('mPwd').value, p2 = $('mPwd2').value;
+    if (!curUid) return;
+    if (p1.length < 6) { msg('密码至少 6 位', false); return; }
+    if (p1 !== p2) { msg('两次输入的密码不一致', false); return; }
+    api('/reset-password', { method: 'POST', body: { user_id: curUid, password: p1 } })
+      .then(function () { closeModal(); msg('密码已重置，新密码立即生效 ✅', true); })
+      .catch(function (e) { if (e.message !== 'unauthorized') msg(e.message, false); });
+  }
+
+  function changeRole(sel) {
+    var uid = sel.getAttribute('data-uid');
+    var role = sel.value;
+    var label = role === 'admin' ? '管理员' : '访客';
+    if (!confirm('确认把该用户设为「' + label + '」吗？')) { loadUsers(); return; }
+    api('/set-role', { method: 'POST', body: { user_id: uid, role: role } })
+      .then(function () { msg('角色已更新 ✅', true); })
+      .catch(function (e) { msg(e.message, false); loadUsers(); });
+  }
+
+  function goBack() {
+    if (window.self !== window.top) { try { parent.postMessage({ type: 'wb-nav-back' }, '*'); } catch (e) {} }
+    else { history.back(); }
+  }
+
+  // Enter 键提交重置
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && $('modal').style.display === 'flex') doReset();
+  });
+
+  loadUsers();
+</script>
+</body>
+</html>

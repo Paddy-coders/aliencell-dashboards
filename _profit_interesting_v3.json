@@ -1,0 +1,20 @@
+[
+  {
+    "url": "https://datacenter.eccang.com/ratel/api/baseProfitV2CompanyInfo/validWhitelistCompany",
+    "status": 200,
+    "len": 137,
+    "body": "{\"code\":\"200\",\"message\":\"true\",\"data\":true,\"timestamp\":\"2026-10-10 15:24:39\",\"copyright\":\"ECCANG\",\"requestId\":\"6ac9e837e4b059a42a97354c\"}"
+  },
+  {
+    "url": "https://datacenter.eccang.com/ratel/api/profit-check-box/listConfig",
+    "status": 200,
+    "len": 250,
+    "body": "{\"code\":\"200\",\"message\":\"true\",\"data\":{\"pageKey\":\"userAccountSummary\",\"checkBoxItems\":[{\"checkBoxType\":\"showRatio\",\"checkBoxName\":\"显示占比\",\"checked\":false}]},\"timestamp\":\"2026-10-10 15:24:39\",\"copyright\":\"ECCANG\",\"requestId\":\"6ac9e837e4b059a42a973554\"}"
+  },
+  {
+    "url": "https://datacenter.eccang.com/ratel/api/profit/formula/customSummaryCalFormula",
+    "status": 200,
+    "len": 2174,
+    "body": "{\"code\":\"200\",\"message\":\"true\",\"data\":[{\"fieldName\":\"fbaReimbursementTotal\",\"formula\":\"FBA库存报销-客户相关赔偿 + FBA库存报销-仓库赔偿 + FBA库存报销-仓库其他赔偿 + 其他调整收入（adjustment）\"},{\"fieldName\":\"fbaFeesTotal\",\"formula\":\"FBA配送费 + FBM配送费 + FBA配送费退款 + 多渠道配送费\"},{\"fieldName\":\"fbaInventoryFeeTotal\",\"formula\":\"FBA退货处理费 + 其他FBA库存和入境服务费 + FBA物流国际货运费 + 超量费 + 合仓费 + 合作承运费 + 移除费用 + 仓储费用（交易报告） + 长期仓储费用（交易报告）\"},{\"fieldName\":\"fbaInternationalFreightTotal\",\"formula\":\"亚马逊物流国际货运费 + 亚马逊物流国际货运关税和税费\"},{\"fieldName\":\"serviceFeeTotal\",\"formula\":\"FBA月订阅费（平台店租） + 运输标签费 + 退款服务费用 + 其他服务费 + 积分花费 + 亚马逊物流国际货运费 + 亚马逊物流国际货运关税和税费\"},{\"fieldName\":\"taxTotal\",\"formula\":\"产品税 + 运费税 + 礼品包装税 + 监管费 + 促销折扣税 + 预扣税 + 隐藏税收入 + 产品税-退还 + 运费税-退还 + 礼品包装税-退还 + 促销折扣税-退还 + 预扣税-退还 + 隐藏税支出 + 亚马逊代扣代缴税款 + 低价值税 + 混合增值税 + TCS-CGST + TCS-SGST + TCS-IGST + TDS\"},{\"fieldName\":\"productCostTotal\",\"formula\":\"FBA订单-采购成本 + FBA订单-采购运费 + FBA订单-采购税费 + FBM订单-采购成本 + FBM订单-采购运费 + FBM订单-采购税费 + 评测订单-采购成本 + 评测订单-采购运费 + 评测订单-采购税费 + 多渠道订单-采购成本 + 多渠道订单-采购运费 + 多渠道订单-采购税费 + FBA订单-头程运费 + FBM订单-头程运费 + 评测订单-头程运费 + FBA订单-头程税费 + FBM订单-头程税费 + 评测订单-头程税费 + 多渠道订单-头程运费 + 多渠道订单-头程税费 + 退货返还采购成本-可售 + 退货返还头程运费-可售 + 退货返还头程税费-可售 + 退货返还采购成本-不可售 + 退货返还头程运费-不可售 + 退货返还头程税费-不可售 + 仓库其他采购成本-调整入库 + 仓库其他采购成本-调整出库 + 仓库其他采购成本-移除出库（可售） + 仓库其他采购成本-移除出库（不可售） + 仓库其他采购成本-盘盈 + 仓库其他采购成本-盘亏 + 仓库其他头程成本-调整入库 + 仓库其他头程成本-调整出库 + 仓库其他头程成本-移除出库（可售） + 仓库其他头程成本-移除出库（不可售） + 仓库其他头程成本-盘盈 + 仓库其他头程成本-盘亏\"},{\"fieldName\":\"platformIncomeTotal\",\"formula\":\"FBM销售额 + FBM销售额 + FBA退款金额 + FBM退款金额 + FBA买家运费 + FBM买家运费 + 买家运费退款 + 礼品包装费 + 礼品包装费退款 + 促销折扣 + 促销折扣退款 + COD_货到付款 + 清算调整 + 信用卡拒付 + 亚马逊运费报销 + FBA库存报销-客户相关赔偿 + FBA库存报销-仓库赔偿 + FBA库存报销-仓库其他赔偿 + 其他调整收入（adjustment）\"},{\"fieldName\":\"platformExpendTotal\",\"formula\":\"FBA销售佣金 + FBM销售佣金 + 销售佣金退款 + FBA配送费 + FBM配送费 + FBA配送费退款 + 多渠道配送费 + 其他交易费 + 其他交易费退款 + 清算费用 + 平台其他支出 + 其他赔偿费用 + FBA退货处理费 + 其他FBA库存和入境服务费 + FBA物流国际货运费 + 超量费 + 合仓费 + 合作承运费 + 移除费用 + coupon优惠券 + 秒杀交易费 + FBA月订阅费（平台店租） + 运输标签费 + 退款服务费用 + 其他服务费 + 积分花费 + 亚马逊物流国际货运费 + 亚马逊物流国际货运关税和税费 + 仓储费用（交易报告） + 长期仓储费用（交易报告） + 广告费用(交易报告) + 广告退款(交易报告)\"},{\"fieldName\":\"otherTransactionFeeTotal\",\"formula\":\"广告费用(交易报告) + 广告退款(交易报告)\"}],\"timestamp\":\"2026-10-10 15:24:40\",\"copyright\":\"ECCANG\",\"requestId\":\"6ac9e837e4b059a42a973558\"}"
+  }
+]

@@ -1,0 +1,1616 @@
+{
+  "generatedAt": "2026-10-12T07:30:36.628Z",
+  "source": "joybuy-openapi",
+  "window": {
+    "days": 90
+  },
+  "shops": [
+    {
+      "shopId": "1500005160",
+      "shopName": "Aliencell"
+    }
+  ],
+  "products": [
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 2999.99,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "2",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100023921500526,
+          "upcCode": "6979205420316"
+        }
+      ],
+      "productInfo": {
+        "productId": 100022255112998,
+        "transportId": 12032,
+        "maxJdPrice": 299999,
+        "created": 1790242762000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell X1 Lite 60W Laser Engraver with Air Assist, 26 * 21\" Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic",
+        "lastCategoryId": 6135,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell X1 Lite 60W Laser Engraver with Air Assist, 26 * 21\" Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4325376/620737195161/2823232/6a9bc452E3a6c48ad/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/620737049946/4033507/6a9940d7Ef2476a70/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2097152/610981749176/2953448/6a9940d6Ecc317b3c/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5308416/6207220150055/1541682/6a9940d4E778594af/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6815744/610981749167/3167640/6a9940cbE94548242/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5832704/620737195162/2760352/6a9bc452Ed12f3420/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6750208/6207220150051/1032960/6a9940ccEc25fca78/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/620737049940/611035/6a9940d0E01aa7e15/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3670016/6109796649166/4943543/6a9940daE1ff73c24/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6553600/610981749168/259235/6a9940cdEc14b60d0/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100022255112998,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4325376/620737195161/2823232/6a9bc452E3a6c48ad/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/620737049946/4033507/6a9940d7Ef2476a70/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2097152/610981749176/2953448/6a9940d6Ecc317b3c/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5308416/6207220150055/1541682/6a9940d4E778594af/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6815744/610981749167/3167640/6a9940cbE94548242/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7798784/610981794451/2760343/6a9bc452E252e85df/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6750208/6207220150051/1032960/6a9940ccEc25fca78/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/620737049940/611035/6a9940d0E01aa7e15/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3670016/6109796649166/4943543/6a9940daE1ff73c24/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6553600/610981749168/259235/6a9940cdEc14b60d0/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100022255112998,
+              "imageGroupId": "100023921500526",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 2,
+        "logo": "jfsintlpro-000-product/t1/4294967296/4325376/620737195161/2823232/6a9bc452E3a6c48ad/42b10752b5083d5e.png",
+        "modified": 1791539183000,
+        "minJdPrice": 299999
+      }
+    },
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 2299.99,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "2",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100022130512280,
+          "upcCode": "6979205420309"
+        }
+      ],
+      "productInfo": {
+        "productId": 100020675018587,
+        "transportId": 12032,
+        "maxJdPrice": 229999,
+        "created": 1789629554000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "[\"100020675018587\"]",
+                "key": "auditFailStatus"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell X1 Lite 40W Laser Engraver with Air Assist, 26 * 21\" Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic",
+        "lastCategoryId": 6135,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell X1 Lite 40W Laser Engraver with Air Assist, 26 * 21\" Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2555904/6109836094366/2822385/6a9bc452Ea2b117d2/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/620737049946/4033507/6a9940d7Ef2476a70/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2097152/610981749176/2953448/6a9940d6Ecc317b3c/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5308416/6207220150055/1541682/6a9940d4E778594af/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6815744/610981749167/3167640/6a9940cbE94548242/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7798784/610981794451/2760343/6a9bc452E252e85df/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6750208/6207220150051/1032960/6a9940ccEc25fca78/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/620737049940/611035/6a9940d0E01aa7e15/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3670016/6109796649166/4943543/6a9940daE1ff73c24/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6553600/610981749168/259235/6a9940cdEc14b60d0/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100020675018587,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2555904/6109836094366/2822385/6a9bc452Ea2b117d2/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/620737049946/4033507/6a9940d7Ef2476a70/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2097152/610981749176/2953448/6a9940d6Ecc317b3c/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5308416/6207220150055/1541682/6a9940d4E778594af/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6815744/610981749167/3167640/6a9940cbE94548242/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7798784/610981794451/2760343/6a9bc452E252e85df/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6750208/6207220150051/1032960/6a9940ccEc25fca78/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/620737049940/611035/6a9940d0E01aa7e15/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3670016/6109796649166/4943543/6a9940daE1ff73c24/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6553600/610981749168/259235/6a9940cdEc14b60d0/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100020675018587,
+              "imageGroupId": "100022130512280",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 2,
+        "logo": "jfsintlpro-000-product/t1/4294967296/2555904/6109836094366/2822385/6a9bc452Ea2b117d2/42b10752b5083d5e.png",
+        "modified": 1791539188000,
+        "minJdPrice": 229999
+      }
+    },
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 259,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "1",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100021745328737,
+          "upcCode": "6979205420033"
+        }
+      ],
+      "productInfo": {
+        "productId": 100020305187125,
+        "transportId": 12032,
+        "maxJdPrice": 25900,
+        "created": 1789527343000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell 665 × 510 mm Honeycomb Laser Table, Suitable for Aliencell X1, X1 Lite Laser Engraver",
+        "lastCategoryId": 6135,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell 665 × 510 mm Honeycomb Laser Table, Suitable for Aliencell X1, X1 Lite Laser Engraver"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7077888/6109817956137/266566/6a72b64cEc0470fc8/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1966080/61097966956002/365705/6a72b642E7aac74aa/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3866624/6207370955660/228352/6a72b62fE59657ed5/42b10752b5083d5e.jpg"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100020305187125,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7077888/6109817956137/266566/6a72b64cEc0470fc8/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1966080/61097966956002/365705/6a72b642E7aac74aa/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3866624/6207370955660/228352/6a72b62fE59657ed5/42b10752b5083d5e.jpg"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100020305187125,
+              "imageGroupId": "100021745328737",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 3,
+        "logo": "jfsintlpro-000-product/t1/4294967296/7077888/6109817956137/266566/6a72b64cEc0470fc8/42b10752b5083d5e.jpg",
+        "modified": 1789711480000,
+        "minJdPrice": 25900
+      }
+    },
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 1999.99,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "2",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100021675571541,
+          "upcCode": "6979205420293"
+        }
+      ],
+      "productInfo": {
+        "productId": 100020240253684,
+        "transportId": 12032,
+        "maxJdPrice": 199999,
+        "created": 1789462862000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell X1 Lite 20W Laser Engraver with Air Assist, 26 * 21\" Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic",
+        "lastCategoryId": 6135,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell X1 Lite 20W Laser Engraver with Air Assist, 26 * 21\" Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4456448/620737095186/2822632/6a9bc452E1998fd3d/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/620737049946/4033507/6a9940d7Ef2476a70/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2097152/610981749176/2953448/6a9940d6Ecc317b3c/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5308416/6207220150055/1541682/6a9940d4E778594af/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6815744/610981749167/3167640/6a9940cbE94548242/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5701632/620737095185/2760301/6a9bc452Ebed79fdd/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6750208/6207220150051/1032960/6a9940ccEc25fca78/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/620737049940/611035/6a9940d0E01aa7e15/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3670016/6109796649166/4943543/6a9940daE1ff73c24/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6553600/610981749168/259235/6a9940cdEc14b60d0/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100020240253684,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4456448/620737095186/2822632/6a9bc452E1998fd3d/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/620737049946/4033507/6a9940d7Ef2476a70/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2097152/610981749176/2953448/6a9940d6Ecc317b3c/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5308416/6207220150055/1541682/6a9940d4E778594af/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6815744/610981749167/3167640/6a9940cbE94548242/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5701632/620737095185/2760301/6a9bc452Ebed79fdd/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6750208/6207220150051/1032960/6a9940ccEc25fca78/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/620737049940/611035/6a9940d0E01aa7e15/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3670016/6109796649166/4943543/6a9940daE1ff73c24/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6553600/610981749168/259235/6a9940cdEc14b60d0/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100020240253684,
+              "imageGroupId": "100021675571541",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 2,
+        "logo": "jfsintlpro-000-product/t1/4294967296/4456448/620737095186/2822632/6a9bc452E1998fd3d/42b10752b5083d5e.png",
+        "modified": 1791539191000,
+        "minJdPrice": 199999
+      }
+    },
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 899.99,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "1",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100016205339226,
+          "upcCode": "6979205420026"
+        }
+      ],
+      "productInfo": {
+        "productId": 100015075113375,
+        "transportId": 12032,
+        "maxJdPrice": 89999,
+        "created": 1787393711000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control",
+        "lastCategoryId": 6135,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/655360/610983601239792/2833574/6a880c2cE47b18d79/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2031616/610979661239657/3298800/6a880c2fEcd1a3567/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7405568/610983601239791/2578403/6a880c2bEc31b3f59/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4128768/610983601239793/2876770/6a880c2cE2024ff69/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/3014656/610979661239653/2145992/6a880c2aEd5858509/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4259840/610979661239652/1489679/6a880c29Ea4501140/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7995392/62073701239350/4745999/6a880c30E928156f3/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/8192000/620722011239438/778076/6a880c28Ecea80dce/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100015075113375,
+              "imageGroupId": "100016205339226",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4915200/6207370950102/900341/6a71a4f2Edc81f84d/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/4521984/6109817950572/352564/6a71a503E10b14277/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/6109817950574/52883/6a71a50cEe2b7fbb3/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100015075113375,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 2,
+        "logo": "jfsintlpro-000-product/t1/4294967296/4915200/6207370950102/900341/6a71a4f2Edc81f84d/42b10752b5083d5e.png",
+        "modified": 1789714082000,
+        "minJdPrice": 89999
+      }
+    },
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 44.9,
+          "skuId": 100007205114855,
+          "upcCode": "6979205420200"
+        }
+      ],
+      "productInfo": {
+        "productId": 100006480025432,
+        "transportId": 12032,
+        "maxJdPrice": 4490,
+        "created": 1783504358000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell Laser Engraver Starter Material Kit for Crafting DIY, Includes Aluminum, Basswood, MDF Board, Acrylic, Laserable Leatherette, Slate Coasters",
+        "lastCategoryId": 6134,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell Laser Engraver Starter Material Kit for Crafting DIY, Includes Aluminum, Basswood, MDF Board, Acrylic, Laserable Leatherette, Slate Coasters"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5505024/610983601049524/961059/6a7aa3b2Ec231e374/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/6207371461441/670378/6a4e0aabE136a0ee1/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100006480025432,
+              "imageGroupId": "100007205114855",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5505024/610983601049524/961059/6a7aa3b2Ec231e374/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/6207371461441/670378/6a4e0aabE136a0ee1/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100006480025432,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 5,
+        "logo": "jfsintlpro-000-product/t1/4294967296/5505024/610983601049524/961059/6a7aa3b2Ec231e374/42b10752b5083d5e.png",
+        "modified": 1789714043000,
+        "minJdPrice": 4490
+      }
+    },
+    {
+      "skus": [
+        {
+          "valid": 1,
+          "jdPrice": 3199,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "2",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100006080222904,
+          "upcCode": "6979205420002"
+        },
+        {
+          "valid": 1,
+          "jdPrice": 2699,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "2",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100006080223395,
+          "upcCode": "6979205420118"
+        },
+        {
+          "valid": 1,
+          "jdPrice": 4199,
+          "terminalFeatures": [
+            {
+              "featureDTOs": [
+                {
+                  "value": "2",
+                  "key": "sptxbq"
+                }
+              ],
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              }
+            }
+          ],
+          "skuId": 100006080221341,
+          "upcCode": "6979205420101"
+        }
+      ],
+      "productInfo": {
+        "productId": 100005765071374,
+        "transportId": 12032,
+        "maxJdPrice": 419900,
+        "created": 1782911549000,
+        "productStatus": [
+          {
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            },
+            "productStatusDTO": {
+              "productStatus": 8
+            }
+          }
+        ],
+        "terminalFeatures": [
+          {
+            "featureDTOs": [
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "creator"
+              },
+              {
+                "value": "1",
+                "key": "one2multi"
+              },
+              {
+                "value": "2",
+                "key": "businessModel"
+              },
+              {
+                "value": "mc5l5t625ku9dxd6l8wgx",
+                "key": "modifier"
+              },
+              {
+                "value": "10000",
+                "key": "tenantId"
+              },
+              {
+                "value": "en_US",
+                "key": "publishLanguage"
+              },
+              {
+                "value": "[\"100005765071374\"]",
+                "key": "auditFailStatus"
+              },
+              {
+                "value": "1",
+                "key": "L2G"
+              },
+              {
+                "value": "en_US",
+                "key": "defLanguage"
+              },
+              {
+                "value": "0",
+                "key": "pdtype"
+              }
+            ],
+            "terminal": {
+              "siteStr": "1400",
+              "uaStr": "1"
+            }
+          }
+        ],
+        "productName": "Aliencell X1 Laser Engraver with Air Assist, 660 × 533 mm Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic",
+        "lastCategoryId": 6135,
+        "productLanguageMap": [
+          {
+            "languageCode": "en_US",
+            "productLanguageDTO": {
+              "languageCode": "en_US",
+              "productName": "Aliencell X1 Laser Engraver with Air Assist, 660 × 533 mm Bed Size, Stable 600mm/s Speed, Class 1 Cutter Machine for Wood and Metal, Acrylic"
+            }
+          }
+        ],
+        "site": "1400",
+        "terminalImages": [
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2424832/61098360354873/246520/6ab38c2eE37399d27/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6619136/61098360433109/3926537/6a47911aE02742f42/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/917504/61098360433115/2283240/6a47913dE0f7f9855/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/620722011064447/3746361/6a7be343E0fce0209/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5373952/6207371432640/2941749/6a47913eE523d5777/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/655360/61097966432959/1794139/6a47912dE724d9d29/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1966080/6207371432639/1227326/6a47913aE1090affb/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5832704/61097966432958/915416/6a479125E5d7dbe63/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2359296/6109817433111/1315654/6a479125E2df9189a/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5177344/61097966432962/4009052/6a47913eEc01abe3d/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100005765071374,
+              "imageGroupId": "100006080223395",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2424832/61098360354873/246520/6ab38c2eE37399d27/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6619136/61098360433109/3926537/6a47911aE02742f42/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/917504/61098360433115/2283240/6a47913dE0f7f9855/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/620722011064447/3746361/6a7be343E0fce0209/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5373952/6207371432640/2941749/6a47913eE523d5777/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/655360/61097966432959/1794139/6a47912dE724d9d29/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1966080/6207371432639/1227326/6a47913aE1090affb/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5832704/61097966432958/915416/6a479125E5d7dbe63/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2359296/6109817433111/1315654/6a479125E2df9189a/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5177344/61097966432962/4009052/6a47913eEc01abe3d/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100005765071374,
+              "imageGroupId": "0000000000",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1179648/620722011174/254652/6ab38c6bE1cc11a9d/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6619136/61098360433109/3926537/6a47911aE02742f42/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/917504/61098360433115/2283240/6a47913dE0f7f9855/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/620722011064447/3746361/6a7be343E0fce0209/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5373952/6207371432640/2941749/6a47913eE523d5777/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/655360/61097966432959/1794139/6a47912dE724d9d29/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1966080/6207371432639/1227326/6a47913aE1090affb/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5832704/61097966432958/915416/6a479125E5d7dbe63/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2359296/6109817433111/1315654/6a479125E2df9189a/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5177344/61097966432962/4009052/6a47913eEc01abe3d/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100005765071374,
+              "imageGroupId": "100006080222904",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          },
+          {
+            "imageInfos": [
+              {
+                "isMain": 1,
+                "index": 1,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/7733248/61097966355728/251250/6ab38c60Eeb037645/42b10752b5083d5e.jpg"
+              },
+              {
+                "isMain": 0,
+                "index": 2,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/6619136/61098360433109/3926537/6a47911aE02742f42/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 3,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/917504/61098360433115/2283240/6a47913dE0f7f9855/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 4,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/458752/620722011064447/3746361/6a7be343E0fce0209/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 5,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5373952/6207371432640/2941749/6a47913eE523d5777/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 6,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/655360/61097966432959/1794139/6a47912dE724d9d29/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 7,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/1966080/6207371432639/1227326/6a47913aE1090affb/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 8,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5832704/61097966432958/915416/6a479125E5d7dbe63/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 9,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/2359296/6109817433111/1315654/6a479125E2df9189a/42b10752b5083d5e.png"
+              },
+              {
+                "isMain": 0,
+                "index": 10,
+                "imgDfsUrl": "jfsintlpro-000-product/t1/4294967296/5177344/61097966432962/4009052/6a47913eEc01abe3d/42b10752b5083d5e.png"
+              }
+            ],
+            "imageGroup": {
+              "productId": 100005765071374,
+              "imageGroupId": "100006080221341",
+              "terminal": {
+                "siteStr": "1400",
+                "uaStr": "1"
+              },
+              "languageCode": "en_US"
+            }
+          }
+        ],
+        "yn": 1,
+        "brandId": 15453,
+        "stockNum": 16,
+        "logo": "jfsintlpro-000-product/t1/4294967296/2424832/61098360354873/246520/6ab38c2eE37399d27/42b10752b5083d5e.jpg",
+        "modified": 1790242762000,
+        "minJdPrice": 269900
+      }
+    }
+  ],
+  "skus": [],
+  "stocks": [],
+  "orders": [],
+  "aftersales": [],
+  "warnings": []
+}

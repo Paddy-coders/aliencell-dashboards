@@ -1,0 +1,402 @@
+URL: https://openplatform.joybuy.com/#/doc/apiAuthPackage?apiCateId=32&apiId=131&apiName=putOrderShipments&apiCateName=%E8%AE%A2%E5%8D%95%E5%B1%A5%E7%BA%A6&gwType=0
+
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+mc5l5t625ku9dxd6l8wgx
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+订单履约
+listProducts
+putOrderShipments
+postOrderShipment
+getWayBillTraces
+listCarriers
+listOrders
+getOrder
+listOrderOaidAddresses
+Permission Package
+订单履约
+putOrderShipments
+FBM
+修改发货运单信息
+User authorization required
+Version v0
+Updated:31/08/2026 17:11:12
+API Description
+Collapse
+modify the waybill information of the specified FBM order
+Notes
+1.the carrier range available for shipment at the site must be obtained from GET sp-order/v0/carrier;
+2.the number of shipment waybills must not exceed the quantity of items, and splitting one item into multiple packages for shipment is not supported;
+3.only FBM (fulfill by merchant) order outbound is supported, FBJ outbound is not supported;
+4.currently only whole-order shipment is supported, split-batch shipment is not supported;
+APITools
+Collapse
+API Debugging Tool
+API Permission Query Tool
+API Log Troubleshooting Tool
+Signature Tool
+Request
+Request Address and Method
+Pre-release Environment Address
+	
+Production Environment Address
+	
+Call Method
+https://api-pre.joybuy.com/rest
+	
+https://api-eu.joybuy.com/rest
+	
+API invocation method， Click to view
+Common Request Parameters
+Collapse
+Name
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+X-JOS-App-Key
+	
+string
+	
+Yes
+	
+012D834080F3339C1FF301F8EC763E13
+	
+The appKey of the created application.
+
+
+X-JOS-Access-Token
+	
+string
+	
+No
+	
+7f1bcd13fc57d46bac21793a18e560
+	
+The authorization token issued by the platform to the application after user authorization succeeds. If this API document is labeled “User Authorization Required,” this parameter is required. If it is labeled “User Authorization Not Required,” this parameter is not required.
+
+
+X-JOS-Timestamp
+	
+long
+	
+Yes
+	
+1735660800000
+	
+Timestamp accurate to milliseconds. The JD API server allows a client request time deviation of up to 10 minutes.
+
+
+X-JOS-Sign
+	
+string
+	
+Yes
+	
+-
+	
+Signature. Click to view
+
+
+X-JOS-Sign-Method
+	
+string
+	
+No
+	
+md5
+	
+Signature encryption algorithm. Available options are md5, hmacmd5, and hmacsha256. The default is md5.
+
+
+X-JOS-Content-Type
+	
+string
+	
+No
+	
+application/json; charset=utf-8
+	
+Required when the request method is POST, PATCH, or PUT. Optional for GET and DELETE. Fixed value: application/json; charset=utf-8.
+
+
+X-JOS-Request-Identity
+	
+string
+	
+Yes
+	
+vender
+	
+When the API is a multi-business aggregation interface and supports multiple data dimensions, a business identity identifier must be passed in to ensure that data resources for the corresponding business scenario are returned. If the “API Data Dimension” label contains multiple options, this parameter is required. If the label contains only one option or there is no label, this parameter is not required. Available values include： vender: store-level data； supplier: supplier code-level data； userPin: supplier PIN-level data.
+
+
+X-JOS-Request-BizId
+	
+string
+	
+No
+	
+	
+When requesting POP merchant data, enter the venderId. When requesting supplier data, enter the venderCode.
+
+
+X-JOS-site
+	
+string
+	
+No
+	
+	
+UK-Site：UK Site；NL-Site：Netherlands Site；DE-Site：Germany Site；FR-Site：France Site
+
+
+X-JOS-timeZone
+	
+string
+	
+No
+	
+	
+Asia/Shanghai：Shanghai (China)；Asia/Tokyo：Tokyo (Japan)；Asia/Singapore：Singapore；Asia/Seoul：Seoul (Korea)
+
+
+X-JOS-currency
+	
+string
+	
+No
+	
+	
+CNY：CNY；USD：US Dollar；EUR：Euro；JPY：Japanese Yen；GBP：British Pound
+
+
+X-JOS-language
+	
+string
+	
+No
+	
+	
+zh_CN：Simplified Chinese；zh_HK：Traditional Chinese (Hong Kong & Macao)；zh_TW：Traditional Chinese (Taiwan)；en_US：English (US)；en_GB：English (UK)；fr_FR：French；de_DE：German；nl_NL：Dutch
+Request Parameters
+Name
+Expand
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+orderId
+	
+integer(int64)
+	
+Yes
+	
+67834311
+	
+order id
+
+
+putOrderShipmentsResquest
+	
+object
+	
+Yes
+	
+	
+request parameter entity
+Response
+Response Parameters
+Name
+Expand
+	
+Type
+	
+Example
+	
+Description
+data
+	
+object
+	
+	
+response parameter entity
+
+
+success
+	
+boolean
+	
+true
+	
+whether successful
+
+
+errorList
+	
+array
+	
+	
+error message collection
+Response Example
+JSON
+	{
+
+	  "Response": {
+
+	    "data": {
+
+	      "venderId": 20001,
+
+	      "orderId": 67834311
+
+	    },
+
+	    "success": true
+
+	  }
+
+	}
+Exception Example
+JSON
+	{
+
+	  "Response": {
+
+	    "errorList": [
+
+	      {
+
+	        "code": "10202011001",
+
+	        "details": "必需的请求参数为空",
+
+	        "message": "检查必需的请求参数请"
+
+	      }
+
+	    ],
+
+	    "success": false
+
+	  }
+
+	}
+Return Code
+Return Code
+	
+Return Message
+	
+Solution
+10202011001
+	
+required request parameter is empty
+	
+please check whether the parameters in the input are correct
+
+
+10202011002
+	
+unsupported shipment type
+	
+please provide a supported shipment type
+
+
+10202011003
+	
+order id cannot be empty
+	
+please provide the order id
+
+
+10202011004
+	
+shop ID cannot be empty
+	
+check whether parameters are passed as required
+
+
+10202011005
+	
+request failed, unknown error
+	
+please try again later
+
+
+10202011006
+	
+only FBM orders are supported
+	
+check whether the order is an FBM order
+
+
+10202011007
+	
+incorrect order number
+	
+please provide the correct order number
+
+
+10202011008
+	
+incorrect outbound item information
+	
+please check whether the item information field values are correct
+Common Q&A
+Problem
+	
+Solution
+Which basic parameters are required to modify shipment information.
+	
+A positive order ID, shop ID, valid shipment type, and non-empty package list are required.
+
+
+Which shipment type is currently supported.
+	
+Only `shipmentType=1`, full-order multi-package shipment or modification, is currently supported.
+
+
+Which item information is required for each waybill.
+	
+Each package requires carrier information and a waybill list; each waybill requires a code and item details containing SKU UUID, SKU ID, and a positive quantity.
+How to obtain this API
+Permission package that has this API
+	
+Application types that can obtain/apply for this API permission package
+全流程控制
+	
+
+
+订单履约
+	
+物流仓储,ISV应用
+Request
+Request Address and Method
+Common Request Parameters
+Request Parameters
+Response
+Response Parameters
+Response Example
+Exception Example
+Return Code
+Common Q&A
+How to obtain this API

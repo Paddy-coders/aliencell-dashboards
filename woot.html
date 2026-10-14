@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell Woot 数据管理</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-soft:#eef4ff; --danger:#dc2626; --ok:#059669;
+    --shadow:0 1px 3px rgba(16,24,40,.08); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:18px 22px 34px; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  .head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .head h1 { font-size:20px; font-weight:700; }
+  .head .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.7; }
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:6px 14px; border-radius:8px; font-size:13px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); color:#fff; }
+  .btn.danger { color:var(--danger); }
+  .btn.danger:hover { border-color:var(--danger); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .card-title .hint { font-size:11px; color:var(--muted); font-weight:400; }
+  .form-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .inp { padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; outline:none; color:var(--text); background:#fff; }
+  .inp:focus { border-color:var(--primary); }
+  .inp.mid { min-width:130px; }
+  .inp.small { width:110px; }
+  textarea { width:100%; min-height:96px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:12px; font-family:inherit; resize:vertical; outline:none; color:var(--text); background:#fbfcfe; }
+  textarea:focus { border-color:var(--primary); }
+  .import-hint { font-size:11px; color:var(--muted); line-height:1.8; margin-top:8px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 16px; box-shadow:var(--shadow); font-size:12px; color:var(--muted); }
+  .stat b { font-size:18px; color:var(--primary); margin-right:6px; }
+  .cloud-stat { cursor:default; }
+  .cloud-stat.ok { border-color:#b7e4cd; background:#f0fdf6; } .cloud-stat.ok span { color:#059669; }
+  .cloud-stat.fail { border-color:#f3c1c1; background:#fdf2f2; } .cloud-stat.fail span { color:#dc2626; }
+  .cloud-stat.sync { border-color:#f4e0b3; background:#fdfaf0; } .cloud-stat.sync span { color:#b7791f; }
+  table.tbl { width:100%; border-collapse:collapse; font-size:13px; }
+  table.tbl th, table.tbl td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
+  table.tbl th { background:#f8fafc; font-weight:600; color:var(--muted); font-size:12px; }
+  table.tbl td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  table.tbl tr:hover td { background:#fafcff; }
+  .type-tag { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; border:1px solid; }
+  .type-week { background:#eef4ff; color:#2563eb; border-color:#dbe7ff; }
+  .type-month { background:#f3e8ff; color:#7c3aed; border-color:#e4d5ff; }
+  .type-day { background:#f0fdf6; color:#059669; border-color:#c7ecd8; }
+  .mini { border:1px solid var(--border); background:#fff; padding:2px 10px; border-radius:6px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .mini:hover { border-color:var(--primary); color:var(--primary); }
+  .mini.danger { color:var(--danger); } .mini.danger:hover { border-color:var(--danger); }
+  .empty { text-align:center; color:var(--muted); font-size:13px; padding:26px 0; }
+  .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#111827; color:#fff; font-size:13px;
+    padding:9px 18px; border-radius:8px; opacity:0; pointer-events:none; transition:all .25s; z-index:99; }
+  .toast.show { opacity:.94; transform:translateX(-50%) translateY(0); }
+  .preview-box { display:none; margin-top:10px; border:1px dashed var(--border); border-radius:10px; padding:10px 12px; }
+  .preview-box.show { display:block; }
+  .foot-note { text-align:center; color:var(--muted); font-size:11px; margin-top:6px; line-height:1.7; }
+  @media (max-width:760px){ .stats .stat { width:100%; } }
+</style>
+<script src="xlsx.full.min.js"></script>
+<style>
+/* note-fold: 解释块折叠 (2026-10-12) */
+.noteFold{margin-top:8px;border:1px solid var(--border);border-radius:8px;background:rgba(127,127,127,.045);}
+.noteFold>summary{cursor:pointer;list-style:none;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none;}
+.noteFold>summary::-webkit-details-marker{display:none;}
+.noteFold>summary::marker{content:'';}
+.noteFold>summary::before{content:'▸';font-size:11px;display:inline-block;transition:transform .15s;}
+.noteFold[open]>summary::before{transform:rotate(90deg);}
+.noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
+.noteFold[open]>summary::after{content:'收起';}
+.noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+</style>
+<script>
+/* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
+(function(){
+  function sync(){
+    var ds = document.querySelectorAll('details.noteFold');
+    for (var i = 0; i < ds.length; i++) {
+      var b = ds[i].querySelector('.note,.foot-note');
+      ds[i].style.display = (b && b.textContent.trim()) ? '' : 'none';
+    }
+  }
+  window.__syncNoteFold = sync;      // 供动态填充说明块的页面（JoyBuy）在填充后调用
+  function boot(){
+    sync();
+    // 说明块常由 JS 异步填充（如 JoyBuy 的 #filterNote/#footNote）：
+    // 填充前被判为空块而 display:none，填充后必须重跑，否则说明块永久消失。
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function(){ sync(); });
+      var ds = document.querySelectorAll('details.noteFold');
+      for (var i = 0; i < ds.length; i++) mo.observe(ds[i], { childList: true, characterData: true, subtree: true });
+    }
+    setTimeout(sync, 0); setTimeout(sync, 800);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>🛒 Aliencell Woot 数据管理</h1>
+      <div class="sub">直接上传 <b>Woot 官方「产品每日总表现」报表</b>（CSV / Excel，含表头，<b>无需改动任何一列</b>），保存后按 <b>子 ASIN + 日期</b> 并入看板的 <b>美国 US</b>：<br>
+      日看板 = 当天真实值；周看板（周六~周五）与月看板（自然月）= 由逐日数据汇总，不再按比例均摊。<br>
+      识别列：报告日期 Date、子Asin childAsin、产品名称 ProductDetail、Woot订单数量 Woot Orders、总销售额 M8、广告花费 Ads Spend、点击数量 Clicks、广告订单数量 Ads Orders、展示数量 Impressions、广告销售额 Ads Sales。</div>
+    </div>
+    <div><button class="btn" onclick="notifyParent('wb-nav-back')">◀ 返回看板</button></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="stCount">0</b>条 Woot 记录</div>
+    <div class="stat cloud-stat" id="cloudStat" title="云端同步状态"><span id="cloudBadge">云端同步中…</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📥 上传 Woot 数据 <span class="hint">CSV / XLS / XLSX / 粘贴文本 · 自动识别表头 · 同日期同 ASIN 重复上传自动覆盖</span></div>
+    <div class="form-row">
+      <button class="btn" onclick="document.getElementById('wFile').click()">选择文件（CSV/XLS/XLSX）</button>
+      <input type="file" id="wFile" accept=".csv,.txt,.xls,.xlsx" style="display:none" onchange="handleFile(this)">
+      <span style="font-size:12px;color:var(--muted)">或粘贴：</span>
+    </div>
+    <div style="margin-top:8px">
+      <textarea id="wText" placeholder="直接粘贴 Woot 官方报表（含标题行与两行表头即可，整段复制粘贴）：&#10;产品每日总表现&#10;Date,WeekDay,...,childAsin,Woot Orders,...,Ads Spend,...,Clicks,...,Ads Sales,...,总销售额&#10;报告日期,星期,...,子Asin,Woot订单数量,...,广告花费,...,点击数量,...,广告销售额,...,总销售额&#10;2026-09-14,Monday,...,B0H69JJZ1M,1,...,518.8,...,166,...,0,...,1899.99&#10;&#10;（也兼容旧的周/月汇总格式：周开始日期,周结束日期,销售额,广告花费,广告点击,广告订单）&#10;&#10;若表里含「采购价 / 供货价」列，会按行读取为该行的采购价；没有该列则用「默认采购价」。"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn primary" onclick="parseAndPreview()">解析预览</button>
+        <select class="inp mid" id="impMode" onchange="replanPreview()" style="max-width:230px">
+          <option value="sync">重复上传：覆盖同步（推荐）</option>
+          <option value="append">重复上传：仅追加</option>
+        </select>
+        <button class="btn" onclick="document.getElementById('wText').value=''">清空输入</button>
+      </div>
+    </div>
+    <div class="preview-box" id="previewBox"></div>
+    <div class="import-hint">
+      表头识别（不区分大小写、中英文均可、<b>精确匹配优先</b>）：<b>日期</b> — 报告日期/日期/Date；<b>产品</b> — 子Asin/childAsin、产品名称/ProductDetail；<b>采购价</b> — 采购价/供货价/Price（<b>可选列，每行单价 USD/台</b>，留空则用「默认采购价」）；<b>指标</b> — Woot订单数量/Woot Orders、总销售额/M8、广告花费/Ads Spend、点击数量/Clicks、广告订单数量/Ads Orders、展示数量/Impressions、广告销售额/Ads Sales。金额为原币种（Woot 为美元）。<br>
+      同时兼容旧的周/月汇总格式：周开始日期+周结束日期、或 周/周数（W##）、或 月份（2026-09）、或 日期（按单日）。<br>
+      <b>不采集 Session（会话数）</b>：Session 是 <b>ASIN 维度、全平台口径</b>（同一 ASIN 在主店/Woot 店查到的会话值相同，统计的是该 ASIN 在亚马逊所有店铺的合计），所以主店报表报出的会话<b>已经含 Woot 带来的流量，补进来会翻倍</b>；而<b>订单与销售额是店铺维度</b>，主店报表只含主店成交，Woot 店的必须由本表补进来。因此本页只采集下表中的指标列，就算官方表以后新增 Session 列也会被忽略。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💵 Woot 成本设置 <span class="hint">毛利口径：采购价 × 订单量 − 产品成本 − 运费 − Woot 广告费</span></div>
+    <div class="form-row">
+      <span style="font-size:13px;color:var(--muted)">默认采购价（数据行未单独填写时使用）</span>
+      <input class="inp small" id="cfgPrice" style="max-width:120px" placeholder="1380" oninput="onCfgPrice(this.value)">
+      <span style="font-size:12px;color:var(--muted)">USD / 台</span>
+      <button class="btn" onclick="document.getElementById('costFile').click()">⬆️ 导入成本表</button>
+      <input type="file" id="costFile" accept=".csv,.txt,.xls,.xlsx" style="display:none" onchange="handleCostFile(this)">
+      <button class="btn primary" onclick="saveCfg(true)">💾 保存成本设置</button>
+      <span id="cfgStat" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+    <div style="margin-top:8px">
+      <textarea id="costText" placeholder="或粘贴成本表（每行：子ASIN, 产品成本, 运费 —— 可含表头，单位 USD/台）：&#10;B0H69JJZ1M, 620.5, 38&#10;B0FN3NPF7Y, 480, 32"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn" onclick="parseCostText()">解析成本表</button>
+        <span style="font-size:12px;color:var(--muted)">识别规则：一行一个子 ASIN，取该行 ASIN 之后的第一个数为产品成本、第二个数为运费（表头行自动跳过）</span>
+      </div>
+    </div>
+    <div id="costWrap" style="margin-top:10px"></div>
+    <div class="import-hint">
+      <b>采购价 = Woot 付给我们的供货价</b>（属<b>收入侧</b>）—— <b>优先取每行自己填的值</b>（上传表格带「采购价 / 供货价」列即可，也可在下方记录列表逐行改）；<b>该行留空才用这里的默认价 1,380</b>。<br>
+      <b>不能用官方报表里的「总销售额」</b>（那是 Woot 的零售价，约 1,899.98/台，会高估收入）。<br>
+      毛利 = <b>采购价 × 订单量 − 产品成本 × 订单量 − 运费 × 订单量 − Woot 广告费</b>。<br>
+      <b>成本表未接入前，Woot 部分不参与各看板的毛利合计</b>（成本按 0 算会让毛利率虚高）。填好并保存后，看板「单看 Woot 店铺」即可显示 Woot 毛利。金额均按 <b>单台/美元</b>填写。<br>
+      下表「单台毛利」列按<b>默认采购价</b>试算，仅供核对；实际看板按每行采购价逐行算（同一 ASIN 不同批次采购价不同也能算准）。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">➕ 手动添加 <span class="hint">逐条补录 / 修正</span></div>
+    <div class="form-row">
+      <select class="inp mid" id="mType">
+        <option value="week">周汇总</option>
+        <option value="day">单日</option>
+        <option value="month">月汇总</option>
+      </select>
+      <input class="inp small" id="mAsin" placeholder="子ASIN B0…">
+      <input class="inp mid" id="mPrice" placeholder="采购价 $/台（留空=默认）">
+      <input class="inp small" id="mStart" placeholder="开始 2026-09-05">
+      <input class="inp small" id="mEnd" placeholder="结束 2026-09-11">
+      <input class="inp mid" id="mMonth" placeholder="或月份 2026-09" style="display:none">
+      <input class="inp mid" id="mOrders" placeholder="订单量">
+      <input class="inp mid" id="mSales" placeholder="销售额 $">
+      <input class="inp mid" id="mAdCost" placeholder="广告花费 $">
+      <input class="inp mid" id="mClicks" placeholder="广告点击">
+      <input class="inp mid" id="mAdOrders" placeholder="广告订单">
+      <input class="inp mid" id="mImpr" placeholder="广告曝光">
+      <button class="btn primary" onclick="addManual()">添加</button>
+    </div>
+    <div class="import-hint" id="mHint">周汇总填开始/结束日期（周六~周五对齐最佳，不对齐时按天数比例分摊）；单日只填开始日期；月汇总填月份。<b>子ASIN 留空则该条记为「Woot 店铺」汇总行。</b></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 已有 Woot 记录 <span class="hint">删除后点「保存到云端」生效</span>
+      <span style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn" onclick="exportCsv()">⬇️ 导出 CSV 备份</button>
+        <button class="btn danger" onclick="clearAll()">🗑 清空全部</button>
+        <button class="btn primary" onclick="saveAll(true)">💾 保存到云端</button>
+      </span>
+    </div>
+    <div id="listWrap"></div>
+  </div>
+
+  <details class="noteFold">
+  <summary>📖 Woot 并入口径与 Session 说明</summary>
+  <div class="foot-note">Woot 数据并入口径：所有看板均并入 <b>US（美元）</b>，并按 <b>子 ASIN</b> 归到对应产品的当天数据 —— 日看板 = 当天真实值；周看板（周六~周五）、月看板（自然月）、目标看板 = 由逐日数据汇总。因此筛选某个 ASIN / 系列 / 产品名时，数字已包含该 ASIN 在 Woot 店铺的表现；不再单独产生「Woot」汇总行（除非该条记录未识别出子 ASIN）。<br>
+  说明：<b>Session 是 ASIN 维度、全平台口径</b>（同一 ASIN 在主店与 Woot 店的会话值相同，统计范围是亚马逊所有店铺），主店报表已含 Woot 带来的流量 → 并入时 <code>sessions=0</code>，「流量 / 自然流量」保持原值不变；<b>订单与销售额是店铺维度</b>，主店报表只含主店成交，所以必须由本表补进来，补后「转化率 = 订单量 ÷ Sessions」的分子才是完整的（此前漏掉 Woot 订单时是偏低）。<br>
+  <b>重复上传 = 覆盖，不会报错</b>（订单与广告数据有延迟，可放心反复重传同一时间段）：默认「<b>覆盖同步</b>」——本次上传涉及的每个 ASIN，其日期范围内的旧记录先清理再写入，所以后台把某天的数值改小、改成 0、甚至整行消失，重传后都会跟着对齐，也不会与旧的周/月汇总记录重复计算；如需在已有记录上纯追加，把上传模式切到「仅追加」。数据保存在云端（与产品映射同一存储）。</div>
+</details>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 配置 =====
+const SUPABASE_URL = 'https://oovvqvgrjqwogjwswaxx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+const SUPABASE_ADMIN_KEY = 'wb-map-2026';
+const K_WOOT = 'pc_woot';
+const MK = ['orders','sales','adCost','adClicks','adOrders','adImpr','adSales'];
+const MK_CN = { orders:'订单量', sales:'销售额', adCost:'广告花费', adClicks:'广告点击', adOrders:'广告订单', adImpr:'广告曝光', adSales:'广告销售额' };
+
+let entries = [];
+let cloudState = 'sync';
+let pendingPreview = null; // [{entry, src}]
+let previewMeta = { errs: [], zeros: 0 };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+function flash(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2600); }
+function notifyParent(type){ try { parent.postMessage({ type }, '*'); } catch(e) {} }
+
+// ===== 日期工具 =====
+const DAY_MS = 86400000;
+const dparse = s => { const m = String(s||'').trim().match(/^(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})日?(?:[ T].*)?$/); return m ? `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}` : null; };
+function dadd(ds, n){ const d = new Date(ds + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0,10); }
+function dlen(a, b){ return Math.round((new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z')) / DAY_MS) + 1; }
+function isoWeek(ds){ const d = new Date(ds+'T00:00:00Z'); const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); const dn = (t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-dn+3); const w1 = new Date(Date.UTC(t.getUTCFullYear(),0,4)); const w1dn = (w1.getUTCDay()+6)%7; w1.setUTCDate(w1.getUTCDate()-w1dn+3); return 1+Math.round((t-w1)/(7*DAY_MS)); }
+function weekRangeFromISO(y, w){ // 看板周口径: W## = 周六~周五, 以周五所在 ISO 周数为准
+  const j4 = new Date(Date.UTC(y,0,4)); const dn = (j4.getUTCDay()+6)%7; const w1mon = new Date(j4); w1mon.setUTCDate(j4.getUTCDate()-dn);
+  const mon = new Date(w1mon); mon.setUTCDate(w1mon.getUTCDate()+(w-1)*7);
+  const sat = new Date(mon); sat.setUTCDate(mon.getUTCDate()-2);
+  const fri = new Date(mon); fri.setUTCDate(mon.getUTCDate()+4);
+  const f = d => d.toISOString().slice(0,10); return { start:f(sat), end:f(fri) };
+}
+function monthRange(ym){ const m = String(ym||'').trim().match(/^(\d{4})[-/年](\d{1,2})月?$/); if (!m) return null; const y = +m[1], mo = +m[2]; if (mo < 1 || mo > 12) return null; const last = new Date(Date.UTC(y, mo, 0)).getUTCDate(); return { start:`${m[1]}-${String(mo).padStart(2,'0')}-01`, end:`${m[1]}-${String(mo).padStart(2,'0')}-${String(last).padStart(2,'0')}`, label:`${m[1]}-${String(mo).padStart(2,'0')}` }; }
+// 周期展示文本
+function periodText(e){ return e.label || (e.start === e.end ? e.start : `${e.start} ~ ${e.end}`); }
+// 周六~周五对齐则显示 W 标签
+function weekLabelIfAligned(e){ if (e.start === e.end) return null; if (dlen(e.start, e.end) !== 7) return null; const dow = new Date(e.start+'T00:00:00Z').getUTCDay(); if (dow !== 6) return null; return 'W' + isoWeek(e.end); }
+
+// ===== 表头识别 =====
+// 精确匹配优先 → 再按包含匹配; not = 命中黑名单的列不参与该字段(避免 "Viewable展示数量"/"千次展示花费"/"单个广告订单的费用" 等误匹配)
+const FIELDS = [
+  { key:'date',     aliases:['报告日期','日期','date','day'] },
+  { key:'asin',     aliases:['子asin','childasin','asin'], not:['父','parent'] },
+  { key:'pname',    aliases:['产品名称','productdetail','产品名','itemname','listing'] },
+  { key:'orders',   aliases:['woot订单数量','wootorders','订单数量','订单量','unitsordered','units'], not:['广告','ad'] },
+  { key:'sales',    aliases:['总销售额','m8','totalsales','销售额','sales'], not:['广告','ad','单个','per'] },
+  // 采购价(= Woot 付给我们的供货价, USD/台, 收入侧) —— 每行可填, 未填则用「默认采购价」兜底
+  { key:'price',    aliases:['采购价','供货价','供货单价','采购单价','供货价格','supplyprice','purchaseprice','costprice','unitprice','price'],
+                    not:['销售','零售','售价','listprice','总','合计','amount','金额'] },
+  { key:'adCost',   aliases:['广告花费','adspend','adscost','adcost','spend','花费'], not:['单个','per','占比','share'] },
+  { key:'adClicks', aliases:['点击数量','广告点击','clicks','click','点击'], not:['率','ctr'] },
+  { key:'adOrders', aliases:['广告订单数量','广告订单','adorders','adsorders'], not:['单个','per','占比','share'] },
+  { key:'adImpr',   aliases:['展示数量','广告曝光','impressions','impr','曝光'], not:['viewable','千次','vcpm'] },
+  { key:'adSales',  aliases:['广告销售额','adsales','广告销售'] },
+  { key:'start',    aliases:['周开始日期','周开始','开始日期','起始日期','周起始','weekstart','start','from'] },
+  { key:'end',      aliases:['周结束日期','周结束','结束日期','周截止','weekend','end','to'] },
+  { key:'week',     aliases:['周数','周','week'] },
+  { key:'month',    aliases:['月份','月','month'] },
+  { key:'year',     aliases:['年份','年','year'] },
+];
+const norm = s => String(s||'').toLowerCase().replace(/[\s_\-]/g, '');
+// headerRows: 表头行数组(可多行, 如英文行 + 中文行), 返回 key -> 列号
+function matchFields(headerRows){
+  const texts = headerRows.map(r => (r||[]).map(norm));
+  const ncol = texts.reduce((n, r) => Math.max(n, r.length), 0);
+  const idx = {};
+  for (const pass of ['exact','contains']) {
+    for (const f of FIELDS) {
+      if (idx[f.key] !== undefined) continue;
+      for (let j = 0; j < ncol; j++) {
+        const cells = texts.map(t => t[j] || '');
+        if (!cells.some(Boolean)) continue;
+        if (f.not && f.not.some(b => cells.some(c => c.includes(norm(b))))) continue;
+        const want = f.aliases.map(norm);
+        const hit = pass === 'exact' ? cells.some(c => want.indexOf(c) >= 0) : cells.some(c => want.some(a => c.indexOf(a) >= 0));
+        if (hit) { idx[f.key] = j; break; }
+      }
+    }
+  }
+  return idx;
+}
+const rowNonEmpty = r => (r||[]).filter(c => String(c ?? '').trim() !== '').length;
+// 表头行的特征: 非空格 >= 3 且至少命中 2 个字段且不含可解析日期
+function looksHeaderRow(r){ return rowNonEmpty(r) >= 3 && Object.keys(matchFields([r])).length >= 2 && !(r||[]).some(c => dparse(c)); }
+// 定位表头块(兼容 标题行 + 英文表头 + 中文表头 布局)与数据起始行
+function detectHeader(rows){
+  let best = -1, bestN = 1;
+  for (let i = 0; i < Math.min(rows.length, 8); i++) {
+    const n = Object.keys(matchFields([rows[i]])).length;
+    if (n > bestN) { bestN = n; best = i; }
+  }
+  if (best < 0) return null;
+  const block = [best];
+  if (looksHeaderRow(rows[best-1])) block.unshift(best-1);
+  if (looksHeaderRow(rows[best+1])) block.push(best+1);
+  return { idx: matchFields(block.map(i => rows[i])), dataStart: Math.max.apply(null, block) + 1 };
+}
+const round2 = v => Math.round((+v || 0) * 100) / 100;
+// 表格行 → entry（null 表示跳过）
+function rowToEntry(cells, idx){
+  const get = k => idx[k] === undefined ? '' : String(cells[idx[k]] ?? '').trim();
+  const num = k => { const v = get(k).replace(/[$,¥€\s]/g, ''); if (v === '') return 0; const f = parseFloat(v); return isNaN(f) ? 0 : f; };
+  const ds = dparse(get('start')), de = dparse(get('end')), dv = dparse(get('date'));
+  let start = null, end = null, type = null;
+  if (ds) { start = ds; end = de && de >= ds ? de : ds; type = de && de !== ds ? 'range' : 'day'; }
+  else if (dv) { start = dv; end = dv; type = 'day'; }
+  else {
+    // 周期兜底解析: 周/月份/日期 列的值统一尝试「日期范围 / W周数 / 月份 / 单日期」
+    const cell = get('week') || get('month') || get('date');
+    const yv = get('year').match(/(20\d{2})/);
+    const yr = yv ? +yv[1] : new Date().getUTCFullYear();
+    const rm = cell.match(/(20\d{2})[-/年.](\d{1,2})[-/月.](\d{1,2})日?\s*[~～至到-]\s*(20\d{2})[-/年.](\d{1,2})[-/月.](\d{1,2})日?/);
+    const wm = cell.match(/^(?:w|第)?(\d{1,2})(?:周)?$/i);
+    const mv = cell.match(/^(20\d{2})[-/年](\d{1,2})月?$/) || cell.match(/^(20\d{2})(\d{2})$/);
+    if (rm) {
+      const a = `${rm[1]}-${String(rm[2]).padStart(2,'0')}-${String(rm[3]).padStart(2,'0')}`;
+      const b = `${rm[4]}-${String(rm[5]).padStart(2,'0')}-${String(rm[6]).padStart(2,'0')}`;
+      start = a; end = b >= a ? b : a; type = 'range';
+    } else if (wm) {
+      const r = weekRangeFromISO(yr, +wm[1]); start = r.start; end = r.end; type = 'week';
+    } else if (mv) {
+      const mr = monthRange(`${mv[1]}-${mv[2]}`);
+      if (mr) { start = mr.start; end = mr.end; type = 'month'; }
+    }
+  }
+  if (!start) return null;
+  const metrics = {};
+  MK.forEach(k => metrics[k] = round2(num(k)));
+  if (MK.every(k => !metrics[k])) return { skip: true }; // 全 0 行(官方报表里无活动的日期很常见)静默跳过
+  // 子 ASIN: 从单元格中提取 B0XXXXXXXX 形式的 ASIN
+  const am = get('asin').match(/B0[A-Z0-9]{8}/i);
+  const entry = { start, end, type, asin: am ? am[0].toUpperCase() : '', name: get('pname'), metrics, note: '' };
+  const pr = round2(num('price'));
+  if (pr > 0) entry.price = pr;                    // 每行采购价(供货价) —— 缺省 = 用全局默认采购价
+  entry.label = type === 'month' ? monthRange(start.slice(0,7)).label : weekLabelIfAligned(entry);
+  return entry;
+}
+
+// ===== 文本解析 =====
+function parseCsvText(text){
+  text = String(text||'').replace(/^\uFEFF/, '');
+  const rows = []; let cur = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ',' || ch === '\t') { cur.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i+1] === '\n') i++; cur.push(cell); cell = ''; if (cur.some(c => c.trim() !== '')) rows.push(cur); cur = []; }
+    else cell += ch;
+  }
+  cur.push(cell); if (cur.some(c => c.trim() !== '')) rows.push(cur);
+  return rows;
+}
+function parseAndPreview(){ parseInput($('wText').value, false); }
+function parseInput(text, fromFile){  text = (text||'').trim();
+  if (!text) { flash('没有可解析的内容'); return; }
+  let rows = null;
+  if (!fromFile) {
+    try { const j = JSON.parse(text); if (Array.isArray(j)) { addEntries(j); return; } } catch(e) {}
+  }
+  rows = parseCsvText(text);
+  ingestRows(rows);
+}
+function ingestRows(rows){
+  const h = detectHeader(rows);
+  if (!h) { flash('未识别到表头（需含 销售额 / 广告花费 / 订单量 之一）'); return; }
+  const map = new Map(), errs = [];
+  let zeros = 0;
+  for (let i = h.dataStart; i < rows.length; i++) {
+    const cells = rows[i] || [];
+    if (rowNonEmpty(cells) === 0) continue;
+    if (looksHeaderRow(cells)) continue;           // 多行表头 / 重复表头，静默跳过
+    const en = rowToEntry(cells, h.idx);
+    if (!en) { errs.push(i + 1); continue; }
+    if (en.skip) { zeros++; continue; }            // 全 0 行
+    const k = en.start + '|' + en.end + '|' + (en.asin || '');
+    const prev = map.get(k);
+    if (prev) {
+      MK.forEach(x => prev.metrics[x] = round2(prev.metrics[x] + en.metrics[x]));
+      if (!prev.name) prev.name = en.name;
+      if (!prev.price && en.price) prev.price = en.price;      // 同键合并时保留采购价
+    }
+    else map.set(k, en);
+  }
+  const out = [...map.values()];
+  if (!out.length) { flash('没有解析出有效数据行' + (errs.length ? `（第 ${errs.join(',')} 行无法识别周期或全 0）` : '')); return; }
+  pendingPreview = out;
+  showPreview(out, errs, zeros);
+}
+
+// ===== 文件 =====
+function handleFile(input){
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const name = f.name.toLowerCase();
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      if (name.endsWith('.xls') || name.endsWith('.xlsx')) {
+        if (typeof XLSX === 'undefined') { flash('Excel 解析库未加载，请改用 CSV'); return; }
+        const wb = XLSX.read(reader.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+        ingestRows(rows);
+      } else {
+        parseInput(new TextDecoder('utf-8').decode(reader.result), true);
+      }
+    } catch (e) { flash('解析失败: ' + e.message); }
+    input.value = '';
+  };
+  if (name.endsWith('.xls') || name.endsWith('.xlsx')) reader.readAsArrayBuffer(f); else reader.readAsArrayBuffer(f);
+}
+
+// ===== 预览与合并 =====
+function fmtN(v){ return (Math.round((+v||0)*100)/100).toLocaleString('en-US'); }
+function typeTag(t){ return `<span class="type-tag type-${t==='range'?'week':t}">${t==='month'?'月':t==='day'?'日':'周'}</span>`; }
+function showPreview(list, errs, zeros){
+  const box = $('previewBox');
+  previewMeta = { errs: errs || [], zeros: zeros || 0 };
+  const mode = $('impMode') ? $('impMode').value : 'sync';
+  const plan = planImport(list, mode);
+  const sum = {}; MK.forEach(k => sum[k] = list.reduce((s, e) => s + (e.metrics[k]||0), 0));
+  const nAsin = new Set(list.map(e => e.asin || '(未识别ASIN)')).size;
+  const noPrice = list.filter(e => !(Number(e.price) > 0)).length;      // 未填采购价的行(将按默认价计)
+  const defPrice = (typeof wootCfg !== 'undefined' && Number(wootCfg.price) > 0) ? Number(wootCfg.price) : WOOT_PRICE_DEFAULT;
+  const delNote = plan.dels.length
+    ? ` · <span style="color:var(--warn,#b45309)">清理旧记录 ${plan.dels.length} 条</span>`
+    : '';
+  box.innerHTML = `<b style="font-size:13px">解析到 ${list.length} 条记录 · ${nAsin} 个 ASIN</b>` +
+    (zeros ? ` <span style="color:var(--muted);font-size:12px">（${zeros} 行全 0 已跳过）</span>` : '') +
+    (errs && errs.length ? ` <span style="color:var(--danger);font-size:12px">（${errs.length} 行未识别已跳过）</span>` : '') +
+    `<div style="margin-top:6px;font-size:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;line-height:1.7">
+      导入结果：<b>新增 ${plan.add} 条</b> · <b>覆盖同键 ${plan.upd} 条</b>${delNote}<br>
+      采购价：<b>${list.length - noPrice} 条来自表格</b>${noPrice ? ` · <span style="color:#b45309">${noPrice} 条未填 → 按默认价 ${fmtN(defPrice)} 计</span>` : ''}<br>
+      <span style="color:var(--muted)">${mode === 'append'
+        ? '仅追加：只覆盖起止日期 + ASIN 完全相同的记录，其他旧记录保留。'
+        : '覆盖同步：本次上传涉及的每个 ASIN，其日期范围内的旧记录会被清理后重写 —— 数据延迟导致的修正、某天归零、旧周汇总被逐日取代，都会自动对齐，不会重复计算。'}</span>
+     </div>` +
+    `<table class="tbl" style="margin-top:8px"><thead><tr><th>类型</th><th>日期</th><th>子ASIN</th><th style="text-align:right">采购价 $/台</th>${MK.map(k=>`<th style="text-align:right">${MK_CN[k]}</th>`).join('')}</tr></thead><tbody>` +
+    list.slice(0, 30).map(e => `<tr><td>${typeTag(e.type)}</td><td>${esc(periodText(e))}</td><td>${esc(e.asin || '—')}</td><td class="num">${Number(e.price) > 0 ? fmtN(e.price) : '<span style="color:var(--muted)">默认</span>'}</td>${MK.map(k=>`<td class="num">${fmtN(e.metrics[k])}</td>`).join('')}</tr>`).join('') +
+    (list.length > 30 ? `<tr><td colspan="${5+MK.length}" style="color:var(--muted)">…其余 ${list.length-30} 条</td></tr>` : '') +
+    `</tbody></table>` +
+    (plan.dels.length ? `<div style="margin-top:8px;font-size:12px"><span style="color:var(--muted)">将被清理的旧记录（前 20 条）：</span><br>` +
+      plan.dels.slice(0, 20).map(e => `<span style="display:inline-block;margin:3px 6px 0 0;padding:2px 8px;background:#fef3c7;border-radius:6px">${esc(periodText(e))} · ${esc(e.asin || '未识别ASIN')}${e.wootLegacy ? '' : ''}</span>`).join('') +
+      (plan.dels.length > 20 ? `<span style="color:var(--muted)">…共 ${plan.dels.length} 条</span>` : '') + `</div>` : '') +
+    `<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn primary" onclick="confirmPreview()">✅ 确认导入 ${list.length} 条</button>
+      <button class="btn" onclick="cancelPreview()">取消</button>
+      <span style="font-size:12px;color:var(--muted)">重复上传不会报错：同一天同一 ASIN 以最新一次上传为准</span>
+    </div>`;
+  box.classList.add('show');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function replanPreview(){ if (pendingPreview) showPreview(pendingPreview, previewMeta.errs, previewMeta.zeros); }
+function cancelPreview(){ pendingPreview = null; $('previewBox').classList.remove('show'); }
+function confirmPreview(){
+  if (!pendingPreview) return;
+  const mode = $('impMode') ? $('impMode').value : 'sync';
+  applyImport(pendingPreview, mode);
+  cancelPreview();
+  saveAll(true);
+}
+function keyOf(e){ return e.start + '|' + e.end + '|' + (e.asin || ''); }
+function normEntry(raw){
+  const e = { start: raw.start, end: raw.end, label: raw.label || undefined, asin: raw.asin || '',
+    name: raw.name || '', metrics: {}, note: raw.note || '' };
+  const pr = Number(raw.price); if (pr > 0) e.price = round2(pr);   // 每行采购价(可选)
+  MK.forEach(k => e.metrics[k] = round2(raw.metrics && raw.metrics[k]));
+  if (!e.label) e.label = e.start === e.end ? e.start : (weekLabelIfAligned(e) || undefined);
+  e.type = raw.type || (e.start === e.end ? 'day' : 'range');
+  return e;
+}
+// 上传模式：
+//  sync（默认，覆盖同步）—— 本次上传涉及的每个 ASIN，其日期范围内的旧记录先清理再写入。
+//    这样「同一天数据被后台修正（含从有值变 0 / 行消失）」「旧的周汇总被逐日数据取代」都能自动对齐，不会重复计算。
+//  append（仅追加）—— 只覆盖完全同键（起止日期 + ASIN 相同）的记录，不动其他旧记录。
+function planImport(list, mode){
+  const news = [];
+  for (const raw of (list || [])) { if (raw && raw.start && raw.end) news.push(normEntry(raw)); }
+  const rng = new Map();
+  let all = null;
+  for (const e of news) {
+    const k = e.asin || '';
+    const r = rng.get(k);
+    if (!r) rng.set(k, { min: e.start, max: e.end });
+    else { if (e.start < r.min) r.min = e.start; if (e.end > r.max) r.max = e.end; }
+    if (!all) all = { min: e.start, max: e.end };
+    else { if (e.start < all.min) all.min = e.start; if (e.end > all.max) all.max = e.end; }
+  }
+  const newKeys = new Set(news.map(keyOf));
+  const anyNewAsin = news.some(e => e.asin);
+  const dels = [], kept = [];
+  for (const old of entries) {
+    const k = keyOf(old);
+    const r = rng.get(old.asin || '');
+    const sameHit = !!r && old.end >= r.min && old.start <= r.max;
+    // 旧的「整店汇总」（无子 ASIN）在分 ASIN 明细到来后即被取代，否则会在看板里重复计算
+    const storeHit = anyNewAsin && !old.asin && !!all && old.end >= all.min && old.start <= all.max;
+    if (mode !== 'append' && (sameHit || storeHit) && !newKeys.has(k)) dels.push(old);
+    else kept.push(old);
+  }
+  const keptKeys = new Set(kept.map(keyOf));
+  const upd = news.filter(e => keptKeys.has(keyOf(e))).length;
+  return { news, dels, kept, add: news.length - upd, upd };
+}
+function applyImport(list, mode){
+  const p = planImport(list, mode);
+  const map = new Map(p.kept.map(e => [keyOf(e), e]));
+  for (const e of p.news) map.set(keyOf(e), e);
+  entries = [...map.values()].sort((a, b) => b.start.localeCompare(a.start) || String(a.asin).localeCompare(String(b.asin)));
+  renderList();
+  const parts = [`新增 ${p.add} 条`, `覆盖 ${p.upd} 条`];
+  if (p.dels.length) parts.push(`清理旧记录 ${p.dels.length} 条`);
+  flash(`导入完成：${parts.join('、')}（记得保存到云端）`);
+  return p;
+}
+// 兼容旧调用
+function addEntries(list){ return applyImport(list, 'sync'); }
+
+// ===== 手动添加 =====
+function addManual(){
+  const type = $('mType').value;
+  let start, end, label;
+  if (type === 'month') {
+    const mr = monthRange($('mMonth').value);
+    if (!mr) { flash('月份格式应为 2026-09'); return; }
+    start = mr.start; end = mr.end; label = mr.label;
+  } else if (type === 'day') {
+    start = dparse($('mStart').value); end = start;
+    if (!start) { flash('请填写日期（YYYY-MM-DD）'); return; }
+  } else {
+    start = dparse($('mStart').value); end = dparse($('mEnd').value);
+    if (!start || !end) { flash('请填写开始/结束日期（YYYY-MM-DD）'); return; }
+    if (end < start) { flash('结束日期不能早于开始日期'); return; }
+    label = weekLabelIfAligned({ start, end }) || undefined;
+  }
+  const num = id => { const v = $(id).value.replace(/[$,]/g, ''); const f = parseFloat(v); return isNaN(f) ? 0 : f; };
+  const metrics = { orders: num('mOrders'), sales: num('mSales'), adCost: num('mAdCost'), adClicks: num('mClicks'), adOrders: num('mAdOrders'), adImpr: num('mImpr'), adSales: 0 };
+  if (MK.every(k => !metrics[k])) { flash('至少填一个指标'); return; }
+  const am = $('mAsin').value.trim().match(/B0[A-Z0-9]{8}/i);
+  const pv = Number(String($('mPrice').value || '').replace(/[$,]/g, ''));
+  const rec = { start, end, label, type: type === 'day' ? 'day' : (start === end ? 'day' : 'range'), asin: am ? am[0].toUpperCase() : '', metrics };
+  if (pv > 0) rec.price = round2(pv);                    // 每行采购价(留空 → 用默认采购价)
+  addEntries([rec]);
+  saveAll(true);
+  ['mOrders','mSales','mAdCost','mClicks','mAdOrders','mImpr','mPrice'].forEach(id => $(id).value = '');
+}
+$('mType').addEventListener('change', function(){
+  const v = this.value;
+  $('mStart').style.display = v === 'month' ? 'none' : '';
+  $('mEnd').style.display = (v === 'month' || v === 'day') ? 'none' : '';
+  $('mMonth').style.display = v === 'month' ? '' : 'none';
+});
+
+// ===== 列表 =====
+// 每行采购价: 留空 → 用「默认采购价」兜底(wootCfg.price)
+function defWootPrice(){ return Number(wootCfg && wootCfg.price) > 0 ? Number(wootCfg.price) : WOOT_PRICE_DEFAULT; }
+function rowRev(e){ return (Number(e.price) > 0 ? Number(e.price) : defWootPrice()) * (Number(e.metrics && e.metrics.orders) || 0); }
+function renderList(){
+  $('stCount').textContent = entries.length;
+  if (typeof renderCfgRows === 'function') renderCfgRows();   // 记录变化 → 成本表 ASIN 列表同步刷新
+  const wrap = $('listWrap');
+  if (!entries.length) { wrap.innerHTML = '<div class="empty">暂无 Woot 记录，先在上方上传或手动添加</div>'; return; }
+  const sum = {}; MK.forEach(k => sum[k] = entries.reduce((s, e) => s + (e.metrics[k]||0), 0));
+  const rev = entries.reduce((s, e) => s + rowRev(e), 0);
+  const noP = entries.filter(e => !(Number(e.price) > 0)).length;
+  wrap.innerHTML = `<table class="tbl"><thead><tr><th>#</th><th>类型</th><th>日期</th><th>子ASIN</th><th style="text-align:right">采购价 $/台</th>${MK.map(k=>`<th style="text-align:right">${MK_CN[k]}</th>`).join('')}<th></th></tr></thead><tbody>` +
+    entries.map((e, i) => `<tr><td>${i+1}</td><td>${typeTag(e.type || (e.start===e.end?'day':'range'))}</td><td>${esc(periodText(e))}</td><td>${esc(e.asin || '—')}</td>` +
+      `<td class="num"><input class="inp small" style="max-width:100px;text-align:right" value="${Number(e.price) > 0 ? e.price : ''}" placeholder="${defWootPrice()}" oninput="onRowPrice(${i}, this.value)"></td>` +
+      `${MK.map(k=>`<td class="num">${fmtN(e.metrics[k])}</td>`).join('')}<td><button class="mini danger" onclick="delEntry(${i})">删除</button></td></tr>`).join('') +
+    `<tr style="font-weight:600;background:#f8fafc"><td colspan="4">合计</td><td class="num" id="sumRev" title="采购价收入 = Σ 采购价 × 订单量">${fmtN(rev)}</td>${MK.map(k=>`<td class="num">${fmtN(sum[k])}</td>`).join('')}<td></td></tr></tbody></table>` +
+    `<div style="margin-top:6px;font-size:12px;color:var(--muted)">采购价收入合计（供货价 × 订单量）= <b style="color:var(--fg,#0f172a)">${fmtN(rev)}</b> USD` +
+    (noP ? ` · <span style="color:#b45309">${noP} 条留空 → 按默认价 ${fmtN(defWootPrice())} 计</span>` : '') +
+    ' —— 明细行的采购价可逐行修改</div>';
+}
+// 逐行改采购价: 只更新合计格, 不重建表格(否则输入框失焦)
+function onRowPrice(i, v){
+  const e = entries[i]; if (!e) return;
+  const p = Number(String(v == null ? '' : v).replace(/[$,]/g, ''));
+  if (p > 0) e.price = round2(p); else delete e.price;
+  const cell = $('sumRev');
+  if (cell) cell.textContent = fmtN(entries.reduce((s, x) => s + rowRev(x), 0));
+  saveLocal();
+}
+function delEntry(i){ entries.splice(i, 1); renderList(); saveAll(true); }
+function clearAll(){
+  if (!entries.length) { flash('当前没有记录'); return; }
+  if (!confirm(`确定清空全部 ${entries.length} 条 Woot 记录？（云端同步删除，可用导出 CSV 备份恢复）`)) return;
+  entries = []; renderList(); saveAll(true);
+}
+function exportCsv(){
+  if (!entries.length) { flash('当前没有记录可导出'); return; }
+  const q = v => { v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const head = ['开始日期','结束日期','子ASIN','产品名称','类型','采购价', ...MK.map(k => MK_CN[k])];
+  const lines = ['\uFEFF' + head.join(',')];
+  for (const e of entries) lines.push([e.start, e.end, e.asin || '', e.name || '', e.type || '', Number(e.price) > 0 ? e.price : '', ...MK.map(k => e.metrics[k]||0)].map(q).join(','));
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Woot数据_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 200);
+  flash('已导出 CSV（可直接重新导入）');
+}
+
+// ===== Woot 成本设置（毛利口径 · 2026-10-10 框架）=====
+// 用户口径：采购价 = Woot 付给我们的「供货价」(USD/台) → 收入侧，默认 1380；
+//   官方报表里的「总销售额」是 Woot 零售价(≈1899.98/台)，不能当收入。
+//   毛利 = 采购价 × 订单量 − 产品成本 × 订单量 − 头程 × 订单量 − Woot 广告费
+//   ⚠️ 运费只填「头程」: 尾程(海外仓尾程配送)仅 FBM 订单才计, FBA 订单不计(2026-10-10 用户口径)
+// 成本表由用户提供（以其表格为准）。未配置前 Woot 部分不参与各看板毛利合计（按 0 算会让毛利率虚高）。
+// 存 localStorage 'pc_woot_cfg' + 云端 mapping.data.wootCfg（与 woot 并列，不改动既有结构）。
+const K_WOOT_CFG = 'pc_woot_cfg';
+const WOOT_PRICE_DEFAULT = 1380;
+let wootCfg = { price: WOOT_PRICE_DEFAULT, cost: {} };
+
+function loadCfgLocal(){
+  try {
+    const j = JSON.parse(localStorage.getItem(K_WOOT_CFG) || 'null');
+    if (j && typeof j === 'object') wootCfg = normalizeCfg(j);
+  } catch (e) {}
+}
+function normalizeCfg(j){
+  return {
+    price: Number(j.price) > 0 ? Number(j.price) : WOOT_PRICE_DEFAULT,
+    cost: (j.cost && typeof j.cost === 'object' && !Array.isArray(j.cost)) ? j.cost : {}
+  };
+}
+function saveCfgLocal(){ try { localStorage.setItem(K_WOOT_CFG, JSON.stringify(wootCfg)); } catch (e) {} }
+function onCfgPrice(v){ wootCfg.price = Number(v) || 0; renderCfgRows(); updateCfgStat(); }
+function cfgAsins(){
+  const set = new Set(Object.keys(wootCfg.cost || {}));
+  entries.forEach(e => { if (e.asin) set.add(e.asin); });
+  return [...set].sort();
+}
+function cfgUnitCost(asin){
+  const c = (wootCfg.cost || {})[asin] || {};
+  return { unit: Number(c.unit) || 0, freight: Number(c.freight) || 0 };
+}
+function cfgUnitProfit(asin){
+  const c = cfgUnitCost(asin);
+  return (Number(wootCfg.price) || 0) - c.unit - c.freight;
+}
+function renderCfgRows(){
+  const pEl = $('cfgPrice');
+  if (pEl && document.activeElement !== pEl) pEl.value = wootCfg.price || WOOT_PRICE_DEFAULT;
+  const wrap = $('costWrap');
+  if (!wrap) return;
+  const asins = cfgAsins();
+  if (!asins.length) {
+    wrap.innerHTML = '<div class="empty">暂无子 ASIN：先在上方上传 / 手动添加 Woot 记录，这里会自动列出每个子 ASIN 供填成本（也可直接粘贴成本表）</div>';
+    return;
+  }
+  wrap.innerHTML = '<table class="tbl"><thead><tr><th>子ASIN</th>'
+    + '<th style="text-align:right">产品成本（$/台）</th><th style="text-align:right">头程运费（$/台）</th>'
+    + '<th style="text-align:right">单台毛利（按默认价）</th></tr></thead><tbody>'
+    + asins.map(a => {
+        const c = cfgUnitCost(a);
+        const zero = !c.unit && !c.freight;
+        return `<tr><td><code>${esc(a)}</code></td>`
+          + `<td class="num"><input class="inp small" style="max-width:120px;text-align:right" value="${c.unit || ''}" placeholder="0" oninput="onCostEdit('${a}','unit',this.value)"></td>`
+          + `<td class="num"><input class="inp small" style="max-width:120px;text-align:right" value="${c.freight || ''}" placeholder="0" oninput="onCostEdit('${a}','freight',this.value)"></td>`
+          + `<td class="num" id="mg_${a}"${zero ? ' style="color:#b45309;font-weight:600"' : ''}>${fmtN(cfgUnitProfit(a))}${zero ? ' ⚠' : ''}</td></tr>`;
+      }).join('') + '</tbody></table>';
+}
+function onCostEdit(asin, k, v){
+  wootCfg.cost = wootCfg.cost || {};
+  const c = wootCfg.cost[asin] = wootCfg.cost[asin] || { unit: 0, freight: 0 };
+  c[k] = Number(v) || 0;
+  const el = $('mg_' + asin);                      // 只改这一格，避免重建 DOM 让输入框失焦
+  if (el) {
+    const zero = !(Number(c.unit) || 0) && !(Number(c.freight) || 0);
+    el.textContent = fmtN(cfgUnitProfit(asin)) + (zero ? ' ⚠' : '');
+    el.style.color = zero ? '#b45309' : '';
+    el.style.fontWeight = zero ? '600' : '';
+  }
+  updateCfgStat();
+}
+function updateCfgStat(){
+  const el = $('cfgStat');
+  if (!el) return;
+  const n = Object.keys(wootCfg.cost || {}).filter(a => {
+    const c = cfgUnitCost(a); return c.unit || c.freight;
+  }).length;
+  const total = cfgAsins().length;
+  el.textContent = n ? `已配置 ${n}/${total} 个子 ASIN 成本 · 毛利口径已启用` : '未配置成本 —— Woot 部分暂不参与毛利合计';
+}
+function parseCostText(){
+  const raw = ($('costText').value || '').trim();
+  if (!raw) { flash('请先粘贴成本表'); return; }
+  const rows = raw.split(/\r?\n/).filter(l => l.trim()).map(l => l.split(/[,\t;]/).map(s => s.trim()));
+  ingestCostRows(rows);
+}
+function ingestCostRows(rows){
+  if (!rows || !rows.length) { flash('未读到内容'); return; }
+  let n = 0, bad = 0;
+  wootCfg.cost = wootCfg.cost || {};
+  rows.forEach(cells => {
+    if (!cells || !cells.length) return;
+    const ai = cells.findIndex(s => /^B0[A-Z0-9]{8}$/i.test(String(s).trim()));
+    if (ai < 0) { bad++; return; }                  // 表头 / 汇总行没有子 ASIN → 跳过
+    const asin = String(cells[ai]).trim().toUpperCase();
+    const nums = cells.slice(ai + 1)
+      .map(s => Number(String(s).replace(/[^\d.\-]/g, '')))
+      .filter(v => !isNaN(v) && String(v) !== '');
+    if (!nums.length) { bad++; return; }
+    wootCfg.cost[asin] = { unit: nums[0] || 0, freight: nums.length > 1 ? (nums[1] || 0) : 0 };
+    n++;
+  });
+  renderCfgRows(); updateCfgStat();
+  flash(n ? `成本表已解析：${n} 个子 ASIN${bad ? '（另有 ' + bad + ' 行无子 ASIN，已跳过）' : ''} —— 记得「保存成本设置」` 
+          : '未识别到子 ASIN（每行需要一个 B0 开头的子 ASIN）');
+}
+function handleCostFile(input){
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const name = f.name.toLowerCase();
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      let rows;
+      if (name.endsWith('.xls') || name.endsWith('.xlsx')) {
+        if (typeof XLSX === 'undefined') { flash('Excel 解析库未加载，请改用 CSV'); return; }
+        const wb = XLSX.read(reader.result, { type: 'array' });
+        rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' });
+      } else {
+        rows = new TextDecoder('utf-8').decode(reader.result).split(/\r?\n/)
+          .filter(l => l.trim()).map(l => l.split(/[,\t;]/).map(s => s.trim()));
+      }
+      ingestCostRows(rows);
+    } catch (e) { flash('成本表解析失败: ' + e.message); }
+    input.value = '';
+  };
+  reader.readAsArrayBuffer(f);
+}
+function saveCfg(notify){ saveCfgLocal(); cloudSave(notify); }
+
+// ===== 存储 =====
+function saveLocal(){ try { localStorage.setItem(K_WOOT, JSON.stringify(entries)); } catch(e) {} }
+function setCloud(state, txt){ cloudState = state; const el = $('cloudStat'); el.className = 'stat cloud-stat ' + (state === 'ok' ? 'ok' : state === 'fail' ? 'fail' : 'sync'); $('cloudBadge').textContent = txt; }
+async function cloudSave(notify){
+  setCloud('sync', '云端保存中…');
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
+    // 防互踩: 先取云端最新 catalog/asinMap, 合并后整体写回 (mapping 表 id=1 单行约束)
+    const gr = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data&id=eq.1', { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, signal: ctl.signal });
+    if (!gr.ok) throw new Error('读取云端失败 HTTP ' + gr.status);
+    const rows = await gr.json();
+    const cur = (rows[0] && rows[0].data) || {};
+    // ⚠️ Object.assign 合并写回: 本表 id=1 单行与映射页/财务录入页(finance) 共用, 只写自己的键会抹掉别人的
+    const body = { data: Object.assign({}, cur, { catalog: Array.isArray(cur.catalog) ? cur.catalog : [], asinMap: Array.isArray(cur.asinMap) ? cur.asinMap : [], woot: entries, wootCfg: wootCfg }), updated_at: new Date().toISOString() };
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?id=eq.1', { method: 'PATCH', signal: ctl.signal,
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'x-admin-key': SUPABASE_ADMIN_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(body) });
+    clearTimeout(t);
+    if (r.ok) { setCloud('ok', '云端已同步'); saveLocal(); if (notify) flash('已保存并同步到云端'); return true; }
+    setCloud('fail', '云端保存失败 HTTP ' + r.status);
+    if (notify) flash('云端保存失败（已保存在本机）');
+    return false;
+  } catch (e) {
+    setCloud('fail', '云端保存失败');
+    if (notify) flash('云端保存失败: ' + e.message);
+    return false;
+  }
+}
+async function cloudLoad(){
+  setCloud('sync', '云端同步中…');
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data,updated_at&id=eq.1', { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, signal: ctl.signal });
+    clearTimeout(t);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    // 成本设置(毛利口径)与 woot 记录同源拉取；即使没有 woot 记录也应先同步配置
+    if (j && j.wootCfg && typeof j.wootCfg === 'object') {
+      const localCfg = JSON.stringify(wootCfg), cloudCfg = JSON.stringify(normalizeCfg(j.wootCfg));
+      if (localCfg !== cloudCfg) { wootCfg = normalizeCfg(j.wootCfg); saveCfgLocal(); renderCfgRows(); updateCfgStat(); }
+    }
+    const cloud = j && Array.isArray(j.woot) ? j.woot : null;
+    if (cloud === null) { setCloud('ok', '云端无 Woot 数据'); return; }
+    if (JSON.stringify(cloud) === JSON.stringify(entries)) { setCloud('ok', '云端已同步'); return; }
+    entries = cloud;
+    renderList();
+    saveLocal();
+    setCloud('ok', '云端已同步');
+  } catch (e) {
+    setCloud('fail', '云端加载失败（显示本机缓存）');
+  }
+}
+function saveAll(notify){ saveLocal(); cloudSave(notify); }
+
+// ===== 启动 =====
+try { const a = JSON.parse(localStorage.getItem(K_WOOT) || '[]'); if (Array.isArray(a)) entries = a; } catch(e) { entries = []; }
+loadCfgLocal();
+renderList();
+updateCfgStat();
+cloudLoad();
+</script>
+
+</body>
+</html>

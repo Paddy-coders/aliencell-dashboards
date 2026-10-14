@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 看板登录</title>
+<style>
+  :root {
+    --bg:#f5f7fa; --card:#ffffff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-soft:#eef4ff;
+    --danger:#dc2626; --danger-soft:#fef2f2; --ok:#059669;
+    --shadow:0 4px 24px rgba(16,24,40,.10);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body {
+    font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text);
+    display:flex; align-items:center; justify-content:center; min-height:100vh;
+  }
+  .login-card {
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    box-shadow:var(--shadow); padding:36px 40px 32px; width:380px; max-width:calc(100vw - 32px);
+  }
+  .logo-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .logo-dot {
+    width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#2563eb,#7c3aed);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:700;
+  }
+  .logo-text { font-size:18px; font-weight:700; }
+  .logo-sub { font-size:12px; color:var(--muted); margin-bottom:24px; line-height:1.5; }
+  .field { margin-bottom:16px; }
+  .field label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--text); }
+  .field-wrap { position:relative; }
+  .field-wrap input {
+    width:100%; padding:11px 14px; border:1px solid var(--border); border-radius:10px;
+    font-size:14px; font-family:inherit; outline:none; color:var(--text); background:#fff;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .field-wrap input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  .field-wrap input:disabled { background:#f7f8fa; cursor:not-allowed; }
+  .pw-toggle {
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    border:none; background:transparent; cursor:pointer; font-size:18px; color:var(--muted);
+    padding:4px 6px; border-radius:6px; line-height:1;
+  }
+  .pw-toggle:hover { color:var(--text); }
+  .btn-login {
+    width:100%; padding:12px; border:none; border-radius:10px;
+    background:var(--primary); color:#fff; font-size:15px; font-weight:600; cursor:pointer;
+    transition:background .15s; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-login:hover:not(:disabled) { background:var(--primary-hover); }
+  .btn-login:disabled { opacity:.6; cursor:not-allowed; }
+  .btn-login .spin {
+    width:16px; height:16px; border-radius:50%;
+    border:2px solid rgba(255,255,255,.3); border-top-color:#fff;
+    animation:spin .7s linear infinite; display:inline-block;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .error-msg {
+    background:var(--danger-soft); border:1px solid #f3c1c1; color:var(--danger);
+    border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:16px;
+    display:none; line-height:1.5;
+  }
+  .error-msg.show { display:block; }
+  .info-banner {
+    background:var(--primary-soft); border:1px solid rgba(37,99,235,.2); color:var(--primary);
+    border-radius:10px; padding:10px 14px; font-size:13px; margin-bottom:20px;
+    display:none; line-height:1.5;
+  }
+  .info-banner.show { display:block; }
+  .foot { text-align:center; margin-top:20px; font-size:12px; color:var(--muted); line-height:1.6; }
+  .foot a { color:var(--primary); text-decoration:none; font-weight:600; cursor:pointer; }
+  .foot a:hover { text-decoration:underline; }
+  .hint { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="logo-row"><span class="logo-dot">A</span><span class="logo-text">Aliencell 数据看板</span></div>
+  <div class="logo-sub">易仓ERP · 周维度 · 每日15:00刷新</div>
+
+  <div class="info-banner" id="infoBanner"></div>
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- 登录表单 -->
+  <form id="loginForm" autocomplete="on">
+    <div class="field">
+      <label for="email">邮箱</label>
+      <div class="field-wrap">
+        <input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="username" required>
+      </div>
+    </div>
+    <div class="field">
+      <label for="password">密码</label>
+      <div class="field-wrap">
+        <input type="password" id="password" name="password" placeholder="输入密码" autocomplete="current-password" required>
+        <button type="button" class="pw-toggle" id="pwToggle" tabindex="-1">&#128065;</button>
+      </div>
+    </div>
+    <button type="submit" class="btn-login" id="btnLogin">
+      <span id="btnText">登 录</span>
+    </button>
+  </form>
+
+  <!-- 注册表单 -->
+  <form id="signupForm" autocomplete="on" style="display:none">
+    <div class="field">
+      <label for="regEmail">邮箱</label>
+      <div class="field-wrap">
+        <input type="email" id="regEmail" placeholder="name@aliencell.com" autocomplete="username" required>
+      </div>
+      <div class="hint" id="domainHint"></div>
+    </div>
+    <div class="field">
+      <label for="regPassword">密码</label>
+      <div class="field-wrap">
+        <input type="password" id="regPassword" placeholder="至少 6 位" autocomplete="new-password" required>
+        <button type="button" class="pw-toggle" id="regPwToggle" tabindex="-1">&#128065;</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="regPassword2">确认密码</label>
+      <div class="field-wrap">
+        <input type="password" id="regPassword2" placeholder="再次输入密码" autocomplete="new-password" required>
+      </div>
+    </div>
+    <button type="submit" class="btn-login" id="btnSignup">
+      <span id="btnSignupText">注 册</span>
+    </button>
+  </form>
+
+  <div class="foot">
+    <span id="switchLoginText">没有账号？<a id="linkToSignup">注册账号</a></span>
+    <span id="switchSignupText" style="display:none">已有账号？<a id="linkToLogin">返回登录</a></span>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://oovvqvgrjqwogjwswaxx.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+
+  // ---- 注册白名单域名：仅允许这些域名后缀的邮箱自助注册 ----
+  // 修改此数组即可增删允许注册的邮箱域名（例如再加一个公司域名）
+  var ALLOWED_DOMAINS = ['aliencell.com'];
+
+  // ---- 本页地址：注册时作为邮件回跳地址（redirect_to）----
+  // 同一个 Supabase 项目下可能有多个前端（本站点、电商活动日历等），
+  // Site URL 是项目级配置、只有一个值，无法同时服务多个应用。
+  // 因此每个前端在注册请求里自带自己的地址，确认邮件就会跳回各自的注册来源页。
+  // file:// 下返回空串（不传该参数），本地回归测试不依赖线上配置。
+  function selfUrl() {
+    try {
+      if (location.protocol !== 'http:' && location.protocol !== 'https:') return '';
+      return location.origin + location.pathname;
+    } catch (e) { return ''; }
+  }
+  function signupPath() {
+    var back = selfUrl();
+    return '/auth/v1/signup' + (back ? ('?redirect_to=' + encodeURIComponent(back)) : '');
+  }
+
+  // ---- 超时/未登录 提示 + 邮箱验证回调处理 ----
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var reason = params.get('reason');
+    var banner = document.getElementById('infoBanner');
+    if (reason === 'timeout') {
+      banner.textContent = '因长时间未操作，已自动退出登录。请重新登录。';
+      banner.classList.add('show');
+    } else if (reason === 'logout') {
+      banner.textContent = '已安全退出登录。';
+      banner.classList.add('show');
+    } else if (reason === 'invalid') {
+      banner.textContent = '登录状态已失效，请重新登录。';
+      banner.classList.add('show');
+    }
+    var d = document.getElementById('domainHint');
+    if (d) d.textContent = '仅限 ' + ALLOWED_DOMAINS.join(' / ') + ' 域名邮箱注册';
+
+    // 处理邮箱验证回调（当 Supabase 邮件链接指向了正确域名时）
+    var hash = location.hash;
+    if (hash) {
+      var hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+      var accessToken = hashParams.get('access_token');
+      var refreshToken = hashParams.get('refresh_token');
+      var expiresIn = hashParams.get('expires_in');
+      var errCode = hashParams.get('error_code');
+      var errDesc = hashParams.get('error_description');
+      if (accessToken) {
+        // 从验证链接自动登录
+        var session = {
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+          expires_in: parseInt(expiresIn || '3600', 10),
+          user: { id: '', email: '' }
+        };
+        banner.textContent = '邮箱验证成功，正在登录…';
+        banner.classList.add('show');
+        fetch(SUPABASE_URL + '/auth/v1/user', {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + accessToken }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (user) {
+          if (user && user.id) {
+            session.user = { id: user.id, email: user.email || '' };
+            return fetchRole(session);
+          }
+          throw new Error('无法获取用户信息');
+        })
+        .then(function (role) { storeSessionAndGo(session, role); })
+        .catch(function (err) {
+          showError('验证登录失败：' + (err.message || '未知错误') + '，请手动登录。');
+        });
+      } else if (errCode || errDesc) {
+        var friendly = '邮箱验证链接已失效或过期。';
+        if (errCode === 'otp_expired') friendly = '验证链接已过期，请返回登录页重新登录。';
+        else if (errDesc && errDesc.indexOf('Email link is invalid') >= 0) friendly = '验证链接无效，请检查邮件或重新注册。';
+        banner.textContent = friendly;
+        banner.classList.add('show');
+      }
+    }
+  })();
+
+  // ---- 通用 UI 工具 ----
+  var errEl = document.getElementById('errorMsg');
+  function showError(msg) {
+    errEl.textContent = msg;
+    errEl.classList.add('show');
+  }
+  function clearError() { errEl.classList.remove('show'); }
+
+  // ---- 密码显示切换 ----
+  function bindPwToggle(btnId, inpId) {
+    document.getElementById(btnId).addEventListener('click', function () {
+      var inp = document.getElementById(inpId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    });
+  }
+  bindPwToggle('pwToggle', 'password');
+  bindPwToggle('regPwToggle', 'regPassword');
+
+  // ---- 登录/注册 切换 ----
+  function switchMode(mode) {
+    var login = mode === 'login';
+    document.getElementById('loginForm').style.display = login ? '' : 'none';
+    document.getElementById('signupForm').style.display = login ? 'none' : '';
+    document.getElementById('switchLoginText').style.display = login ? 'inline' : 'none';
+    document.getElementById('switchSignupText').style.display = login ? 'none' : 'inline';
+    clearError();
+    if (login) document.getElementById('email').focus();
+    else document.getElementById('regEmail').focus();
+  }
+  document.getElementById('linkToSignup').addEventListener('click', function () { switchMode('signup'); });
+  document.getElementById('linkToLogin').addEventListener('click', function () { switchMode('login'); });
+
+  // ---- 登录流程（含角色拉取 + 存储跳转） ----
+  function fetchRole(session) {
+    return fetch(SUPABASE_URL + '/rest/v1/profiles?select=role,email&user_id=eq.' + session.user.id + '&limit=1', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token }
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (rows) {
+      return (Array.isArray(rows) && rows.length > 0 && rows[0].role) ? rows[0].role : 'viewer';
+    })
+    .catch(function () { return 'viewer'; });
+  }
+  function storeSessionAndGo(session, role) {
+    var authData = {
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: Date.now() + (session.expires_in || 3600) * 1000,
+      user: { id: session.user.id, email: session.user.email || '' },
+      role: role
+    };
+    try { localStorage.setItem('wb_auth', JSON.stringify(authData)); } catch (e) {}
+    var hash = location.hash || '';
+    location.href = hash ? 'index.html' + hash : 'index.html';
+  }
+  function apiRequest(path, body) {
+    return fetch(SUPABASE_URL + path, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    .then(function (res) {
+      return res.json().then(function (b) { return { status: res.status, body: b }; });
+    });
+  }
+
+  // ---- 登录提交 ----
+  var btn = document.getElementById('btnLogin');
+  var btnText = document.getElementById('btnText');
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearError();
+
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    if (!email || !password) { showError('请填写邮箱和密码。'); return; }
+
+    btn.disabled = true;
+    btnText.innerHTML = '<span class="spin"></span> 登录中…';
+
+    apiRequest('/auth/v1/token?grant_type=password', { email: email, password: password })
+    .then(function (r) {
+      if (r.status !== 200 || !r.body.access_token) {
+        var msg = '登录失败';
+        if (r.body.error_description) msg = r.body.error_description;
+        else if (r.body.message) msg = r.body.message;
+        else if (r.body.code === 'invalid_credentials' || r.body.code === 'Invalid credentials') msg = '邮箱或密码不正确';
+        throw new Error(msg);
+      }
+      return r.body;
+    })
+    .then(function (session) { return fetchRole(session).then(function (role) { return { session: session, role: role }; }); })
+    .then(function (result) { storeSessionAndGo(result.session, result.role); })
+    .catch(function (err) {
+      showError(err.message || '登录失败，请稍后重试。');
+      btn.disabled = false;
+      btnText.textContent = '登 录';
+    });
+  });
+
+  // ---- 注册提交 ----
+  var btnS = document.getElementById('btnSignup');
+  var btnSText = document.getElementById('btnSignupText');
+  function domainAllowed(email) {
+    var at = email.lastIndexOf('@');
+    if (at <= 0 || at === email.length - 1) return false;
+    var d = email.slice(at + 1).toLowerCase();
+    return ALLOWED_DOMAINS.indexOf(d) !== -1;
+  }
+  function mapSignupError(body) {
+    var code = String(body.code || body.error_code || '').toLowerCase();
+    var msg = String(body.msg || body.message || body.error_description || '');
+    if (code.indexOf('email_taken') >= 0 || msg.indexOf('already registered') >= 0) return '该邮箱已注册，请直接登录。';
+    if (code.indexOf('weak_password') >= 0 || msg.indexOf('password should be') >= 0) return '密码强度不足，至少需要 6 位。';
+    if (code.indexOf('validation_failed') >= 0 || msg.indexOf('unable to validate') >= 0) return '邮箱格式无效，请检查后重试。';
+    return '注册失败：' + (msg || code || '未知错误') + '。';
+  }
+  document.getElementById('signupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearError();
+
+    var email = document.getElementById('regEmail').value.trim();
+    var pw = document.getElementById('regPassword').value;
+    var pw2 = document.getElementById('regPassword2').value;
+    if (!email || !pw || !pw2) { showError('请填写完整注册信息。'); return; }
+    if (!domainAllowed(email)) {
+      showError('该邮箱域名不在允许注册范围内，仅限 ' + ALLOWED_DOMAINS.join(' / ') + ' 邮箱注册。如需账号请联系管理员。');
+      return;
+    }
+    if (pw.length < 6) { showError('密码至少 6 位。'); return; }
+    if (pw !== pw2) { showError('两次输入的密码不一致。'); return; }
+
+    btnS.disabled = true;
+    btnSText.innerHTML = '<span class="spin"></span> 注册中…';
+
+    apiRequest(signupPath(), { email: email, password: pw })
+    .then(function (r) {
+      if (r.status === 200) {
+        if (r.body.access_token) {
+          // Confirm email 未开启：注册即登录
+          return fetchRole(r.body).then(function (role) { storeSessionAndGo(r.body, role); });
+        }
+        // 需邮箱验证：提示去收件箱
+        var banner = document.getElementById('infoBanner');
+        banner.textContent = '注册成功！验证邮件已发送至 ' + email + '，请点击邮件中的链接完成验证后再登录。';
+        banner.classList.add('show');
+        document.getElementById('signupForm').reset();
+        switchMode('login');
+        document.getElementById('email').value = email;
+        return;
+      }
+      throw new Error(mapSignupError(r.body));
+    })
+    .catch(function (err) {
+      showError(err.message || '注册失败，请稍后重试。');
+      btnS.disabled = false;
+      btnSText.textContent = '注 册';
+    });
+  });
+
+  // 回车提交
+  document.getElementById('email').focus();
+</script>
+</body>
+</html>

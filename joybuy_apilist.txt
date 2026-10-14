@@ -1,0 +1,629 @@
+
+
+########## Aftersales‌Overview‌  (clicked=1) ##########
+URL: https://open-portal.joybuy.com/#/doc/api?apiCateId=11&apiId=-11&apiName=Aftersales%E2%80%8COverview%E2%80%8C&gwType=1&businessModel=1
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+Login
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Aftersales‌Overview‌
+getAfsOrder
+patchAfsOrder
+listAfsOrders
+listAfsOrderLogs
+Supply Chain
+Supply ChainOverview‌
+queryWaybill
+appendWaybill
+applyFirstWaybill
+Vender
+Product
+Order
+API Documentation
+Aftersales‌
+Aftersales‌Overview‌
+Aftersales‌Overview‌
+FBM
+All APIs
+API Name
+	
+Description
+	
+Action
+getAfsOrder
+GET sp-aftercare/v0/afs-orders/{afsOrderId}
+	
+1.Supports querying documents of cancellation or after-sales types, distinguished by the after-sales type reverseType. 2.Supports querying service orders in FBM and FBJ modes.
+	
+View Documentation
+
+
+patchAfsOrder
+PATCH sp-aftercare/v0/afs-orders/{afsOrderId}
+	
+After-sales service order operations, including merchant review actions such as refund approval, rejection of service requests, approval for replacement without return, approval for offline replacemen
+	
+View Documentation
+
+
+listAfsOrders
+GET sp-aftercare/v0/afs-orders
+	
+Query the list of JD.com after-sales service orders based on different conditions, including self-managed after-sales documents, and support for POP and other modes.
+	
+View Documentation
+
+
+listAfsOrderLogs
+GET sp-aftercare/v0/afs-orders/{afsOrderId}/logs
+	
+Query Service Order Log List
+	
+View Documentation
+
+
+########## Vender  (clicked=1) ##########
+URL: https://open-portal.joybuy.com/#/doc/api?apiCateId=31&apiId=-31&apiName=VenderOverview%E2%80%8C&gwType=1&businessModel=1
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+Login
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Aftersales‌Overview‌
+getAfsOrder
+patchAfsOrder
+listAfsOrders
+listAfsOrderLogs
+Supply Chain
+Vender
+VenderOverview‌
+postBrandCategoryCheck
+listVenderBrands
+listVenderShops
+listVenderCategories
+Product
+Order
+API Documentation
+Vender
+VenderOverview‌
+VenderOverview‌
+FBM
+All APIs
+API Name
+	
+Description
+	
+Action
+postBrandCategoryCheck
+POST sp-seller/v0/brand-categories/validations
+	
+-
+	
+View Documentation
+
+
+listVenderBrands
+GET sp-seller/v0/vender-brands
+	
+Used for Joybuy merchants to query available product brands when posting products.
+	
+View Documentation
+
+
+listVenderShops
+GET sp-seller/v0/venders/self/shops
+	
+Used for Joybuy merchant query of store list under the site.
+	
+View Documentation
+
+
+listVenderCategories
+GET sp-seller/v0/vender-categories
+	
+Used for Joybuy merchants to search for available product categories when distributing products.
+	
+View Documentation
+
+
+########## Product  (clicked=1) ##########
+URL: https://open-portal.joybuy.com/#/doc/api?apiCateId=32&apiId=-32&apiName=ProductOverview%E2%80%8C&gwType=1&businessModel=1
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+Login
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Aftersales‌Overview‌
+getAfsOrder
+patchAfsOrder
+listAfsOrders
+listAfsOrderLogs
+Supply Chain
+Supply ChainOverview‌
+queryWaybill
+appendWaybill
+applyFirstWaybill
+Vender
+VenderOverview‌
+postBrandCategoryCheck
+listVenderBrands
+listVenderShops
+listVenderCategories
+Product
+ProductOverview‌
+batchPutSkuState
+listProducts
+getQualificationPreSignedUrl
+getProductApplyDetail
+listProductPublishTemplates
+listSkuStocks
+postVideo
+batchDeleteVideo
+listSkus
+listMediaZoneCategories
+listSearchVideos
+listVideoUploadUrls
+patchVideo
+listProductApplies
+patchMediaZoneImage
+putProductStatus
+postQualification
+getMediaZoneImage
+getProduct
+batchPutSkuStock
+batchDeleteMediaZoneImage
+listMediaZoneImages
+listQualificationsCatecory
+batchDeleteQualificationFiles
+listQualificationCenterFiles
+postProductApply
+postMediaZoneImage
+Order
+API Documentation
+Product
+ProductOverview‌
+ProductOverview‌
+FBM
+All APIs
+API Name
+	
+Description
+	
+Action
+batchPutSkuState
+PUT sp-product/v0/sku-states/batch
+	
+Interface for editing SKU cabinet status
+	
+View Documentation
+
+
+listProducts
+GET sp-product/v0/products
+	
+-
+	
+View Documentation
+
+
+getQualificationPreSignedUrl
+GET sp-product/v0/qualification-pre-signed-url/{fileName}
+	
+Get the pre-signed URL.
+	
+View Documentation
+
+
+getProductApplyDetail
+GET sp-product/v0/product-apply/{applyId}
+	
+-
+	
+View Documentation
+
+
+listProductPublishTemplates
+GET sp-product/v0/product-schemas
+	
+Query category listing rules
+	
+View Documentation
+
+
+listSkuStocks
+GET sp-product/v0/sku-stocks
+	
+Used for Joybuy POP merchants to query SKU inventory information, only supports POP mode.
+	
+View Documentation
+
+
+postVideo
+POST sp-product/v0/videos
+	
+Upload video information.
+	
+View Documentation
+
+
+batchDeleteVideo
+DELETE sp-product/v0/videos/batch
+	
+Batch delete video information.
+	
+View Documentation
+
+
+listSkus
+GET sp-product/v0/skus
+	
+Query SKU list with pagination and filtering.
+	
+View Documentation
+
+
+listMediaZoneCategories
+GET sp-product/v0/media-zones/{zoneId}/categories
+	
+Query spatial classification information.
+	
+View Documentation
+
+
+listSearchVideos
+GET sp-product/v0/videos
+	
+Query video list.
+	
+View Documentation
+
+
+listVideoUploadUrls
+GET sp-product/v0/video-upload-urls
+	
+Obtain the video upload URL.
+	
+View Documentation
+
+
+patchVideo
+PATCH sp-product/v0/videos/{videoId}
+	
+Update video information.
+	
+View Documentation
+
+
+listProductApplies
+GET sp-product/v0/product-applies
+	
+-
+	
+View Documentation
+
+
+patchMediaZoneImage
+PATCH sp-product/v0/media-zones/{zoneId}/images/{imageId}
+	
+Update image information in the image space
+	
+View Documentation
+
+
+putProductStatus
+PUT sp-product/v0/product-states/{productId}
+	
+Used to modify the on/off status information of products.
+	
+View Documentation
+
+
+postQualification
+POST sp-product/v0/qualification
+	
+Upload Qualification File Information.
+	
+View Documentation
+
+
+getMediaZoneImage
+GET sp-product/v0/media-zones/{zoneId}/images/{imageId}
+	
+Retrieve image information from the image space
+	
+View Documentation
+
+
+getProduct
+GET sp-product/v0/products/{productId}
+	
+Used to obtain product details.
+	
+View Documentation
+
+
+batchPutSkuStock
+PUT sp-product/v0/sku-stocks/batch
+	
+Bulk set inventory for Joybuy POP mode (supports incremental/full updates.
+	
+View Documentation
+
+
+batchDeleteMediaZoneImage
+DELETE sp-product/v0/media-zones/{zoneId}/images/batch
+	
+Batch delete image information
+	
+View Documentation
+
+
+listMediaZoneImages
+GET sp-product/v0/media-zones/{zoneId}/images
+	
+Query the list of images in the image space
+	
+View Documentation
+
+
+listQualificationsCatecory
+GET sp-product/v0/listQualificationsCatecory
+	
+Qualification Center File Classification
+	
+View Documentation
+
+
+batchDeleteQualificationFiles
+DELETE sp-product/v0/deleteQualifications
+	
+Bulk delete qualification data
+	
+View Documentation
+
+
+listQualificationCenterFiles
+GET sp-product/v0/listQualifications
+	
+Query Qualification Information List
+	
+View Documentation
+
+
+postProductApply
+POST sp-product/v0/product-schema
+	
+Submit a product creation or full-page editing application.
+	
+View Documentation
+
+
+postMediaZoneImage
+POST sp-product/v0/media-zones/{zoneId}/images
+	
+Upload and save image information
+	
+View Documentation
+
+
+########## Order  (clicked=1) ##########
+URL: https://open-portal.joybuy.com/#/doc/api?apiCateId=33&apiId=-33&apiName=OrderOverview%E2%80%8C&gwType=1&businessModel=1
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+Login
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Aftersales‌Overview‌
+getAfsOrder
+patchAfsOrder
+listAfsOrders
+listAfsOrderLogs
+Supply Chain
+Vender
+VenderOverview‌
+postBrandCategoryCheck
+listVenderBrands
+listVenderShops
+listVenderCategories
+Product
+ProductOverview‌
+batchPutSkuState
+listProducts
+getQualificationPreSignedUrl
+getProductApplyDetail
+listProductPublishTemplates
+listSkuStocks
+postVideo
+batchDeleteVideo
+listSkus
+listMediaZoneCategories
+listSearchVideos
+listVideoUploadUrls
+patchVideo
+listProductApplies
+patchMediaZoneImage
+putProductStatus
+postQualification
+getMediaZoneImage
+getProduct
+batchPutSkuStock
+batchDeleteMediaZoneImage
+listMediaZoneImages
+listQualificationsCatecory
+batchDeleteQualificationFiles
+listQualificationCenterFiles
+postProductApply
+postMediaZoneImage
+Order
+OrderOverview‌
+putOrderShipments
+postOrderShipment
+listCarriers
+getWayBillTraces
+deleteSelfInvoice
+uploadSelfInvoice
+querySelfInvoice
+getCancelReason
+sellerCancelOrder
+getCancelOrderInfo
+listOrderOaidAddresses
+listOrders
+getOrder
+API Documentation
+Order
+OrderOverview‌
+OrderOverview‌
+FBM
+All APIs
+API Name
+	
+Description
+	
+Action
+putOrderShipments
+PUT sp-order/v0/orders/{orderId}/shipments
+	
+modify the waybill information of the specified FBM order
+	
+View Documentation
+
+
+postOrderShipment
+POST sp-order/v0/orders/{orderId}/shipment
+	
+support FBM order outbound
+	
+View Documentation
+
+
+listCarriers
+GET sp-order/v0/carrier
+	
+used for querying the carrier list
+	
+View Documentation
+
+
+getWayBillTraces
+GET sp-order/v0/waybill-traces
+	
+This interface is used for querying logistics tracking information.
+	
+View Documentation
+
+
+deleteSelfInvoice
+POST sp-order/v1/deleteSelfInvoice
+	
+Delete merchant self-issued invoice.
+	
+View Documentation
+
+
+uploadSelfInvoice
+POST sp-order/v1/uploadSelfInvoice
+	
+Upload a self-issued invoice for an international POP order to JOS. The seller provides the order ID, invoice number and file URL; the invoice is bound after the order is shipped or completed.
+	
+View Documentation
+
+
+querySelfInvoice
+POST sp-order/v1/querySelfInvoice
+	
+Query POP merchant self-invoiced invoice information; returns the list of merchant-uploaded invoices bound to the order.
+	
+View Documentation
+
+
+getCancelReason
+POST sp-order/v1/getCancelReason
+	
+Query the list of merchant cancel reasons for an order, returning reason ID, name, type and whether a voucher is required.
+	
+View Documentation
+
+
+sellerCancelOrder
+POST sp-order/v1/sellerCancelOrder
+	
+Creates a cancellation negotiation order for an international POP merchant order.
+	
+View Documentation
+
+
+getCancelOrderInfo
+POST sp-order/v1/getCancelOrderInfo
+	
+Query cancel order info by order ID, only pending negotiation orders are returned.
+	
+View Documentation
+
+
+listOrderOaidAddresses
+POST sp-order/v0/order-oaid-addresses
+	
+POP users can use this interface to decrypt the OAID and get the plain text information.
+	
+View Documentation
+
+
+listOrders
+GET sp-order/v0/orders
+	
+This API provides JD POP order list query functionality, supporting SOP order type. It adopts an optional field mechanism, and the caller needs to explicitly specify the field names to be returned.
+	
+View Documentation
+
+
+getOrder
+GET sp-order/v0/orders/{orderId}
+	
+This API provides JD POP order detail query functionality, supporting SOP order type. It adopts an optional field mechanism, and the caller needs to explicitly specify the field names to be returned.
+	
+View Documentation

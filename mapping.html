@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aliencell 产品映射管理</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --border:#e5e9f0; --text:#1f2733; --muted:#6b7688;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-soft:#eef4ff; --danger:#dc2626; --ok:#059669;
+    --shadow:0 1px 3px rgba(16,24,40,.08); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:18px 22px 34px; }
+  .wrap { max-width:980px; margin:0 auto; }
+
+  .head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .head h1 { font-size:20px; font-weight:700; }
+  .head .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.6; }
+  .head-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 16px; box-shadow:var(--shadow); }
+  .stat b { font-size:18px; color:var(--primary); }
+  .stat span { font-size:12px; color:var(--muted); margin-left:6px; }
+  .cloud-stat { cursor:default; }
+  .cloud-stat.ok { border-color:#b7e4cd; background:#f0fdf6; }
+  .cloud-stat.ok span { color:#059669; }
+  .cloud-stat.fail { border-color:#f3c1c1; background:#fdf2f2; }
+  .cloud-stat.fail span { color:#dc2626; }
+  .cloud-stat.sync { border-color:#f4e0b3; background:#fdfaf0; }
+  .cloud-stat.sync span { color:#b7791f; }
+
+  .btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:6px 14px; border-radius:8px; font-size:13px; cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--primary); color:var(--primary); }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn.primary:hover { background:var(--primary-hover); color:#fff; }
+  .btn.danger { color:var(--danger); }
+  .btn.danger:hover { border-color:var(--danger); }
+  .mini { border:1px solid var(--border); background:#fff; padding:2px 10px; border-radius:6px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .mini:hover { border-color:var(--primary); color:var(--primary); }
+  .mini.danger { color:var(--danger); }
+  .mini.danger:hover { border-color:var(--danger); }
+  .mini-sel { padding:4px 6px; border:1px solid var(--border); border-radius:6px; font-size:12px; font-family:inherit; background:#fff; color:var(--text); max-width:220px; outline:none; }
+  .mini-sel:focus { border-color:var(--primary); }
+
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { border:1px solid var(--border); background:var(--card); color:var(--text); padding:9px 18px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:var(--shadow); transition:all .15s; }
+  .tab.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .tabview { display:none; }
+  .tabview.active { display:block; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .card-title .hint { font-size:11px; color:var(--muted); font-weight:400; }
+  .form-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .inp { padding:7px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; outline:none; color:var(--text); background:#fff; }
+  .inp:focus { border-color:var(--primary); }
+  .inp.wide { flex:1; min-width:160px; }
+  .inp.mid { min-width:120px; }
+
+  .import-box { display:flex; flex-direction:column; gap:8px; }
+  .import-box .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .import-box textarea { width:100%; min-height:90px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:12px; font-family:inherit; resize:vertical; outline:none; color:var(--text); background:#fbfcfe; }
+  .import-box textarea:focus { border-color:var(--primary); }
+  .import-hint { font-size:11px; color:var(--muted); line-height:1.7; }
+
+  .grp { border:1px solid var(--border); border-radius:10px; margin-bottom:10px; overflow:hidden; }
+  .grp-head { background:#f8fafc; padding:7px 14px; font-size:13px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
+  .grp-head.collapsed { border-bottom:none; }
+  .grp-head .grp-name { font-weight:600; cursor:pointer; flex:1; min-width:0; display:flex; align-items:center; gap:6px; }
+  .grp-head .grp-count { color:var(--muted); font-size:11px; }
+  .grp-head .grp-actions { display:flex; gap:5px; align-items:center; }
+  .grp-head .caret { color:var(--muted); font-size:11px; width:14px; text-align:center; transition:transform .15s; display:inline-block; }
+  .icon-btn { border:1px solid var(--border); background:#fff; padding:1px 8px; border-radius:6px; font-size:12px; cursor:pointer; color:var(--muted); transition:all .15s; line-height:1.7; }
+  .icon-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .icon-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
+  .grp-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 14px 7px 30px; font-size:13px; border-bottom:1px solid #f1f5f9; }
+  .grp-row:last-child { border-bottom:none; }
+  .grp-row:hover { background:#fafcff; }
+  .grp-row .row-main { flex:1; min-width:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .grp-row .row-acts { display:flex; gap:5px; align-items:center; flex-shrink:0; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; background:var(--primary-soft); color:var(--primary); border:1px solid #dbe7ff; }
+  .seg { display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .seg button { border:none; background:#fff; padding:4px 12px; font-size:12px; cursor:pointer; color:var(--muted); }
+  .seg button.active { background:var(--primary); color:#fff; }
+
+  table.tbl { width:100%; border-collapse:collapse; font-size:13px; }
+  table.tbl th, table.tbl td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
+  table.tbl th { background:#f8fafc; font-weight:600; color:var(--muted); font-size:12px; }
+  table.tbl tr:hover td { background:#fafcff; }
+
+  .empty { text-align:center; color:var(--muted); font-size:13px; padding:26px 0; }
+  .toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:#111827; color:#fff; font-size:13px;
+    padding:9px 18px; border-radius:8px; opacity:0; pointer-events:none; transition:all .25s; z-index:99; }
+  .toast.show { opacity:.94; transform:translateX(-50%) translateY(0); }
+  .ok { color:var(--ok); }
+  .muted { color:var(--muted); }
+  .foot-note { text-align:center; color:var(--muted); font-size:11px; margin-top:6px; line-height:1.7; }
+  @media (max-width:760px){ .head-actions .btn, .stats .stat { width:100%; } }
+</style>
+<script src="xlsx.full.min.js"></script>
+<style>
+/* note-fold: 解释块折叠 (2026-10-12) */
+.noteFold{margin-top:8px;border:1px solid var(--border);border-radius:8px;background:rgba(127,127,127,.045);}
+.noteFold>summary{cursor:pointer;list-style:none;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;user-select:none;}
+.noteFold>summary::-webkit-details-marker{display:none;}
+.noteFold>summary::marker{content:'';}
+.noteFold>summary::before{content:'▸';font-size:11px;display:inline-block;transition:transform .15s;}
+.noteFold[open]>summary::before{transform:rotate(90deg);}
+.noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
+.noteFold[open]>summary::after{content:'收起';}
+.noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+</style>
+<script>
+/* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
+(function(){
+  function sync(){
+    var ds = document.querySelectorAll('details.noteFold');
+    for (var i = 0; i < ds.length; i++) {
+      var b = ds[i].querySelector('.note,.foot-note');
+      ds[i].style.display = (b && b.textContent.trim()) ? '' : 'none';
+    }
+  }
+  window.__syncNoteFold = sync;      // 供动态填充说明块的页面（JoyBuy）在填充后调用
+  function boot(){
+    sync();
+    // 说明块常由 JS 异步填充（如 JoyBuy 的 #filterNote/#footNote）：
+    // 填充前被判为空块而 display:none，填充后必须重跑，否则说明块永久消失。
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function(){ sync(); });
+      var ds = document.querySelectorAll('details.noteFold');
+      for (var i = 0; i < ds.length; i++) mo.observe(ds[i], { childList: true, characterData: true, subtree: true });
+    }
+    setTimeout(sync, 0); setTimeout(sync, 800);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</head>
+<body>
+<script>
+  // === 认证守卫(子页面)：无登录态 → 跳转登录页；壳页 iframe 内则让顶层窗口跳转(同源可行) ===
+  // 只做「有无登录态」的同步检查，不做 token 异步校验与刷新 —— refresh_token 单次有效，
+  // 子页面若也去刷新会和壳页互相作废(误登出)，刷新统一由壳页负责。
+  (function () {
+    var A = null;
+    try { A = JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) {}
+    if (A && A.access_token) return;
+    try { if (window.top && window.top !== window.self) { window.top.location.replace('login.html'); return; } } catch (e) {}
+    location.replace('login.html');
+  })();
+</script>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>📦 Aliencell 产品映射管理</h1>
+      <div class="sub">维护「产品系列 / 产品名」目录与「ASIN → 产品」匹配关系（匹配可按国家/地区 EU/UK/US/CA/JP/AU 分别维护），保存后看板立即生效（本机浏览器）。<br>匹配后可在每日数据看板按 <b>产品系列 / 产品名</b> 筛选；未匹配的 ASIN 自动归属「无」。</div>
+    </div>
+    <div class="head-actions">
+      <button class="btn" onclick="goBack()">◀ 返回看板</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="stSeries">0</b><span>个系列</span></div>
+    <div class="stat"><b id="stNames">0</b><span>个产品名</span></div>
+    <div class="stat"><b id="stAsin">0</b><span>条ASIN匹配</span></div>
+    <div class="stat cloud-stat" id="cloudStat" title="映射云端同步状态"><span id="cloudBadge">云端同步中…</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabBtnCatalog" onclick="switchTabView('catalog')">🗂️ 产品名 / 系列</button>
+    <button class="tab" id="tabBtnAsin" onclick="switchTabView('asin')">🔗 ASIN 匹配</button>
+  </div>
+
+  <!-- ============ 目录管理 ============ -->
+  <div class="tabview active" id="viewCatalog">
+    <div class="card">
+      <div class="card-title">➕ 添加产品 <span class="hint">输入产品系列与产品名，逐个添加</span></div>
+      <div class="form-row">
+        <input class="inp mid" id="cSeries" placeholder="产品系列，如 X1">
+        <input class="inp mid" id="cName" placeholder="产品名，如 手机支架A">
+        <button class="btn primary" onclick="addCatalogItem()">添加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📥 批量导入 <span class="hint">支持 JSON / CSV / XLS / XLSX / 粘贴文本，自动识别表头</span></div>
+      <div class="import-box">
+        <div class="row">
+          <input type="file" id="cFile" accept=".json,.csv,.txt,.xls,.xlsx" style="display:none">
+          <button class="btn" onclick="document.getElementById('cFile').click()">选择文件（JSON/CSV/XLS/XLSX）</button>
+          <button class="btn primary" onclick="importCatalogFromText()">解析并导入</button>
+        </div>
+        <textarea id="cText" placeholder="粘贴内容…&#10;示例(CSV)：&#10;产品系列,产品名&#10;X1,手机支架A&#10;X2,充电器B&#10;或 JSON：&#10;[{&quot;series&quot;:&quot;X1&quot;,&quot;name&quot;:&quot;手机支架A&quot;}]&#10;或对象格式：{&quot;X1&quot;:[&quot;手机支架A&quot;]}"></textarea>
+        <div class="import-hint">CSV 表头可含「系列 / series / 产品名 / 名称 / name」；无表头时按「系列,产品名」顺序。JSON 支持数组 [{series,name}]、{系列:[产品名]}、或完整 {catalog:[...],asinMap:[...]} 结构。Excel（.xls/.xlsx）仅读取第一个工作表，表头识别与 CSV 相同。目录卡片上「⬇️ 导出 CSV」导出的文件（表头「产品系列,产品名」）可直接再导回这里，也可在 Excel 里批量整理后再导入。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 产品目录 <span class="hint" id="catalogCount"></span>
+        <span style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn" onclick="toggleAllCatalog()" id="btnExpandCat">🔽 全部展开</button>
+          <button class="btn" onclick="exportCatalogCsv()" title="导出 产品系列,产品名 两列（UTF-8 BOM，可直接用 Excel 打开、也可再导入回来）">⬇️ 导出 CSV</button>
+          <button class="btn" onclick="exportJson()">⬇️ 导出 product_map.json</button>
+          <button class="btn danger" onclick="clearCatalog()">🗑 清空目录</button>
+        </span>
+      </div>
+      <div id="catalogTable"></div>
+    </div>
+  </div>
+
+  <!-- ============ ASIN 匹配管理 ============ -->
+  <div class="tabview" id="viewAsin">
+    <div class="card">
+      <div class="card-title">➕ 添加 / 更新匹配 <span class="hint">先选产品系列，再选该系列下的产品名（级联），国家/地区为选择项</span></div>
+      <div class="form-row">
+        <input class="inp mid" id="aAsin" placeholder="ASIN，如 B0H69JJZ1M" style="text-transform:uppercase">
+        <select class="inp mid" id="aCountry" onchange=""></select>
+        <select class="inp mid" id="aSeries" onchange="renderFormNames()"></select>
+        <select class="inp mid" id="aName"></select>
+        <button class="btn primary" onclick="addAsinItem()">添加 / 更新</button>
+      </div>
+      <div class="import-hint" style="margin-top:8px;">国家/地区为选择项：<b>EU / UK / US / CA / JP / AU</b>（欧盟统一叫 EU，默认 EU）。同一 ASIN 可在不同地区分别维护（按 ASIN+地区 区分）；产品系列/产品名必须已在「产品名 / 系列」页上传（若导入时带新系列会自动补录到目录）。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📥 批量导入 / 自动发现 <span class="hint">支持 JSON / CSV / XLS / XLSX / 粘贴</span></div>
+      <div class="import-box">
+        <div class="row">
+          <input type="file" id="aFile" accept=".json,.csv,.txt,.xls,.xlsx" style="display:none">
+          <button class="btn" onclick="document.getElementById('aFile').click()">选择文件（JSON/CSV/XLS/XLSX）</button>
+          <button class="btn primary" onclick="importAsinFromText()">解析并导入</button>
+          <button class="btn" id="btnDiscover" onclick="importAsinsFromData()">📡 从每日数据导入未匹配 ASIN</button>
+        </div>
+        <textarea id="aText" placeholder="粘贴内容…&#10;示例(CSV)：&#10;ASIN,产品系列,产品名,国家&#10;B0H69JJZ1M,X1,手机支架A,EU&#10;B0H69JJZ1M,X1,手机支架A,US&#10;或 JSON：&#10;[{&quot;asin&quot;:&quot;B0H69JJZ1M&quot;,&quot;series&quot;:&quot;X1&quot;,&quot;name&quot;:&quot;手机支架A&quot;,&quot;country&quot;:&quot;EU&quot;}]"></textarea>
+        <div class="import-hint">CSV 表头可含「ASIN / 商品编码 / 系列 / 产品名 / 国家（country、地区）」；无表头按「ASIN,系列,产品名」顺序（可选第 4 列国家，缺省 EU）。Excel（.xls/.xlsx）仅读取第一个工作表，表头识别与 CSV 相同。「⬇️ 导出 CSV / 导出未匹配」导出的文件（表头「ASIN,产品系列,产品名,国家」）可直接再导回这里：先在 Excel 里批量填好系列/产品名，再「选择文件」导入即可完成映射更新。「从每日数据导入」会读取每日数据看板中出现的全部 ASIN，未匹配的自动列出（系列/产品名显示「无」，默认地区 EU，可逐行修改）。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 匹配列表 <span class="hint" id="asinCount"></span>
+        <span style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <span class="seg" id="asinGroupSeg">
+            <button class="active" id="grpBtnSeries" onclick="setAsinGroup('series')">按系列</button>
+            <button id="grpBtnCountry" onclick="setAsinGroup('country')">按国家</button>
+          </span>
+          <select id="asinCountryFilter" onchange="setAsinCountryFilter(this.value)" title="按国家/地区筛选匹配列表（配合「按系列」或「按国家」分组使用）" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;cursor:pointer;"></select>
+          <button class="btn" onclick="toggleAllAsin()" id="btnExpandAsin">🔽 全部展开</button>
+          <button class="btn" onclick="exportAsinCsv(false)" title="导出 ASIN,产品系列,产品名,国家 四列（全部匹配记录，可在 Excel 里批量修改后再导入回来）">⬇️ 导出 CSV</button>
+          <button class="btn" onclick="exportAsinCsv(true)" title="只导出系列/产品名为「无」的未匹配 ASIN，方便填好映射后再导入回来">⬇️ 导出未匹配</button>
+          <button class="btn" onclick="exportJson()">⬇️ 导出 product_map.json</button>
+          <button class="btn danger" onclick="clearAsin()">🗑 清空全部匹配</button>
+        </span>
+      </div>
+      <div id="asinTable"></div>
+    </div>
+  </div>
+
+  <details class="noteFold">
+  <summary>📖 云端同步与导入导出说明</summary>
+  <div class="foot-note">数据自动同步到云端数据库（Supabase），任何人的修改保存后所有访问者打开管理页/看板都会加载最新映射；本机浏览器缓存优先保证离线可用。也可点「导出 product_map.json」保存到本地（自动化工作目录 C:\Users\paddy\WorkBuddy\2026-08-18-14-43-38\product_map.json）作为备份。做映射管理建议用「⬇️ 导出 CSV」：产品目录导出「产品系列,产品名」，ASIN 匹配导出「ASIN,产品系列,产品名,国家」（或只导出未匹配的），CSV 带 UTF-8 BOM 可直接用 Excel 打开编辑，改完存成 CSV 再从上方「选择文件」导回来即可批量更新（表头已与导入识别对齐，无需改动）。</div>
+</details>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= 状态 =================
+let catalog = [];  // [{series,name}] 唯一组合
+let asinMap = [];  // [{asin,series,name,country}] 唯一键 asin+country
+let editing = null; // {type:'series'|'name'|'addName', s, n} 当前编辑中的目录项
+const openCatalog = new Set();   // 已展开的系列
+const openAsin = new Set();      // 已展开的 ASIN 分组
+let asinGroupBy = 'series';      // 'series' | 'country'
+let asinCountryFilter = '';      // '' = 全部国家, 否则为 COUNTRIES 之一
+
+const K_CAT = 'pc_catalog', K_ASIN = 'pc_asinmap';
+const K_OPEN_CAT = 'pc_open_cat', K_OPEN_ASIN = 'pc_open_asin', K_ASIN_GROUP = 'pc_asin_group', K_ASIN_COUNTRY = 'pc_asin_country';
+const COUNTRIES = ['EU', 'UK', 'US', 'CA', 'JP', 'AU'];
+// ===== 云端同步配置 (Supabase PostgREST) =====
+const SUPABASE_URL = 'https://oovvqvgrjqwogjwswaxx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_OOmvEVK2RnetfT_tWKHGgA_epmNnz0s';
+const SUPABASE_ADMIN_KEY = 'wb-map-2026'; // 与数据库 RLS 管理密钥一致（防无关人员写入）
+let cloudState = 'sync'; // sync=同步中 ok=已同步 fail=失败
+let cloudAt = '';
+let _cloudTimer = null;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const countryOf = m => (m && COUNTRIES.includes(m.country)) ? m.country : 'EU';
+
+function normalizeAsinMap(){
+  asinMap.forEach(m => { if (!COUNTRIES.includes(m.country)) m.country = 'EU'; });
+}
+function loadOpen(){
+  try { JSON.parse(localStorage.getItem(K_OPEN_CAT) || '[]').forEach(k => openCatalog.add(k)); } catch(e){}
+  try { JSON.parse(localStorage.getItem(K_OPEN_ASIN) || '[]').forEach(k => openAsin.add(k)); } catch(e){}
+  try { const g = localStorage.getItem(K_ASIN_GROUP); if (g === 'series' || g === 'country') asinGroupBy = g; } catch(e){}
+  try { const cf = localStorage.getItem(K_ASIN_COUNTRY); if (cf === '' || COUNTRIES.includes(cf)) asinCountryFilter = cf || ''; } catch(e){}
+}
+function saveOpen(){
+  try {
+    localStorage.setItem(K_OPEN_CAT, JSON.stringify([...openCatalog]));
+    localStorage.setItem(K_OPEN_ASIN, JSON.stringify([...openAsin]));
+    localStorage.setItem(K_ASIN_GROUP, asinGroupBy);
+    localStorage.setItem(K_ASIN_COUNTRY, asinCountryFilter);
+  } catch(e){}
+}
+
+function loadState(){
+  try { catalog = JSON.parse(localStorage.getItem(K_CAT) || '[]'); } catch(e){ catalog = []; }
+  try { asinMap = JSON.parse(localStorage.getItem(K_ASIN) || '[]'); } catch(e){ asinMap = []; }
+  if (!Array.isArray(catalog)) catalog = [];
+  if (!Array.isArray(asinMap)) asinMap = [];
+  const needPatch = asinMap.some(m => !COUNTRIES.includes(m.country));
+  normalizeAsinMap();
+  if (needPatch) saveAll(false);  // 旧数据补国家并写回
+  loadOpen();
+}
+function saveAll(notify){
+  try {
+    localStorage.setItem(K_CAT, JSON.stringify(catalog));
+    localStorage.setItem(K_ASIN, JSON.stringify(asinMap));
+  } catch(e){ flash('保存失败: ' + e.message); }
+  updateStatus();
+  if (notify !== false) notifyParent('wb-map-changed');
+  // 防抖推送云端（400ms 内多次保存只推一次）
+  clearTimeout(_cloudTimer);
+  _cloudTimer = setTimeout(cloudSave, 400);
+}
+async function cloudSave(){
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    // 防互踩: 本表是 id=1 单行, 与 Woot 页 / 财务录入页(finance 键) 共用 ——
+    //   写回前先取云端最新, 再把本页的键合上去, 其余键原样保留(否则会抹掉 finance/wootCfg)
+    let wootKeep = [], curData = {};
+    try {
+      const gr = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data&id=eq.1', { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, signal: ctl.signal });
+      if (gr.ok) {
+        const rows = await gr.json();
+        const cur = rows && rows[0] && rows[0].data;
+        if (cur && typeof cur === 'object') curData = cur;
+        if (cur && Array.isArray(cur.woot)) wootKeep = cur.woot;
+      }
+    } catch (e) {}
+    const body = { data: Object.assign({}, curData, { catalog: catalog, asinMap: asinMap, woot: wootKeep }), updated_at: new Date().toISOString() };
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?id=eq.1', {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'x-admin-key': SUPABASE_ADMIN_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(body),
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (r.ok) { cloudState = 'ok'; cloudAt = '刚刚'; }
+    else { cloudState = 'fail'; flash('云端同步失败（已保存在本机）HTTP ' + r.status); }
+    updateCloudBadge();
+    return r.ok;
+  } catch (e) {
+    cloudState = 'fail';
+    updateCloudBadge();
+    flash('云端同步失败（已保存在本机）');
+    return false;
+  }
+}
+async function cloudLoad(){
+  if (cloudState === 'fail') return false;
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data,updated_at&id=eq.1', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+      signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    const j = rows && rows[0] && rows[0].data;
+    if (!j || !Array.isArray(j.catalog) || !Array.isArray(j.asinMap)) throw new Error('bad data');
+    cloudAt = (rows[0] && rows[0].updated_at) || '';
+    // 防数据丢失：云端为空但本地有数据 → 以本地为准推云端（首次接入种子化）
+    if ((!j.catalog.length && !j.asinMap.length) && (catalog.length || asinMap.length)) {
+      cloudState = 'ok'; updateCloudBadge();
+      cloudSave();
+      return false;
+    }
+    if (JSON.stringify(j) === safeSig()) {   // 本地已是最新
+      cloudState = 'ok'; updateCloudBadge();
+      return false;
+    }
+    catalog = j.catalog; asinMap = j.asinMap;
+    normalizeAsinMap();
+    try {
+      localStorage.setItem(K_CAT, JSON.stringify(catalog));
+      localStorage.setItem(K_ASIN, JSON.stringify(asinMap));
+    } catch (e) {}
+    renderAll();
+    cloudState = 'ok'; updateCloudBadge();
+    flash('已同步云端最新映射');
+    return true;
+  } catch (e) {
+    cloudState = 'fail'; updateCloudBadge();
+    return false;
+  }
+}
+function safeSig(){
+  try { return JSON.stringify({ catalog: catalog, asinMap: asinMap }); } catch (e) { return ''; }
+}
+function updateCloudBadge(){
+  const el = document.getElementById('cloudBadge');
+  const st = document.getElementById('cloudStat');
+  if (!el || !st) return;
+  if (cloudState === 'ok') {
+    el.textContent = cloudAt && cloudAt !== '刚刚' ? '云端已同步 · ' + fmtTime(cloudAt) : '云端已同步';
+    st.className = 'stat cloud-stat ok';
+  } else if (cloudState === 'fail') {
+    el.textContent = '云端同步失败（本机已保存）';
+    st.className = 'stat cloud-stat fail';
+  } else {
+    el.textContent = '云端同步中…';
+    st.className = 'stat cloud-stat sync';
+  }
+}
+function fmtTime(iso){
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    const p = n => String(n).padStart(2, '0');
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  } catch (e) { return ''; }
+}
+function notifyParent(type){
+  try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: type }, '*'); } catch(e){}
+}
+
+function uniqSeries(){
+  const s = new Set();
+  catalog.forEach(p => { if (p.series) s.add(p.series); });
+  asinMap.forEach(m => { if (m.series && m.series !== '无') s.add(m.series); });
+  return [...s].sort((a,b)=>a.localeCompare(b,'zh'));
+}
+function namesOfSeries(series){
+  return [...new Set(catalog.filter(p => p.series === series).map(p => p.name))].sort((a,b)=>a.localeCompare(b,'zh'));
+}
+function ensureCatalog(series, name){
+  if (!series || !name) return;
+  if (!catalog.some(p => p.series === series && p.name === name)) catalog.push({ series: series, name: name });
+}
+
+function updateStatus(){
+  const series = uniqSeries().length;
+  document.getElementById('stSeries').textContent = series;
+  document.getElementById('stNames').textContent = catalog.length;
+  document.getElementById('stAsin').textContent = asinMap.length;
+  document.getElementById('catalogCount').textContent = `（${catalog.length} 个产品 · ${series} 个系列）`;
+  document.getElementById('asinCount').textContent = `（${asinMap.length} 条 · 已匹配 ${asinMap.filter(m => m.series !== '无' || m.name !== '无').length} 条 · ${[...new Set(asinMap.map(countryOf))].sort().join('/') || '—'}）`;
+}
+
+// ================= 通用 UI =================
+function flash(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2400);
+}
+function goBack(){
+  notifyParent('wb-nav-back');
+  setTimeout(() => { if (window.parent === window) location.href = './index.html'; }, 100);
+}
+function switchTabView(v){
+  const isCat = v === 'catalog';
+  document.getElementById('tabBtnCatalog').classList.toggle('active', isCat);
+  document.getElementById('tabBtnAsin').classList.toggle('active', !isCat);
+  document.getElementById('viewCatalog').classList.toggle('active', isCat);
+  document.getElementById('viewAsin').classList.toggle('active', !isCat);
+  try { history.replaceState(null, '', '#' + v); } catch(e){}
+}
+function renderAll(){
+  renderCatalogTable();
+  initAsinCountryFilter();
+  renderAsinTable();
+  renderAsinForm();
+  updateStatus();
+}
+
+// ================= 目录 =================
+function addCatalogItem(){
+  const s = document.getElementById('cSeries').value.trim();
+  const n = document.getElementById('cName').value.trim();
+  if (!s || !n){ flash('请填写产品系列与产品名'); return; }
+  if (catalog.some(p => p.series === s && p.name === n)){ flash('该产品已存在'); return; }
+  catalog.push({ series: s, name: n });
+  saveAll(); renderAll();
+  document.getElementById('cName').value = '';
+  flash(`已添加：${s} / ${n}`);
+}
+function delCatalog(btn){
+  const s = btn.dataset.s, n = btn.dataset.n;
+  if (!confirm(`删除产品「${n}」（系列 ${s}）？`)) return;
+  const i = catalog.findIndex(p => p.series === s && p.name === n);
+  if (i >= 0) catalog.splice(i, 1);
+  saveAll(); renderAll(); flash('已删除');
+}
+function clearCatalog(){
+  if (!catalog.length) return;
+  if (!confirm('清空全部产品系列与产品名？')) return;
+  catalog = []; saveAll(); renderAll(); flash('目录已清空');
+}
+function renderCatalogTable(){
+  const box = document.getElementById('catalogTable');
+  const groups = {};
+  catalog.forEach(p => { (groups[p.series] = groups[p.series] || []).push(p.name); });
+  const keys = Object.keys(groups).sort((a,b)=>a.localeCompare(b,'zh'));
+  if (!keys.length){ box.innerHTML = '<div class="empty">暂无产品目录 — 请在上方添加或批量导入</div>'; return; }
+  const btnAll = document.getElementById('btnExpandCat');
+  if (btnAll) btnAll.textContent = openCatalog.size >= keys.length ? '🔼 全部折叠' : '🔽 全部展开';
+  let html = '';
+  keys.forEach(s => {
+    const names = groups[s].slice().sort((a,b)=>a.localeCompare(b,'zh'));
+    const open = openCatalog.has(s);
+    const editingThis = editing && editing.s === s;
+    html += `<div class="grp">
+      <div class="grp-head${open ? '' : ' collapsed'}">
+        <span class="caret">${open ? '▼' : '▶'}</span>
+        <span class="grp-name" data-s="${esc(s)}" onclick="toggleCatalog(this)">
+          🏷️ ${editingThis && editing.type === 'series'
+            ? `<input id="edtVal" class="inp mid" value="${esc(s)}" style="padding:3px 8px" onkeydown="if(event.key==='Enter')saveEdit()">`
+            : `<span>${esc(s)}</span>`}
+        </span>
+        <span class="grp-count">${names.length} 个产品</span>
+        <span class="grp-actions">${
+          editingThis && editing.type === 'series'
+            ? `<button class="icon-btn" onclick="saveEdit()">✓ 保存</button><button class="icon-btn danger" onclick="cancelEdit()">✕</button>`
+            : `<button class="icon-btn" data-s="${esc(s)}" onclick="editSeries(this)" title="重命名系列">✏️</button>
+               <button class="icon-btn" data-s="${esc(s)}" onclick="startAddName(this)" title="在此系列下添加产品">➕</button>
+               <button class="icon-btn danger" data-s="${esc(s)}" onclick="delSeries(this)" title="删除系列">🗑</button>`
+        }</span>
+      </div>`;
+    if (open){
+      if (editingThis && editing.type === 'addName'){
+        html += `<div class="grp-row"><span class="row-main">
+          <input id="edtVal" class="inp wide" placeholder="输入新产品名，如 手机支架B" style="padding:3px 8px" onkeydown="if(event.key==='Enter')saveEdit()">
+          <button class="mini" onclick="saveEdit()">添加</button>
+          <button class="mini danger" onclick="cancelEdit()">取消</button>
+        </span></div>`;
+      }
+      names.forEach(n => {
+        const editingName = editingThis && editing.type === 'name' && editing.n === n;
+        html += `<div class="grp-row"><span class="row-main">${
+          editingName
+            ? `<input id="edtVal" class="inp mid" value="${esc(n)}" style="padding:3px 8px" onkeydown="if(event.key==='Enter')saveEdit()">`
+            : esc(n)
+        }</span><span class="row-acts">${
+          editingName
+            ? `<button class="mini" onclick="saveEdit()">✓ 保存</button><button class="mini danger" onclick="cancelEdit()">✕</button>`
+            : `<button class="icon-btn" data-s="${esc(s)}" data-n="${esc(n)}" onclick="editName(this)" title="修改产品名">✏️</button>
+               <button class="icon-btn danger" data-s="${esc(s)}" data-n="${esc(n)}" onclick="delCatalog(this)" title="删除产品">🗑</button>`
+        }</span></div>`;
+      });
+    }
+    html += '</div>';
+  });
+  box.innerHTML = html;
+}
+
+// ---- 展开 / 折叠 ----
+function toggleCatalog(el){
+  const s = el.dataset.s;
+  if (editing){ cancelEdit(); }
+  openCatalog.has(s) ? openCatalog.delete(s) : openCatalog.add(s);
+  saveOpen(); renderCatalogTable();
+}
+function toggleAllCatalog(){
+  if (editing) cancelEdit();
+  const keys = [...new Set(catalog.map(p => p.series))];
+  const allOpen = keys.length > 0 && keys.every(k => openCatalog.has(k));
+  keys.forEach(k => allOpen ? openCatalog.delete(k) : openCatalog.add(k));
+  saveOpen(); renderCatalogTable();
+}
+function setAsinCountryFilter(v){
+  asinCountryFilter = COUNTRIES.includes(v) ? v : '';
+  const sel = document.getElementById('asinCountryFilter');
+  if (sel) sel.value = asinCountryFilter;   // 同步下拉显示（如经提示条「清除筛选」进入时）
+  saveOpen(); renderAsinTable();
+}
+// 应用国家筛选后的匹配数据（'' = 全部）
+function filteredAsinMap(){
+  return asinCountryFilter ? asinMap.filter(m => countryOf(m) === asinCountryFilter) : asinMap;
+}
+// 填充国家筛选下拉选项（含「全部」+ 各国条数），并恢复上次选择
+let _countryOptSig = '';
+function initAsinCountryFilter(){
+  const sel = document.getElementById('asinCountryFilter');
+  if (!sel) return;
+  const cnt = {};
+  asinMap.forEach(m => { const c = countryOf(m); cnt[c] = (cnt[c] || 0) + 1; });
+  const sig = COUNTRIES.map(c => c + ':' + (cnt[c] || 0)).join(',') + '|' + asinMap.length + '|' + asinCountryFilter;
+  if (sig === _countryOptSig){ sel.value = asinCountryFilter; return; }   // 无变化不重建，避免闪烁
+  _countryOptSig = sig;
+  let opts = `<option value="">🌍 全部国家（${asinMap.length} 条）</option>`;
+  COUNTRIES.forEach(c => {
+    const n = cnt[c] || 0;
+    opts += `<option value="${c}"${c === asinCountryFilter ? ' selected' : ''}>${c}${n ? `（${n} 条）` : '（无数据）'}</option>`;
+  });
+  sel.innerHTML = opts;
+  sel.value = asinCountryFilter;
+}
+function setAsinGroup(g){
+  asinGroupBy = g === 'country' ? 'country' : 'series';
+  document.getElementById('grpBtnSeries').classList.toggle('active', asinGroupBy === 'series');
+  document.getElementById('grpBtnCountry').classList.toggle('active', asinGroupBy === 'country');
+  saveOpen(); renderAsinTable();
+}
+function toggleAsinGroup(el){
+  const k = el.dataset.k;
+  openAsin.has(k) ? openAsin.delete(k) : openAsin.add(k);
+  saveOpen(); renderAsinTable();
+}
+function toggleAllAsin(){
+  const keys = [...new Set(filteredAsinMap().map(m => asinGroupBy === 'country' ? countryOf(m) : (m.series || '无')))];
+  const allOpen = keys.length > 0 && keys.every(k => openAsin.has(k));
+  keys.forEach(k => allOpen ? openAsin.delete(k) : openAsin.add(k));
+  saveOpen(); renderAsinTable();
+}
+
+// ---- 编辑（系列重命名 / 产品名修改 / 系列下添加产品）----
+function cancelEdit(){ editing = null; renderCatalogTable(); }
+function editSeries(btn){ editing = { type: 'series', s: btn.dataset.s }; renderCatalogTable(); }
+function startAddName(btn){ editing = { type: 'addName', s: btn.dataset.s }; renderCatalogTable(); }
+function editName(btn){ editing = { type: 'name', s: btn.dataset.s, n: btn.dataset.n }; renderCatalogTable(); }
+function saveEdit(){
+  const valEl = document.getElementById('edtVal');
+  const val = valEl ? valEl.value.trim() : '';
+  if (!editing){ return; }
+  if (!val){ flash('内容不能为空'); return; }
+  if (editing.type === 'series'){
+    const old = editing.s;
+    if (val === old){ editing = null; renderCatalogTable(); return; }
+    if (catalog.some(p => p.series === val)){ flash(`系列「${val}」已存在`); return; }
+    catalog.forEach(p => { if (p.series === old) p.series = val; });
+    asinMap.forEach(m => { if (m.series === old) m.series = val; });
+    if (openCatalog.has(old)){ openCatalog.delete(old); openCatalog.add(val); }
+    editing = null; saveAll(); renderAll(); flash(`系列已重命名：${old} → ${val}`);
+  } else if (editing.type === 'name'){
+    const s = editing.s, old = editing.n;
+    if (val === old){ editing = null; renderCatalogTable(); return; }
+    if (catalog.some(p => p.series === s && p.name === val)){ flash(`该系列下已存在产品「${val}」`); return; }
+    catalog.forEach(p => { if (p.series === s && p.name === old) p.name = val; });
+    asinMap.forEach(m => { if (m.series === s && m.name === old) m.name = val; });
+    editing = null; saveAll(); renderAll(); flash(`产品名已修改：${old} → ${val}`);
+  } else if (editing.type === 'addName'){
+    const s = editing.s;
+    if (catalog.some(p => p.series === s && p.name === val)){ flash(`「${s} / ${val}」已存在`); return; }
+    catalog.push({ series: s, name: val });
+    editing = null; saveAll(); renderAll(); flash(`已添加：${s} / ${val}`);
+  }
+}
+function delSeries(btn){
+  const s = btn.dataset.s;
+  const cnt = catalog.filter(p => p.series === s).length;
+  const acnt = asinMap.filter(m => m.series === s).length;
+  if (!confirm(`删除系列「${s}」？\n将删除该系列下 ${cnt} 个产品；${acnt} 条 ASIN 匹配的系列将置为「无」。`)) return;
+  catalog = catalog.filter(p => p.series !== s);
+  asinMap.forEach(m => { if (m.series === s){ m.series = '无'; m.name = '无'; } });
+  openCatalog.delete(s);
+  saveOpen(); saveAll(); renderAll(); flash('系列已删除');
+}
+
+// ================= ASIN 匹配 =================
+function renderAsinForm(){
+  const ser = document.getElementById('aSeries');
+  const nam = document.getElementById('aName');
+  const ctr = document.getElementById('aCountry');
+  const list = uniqSeries();
+  ctr.innerHTML = COUNTRIES.map(c => `<option value="${c}"${c === 'EU' ? ' selected' : ''}>${c}</option>`).join('');
+  if (!list.length){
+    ser.innerHTML = '<option value="">（请先上传产品系列）</option>';
+    nam.innerHTML = '<option value="">—</option>';
+    return;
+  }
+  const cur = ser.value;
+  let html = '<option value="">— 选择产品系列 —</option>';
+  list.forEach(s => { html += `<option value="${esc(s)}"${s === cur ? ' selected' : ''}>${esc(s)}</option>`; });
+  ser.innerHTML = html;
+  renderFormNames();
+}
+function renderFormNames(){
+  const ser = document.getElementById('aSeries');
+  const nam = document.getElementById('aName');
+  const s = ser.value;
+  const cur = nam.value;
+  if (!s){ nam.innerHTML = '<option value="">—</option>'; return; }
+  let html = '<option value="">— 选择产品名 —</option>';
+  namesOfSeries(s).forEach(n => { html += `<option value="${esc(n)}"${n === cur ? ' selected' : ''}>${esc(n)}</option>`; });
+  if (!namesOfSeries(s).length) html = '<option value="">（该系列暂无产品名）</option>';
+  nam.innerHTML = html;
+}
+function addAsinItem(){
+  const a = document.getElementById('aAsin').value.trim().toUpperCase();
+  const c = document.getElementById('aCountry').value || 'EU';
+  const s = document.getElementById('aSeries').value;
+  const n = document.getElementById('aName').value;
+  if (!a){ flash('请输入 ASIN'); return; }
+  if (!s || !n){ flash('请先选择产品系列与产品名（级联）'); return; }
+  const row = asinMap.find(x => x.asin === a && countryOf(x) === c);
+  if (row){ row.series = s; row.name = n; }
+  else asinMap.push({ asin: a, series: s, name: n, country: c });
+  ensureCatalog(s, n);
+  saveAll(); renderAll();
+  document.getElementById('aAsin').value = '';
+  flash(`已保存：${a} [${c}] → ${s} / ${n}`);
+}
+function delAsin(btn){
+  const a = btn.dataset.a, c = btn.dataset.c;
+  if (!confirm(`删除 ASIN ${a} 在 ${c} 的匹配？`)) return;
+  const i = asinMap.findIndex(x => x.asin === a && countryOf(x) === c);
+  if (i >= 0) asinMap.splice(i, 1);
+  saveAll(); renderAll(); flash('已删除');
+}
+function rowSeriesChange(sel){
+  const a = sel.dataset.a, c = sel.dataset.c;
+  const row = asinMap.find(x => x.asin === a && countryOf(x) === c);
+  if (!row) return;
+  row.series = sel.value;
+  row.name = '无';
+  saveAll(); renderAsinTable();
+}
+function rowNameChange(sel){
+  const a = sel.dataset.a, c = sel.dataset.c;
+  const row = asinMap.find(x => x.asin === a && countryOf(x) === c);
+  if (!row) return;
+  row.name = sel.value;
+  saveAll(); renderAsinTable();
+}
+function rowCountryChange(sel){
+  const a = sel.dataset.a, c = sel.dataset.c, nc = sel.value;
+  if (nc === c){ return; }
+  if (asinMap.some(x => x.asin === a && countryOf(x) === nc)){ flash(`ASIN ${a} 在 ${nc} 已有匹配记录`); renderAsinTable(); return; }
+  const row = asinMap.find(x => x.asin === a && countryOf(x) === c);
+  if (!row) return;
+  row.country = nc;
+  saveAll(); renderAsinTable(); flash(`已更新地区：${a} → ${nc}`);
+}
+function renderAsinTable(){
+  const box = document.getElementById('asinTable');
+  if (!asinMap.length){ box.innerHTML = '<div class="empty">暂无匹配 — 请在上方添加、批量导入，或「从每日数据导入未匹配 ASIN」</div>'; return; }
+  const data = filteredAsinMap();
+  if (!data.length){ box.innerHTML = `<div class="empty">国家 ${esc(asinCountryFilter)} 下暂无匹配记录 — 可切换回「🌍 全部国家」查看</div>`; return; }
+  const seriesList = uniqSeries();
+  const groups = {};
+  data.forEach(m => {
+    const key = asinGroupBy === 'country' ? countryOf(m) : (m.series || '无');
+    (groups[key] = groups[key] || []).push(m);
+  });
+  const keys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'zh'));
+  const btnAll = document.getElementById('btnExpandAsin');
+  if (btnAll) btnAll.textContent = openAsin.size >= keys.length ? '🔼 全部折叠' : '🔽 全部展开';
+  let html = '';
+  if (asinCountryFilter) html += `<div style="margin:0 0 8px;font-size:12px;color:#1e40af;background:#f0f7ff;border:1px solid #dbeafe;border-radius:6px;padding:6px 10px;">🌍 当前只显示国家 <b>${esc(asinCountryFilter)}</b> 的匹配（共 ${data.length} 条）· <a href="javascript:void(0)" onclick="setAsinCountryFilter('')" style="color:#1e40af;font-weight:600;">清除筛选</a></div>`;
+  keys.forEach(k => {
+    const open = openAsin.has(k);
+    const rows = groups[k].slice().sort((x,y) => x.asin.localeCompare(y.asin));
+    html += `<div class="grp">
+      <div class="grp-head${open ? '' : ' collapsed'}">
+        <span class="caret">${open ? '▼' : '▶'}</span>
+        <span class="grp-name" data-k="${esc(k)}" onclick="toggleAsinGroup(this)">
+          ${asinGroupBy === 'country' ? '🌍' : '🏷️'} ${esc(k)}
+        </span>
+        <span class="grp-count">${rows.length} 条</span>
+      </div>`;
+    if (open){
+      rows.forEach(m => {
+        const a = esc(m.asin), c = countryOf(m);
+        let sOpts = '';
+        if (!seriesList.length){ sOpts = '<option value="无">无</option>'; }
+        else {
+          seriesList.forEach(s => { sOpts += `<option value="${esc(s)}"${s === m.series ? ' selected' : ''}>${esc(s)}</option>`; });
+          if (!seriesList.includes(m.series)) sOpts = `<option value="${esc(m.series)}" selected>${esc(m.series)}</option>` + sOpts;
+        }
+        const names = m.series && m.series !== '无' ? namesOfSeries(m.series) : [];
+        let nOpts = `<option value="无"${m.name === '无' || !m.name ? ' selected' : ''}>（无）</option>`;
+        names.forEach(n => { nOpts += `<option value="${esc(n)}"${n === m.name ? ' selected' : ''}>${esc(n)}</option>`; });
+        const cOpts = COUNTRIES.map(cv => `<option value="${cv}"${cv === c ? ' selected' : ''}>${cv}</option>`).join('');
+        html += `<div class="grp-row"><span class="row-main">
+          <b>${a}</b>
+          <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowCountryChange(this)" title="国家/地区">${cOpts}</select>
+          <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowSeriesChange(this)">${sOpts}</select>
+          <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowNameChange(this)">${nOpts}</select>
+        </span><span class="row-acts">
+          <button class="mini danger" data-a="${a}" data-c="${c}" onclick="delAsin(this)">删除</button>
+        </span></div>`;
+      });
+    }
+    html += '</div>';
+  });
+  box.innerHTML = html;
+}
+
+function clearAsin(){
+  if (!asinMap.length) return;
+  if (!confirm('清空全部 ASIN 匹配？')) return;
+  asinMap = []; saveAll(); renderAll(); flash('匹配已清空');
+}
+
+// ================= 导入解析 =================
+function guessSep(line){
+  if (line.includes('\t')) return '\t';
+  if (line.includes(',')) return ',';
+  if (line.includes('，')) return '，';
+  return '、';
+}
+function cleanCell(c){ return String(c).trim().replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1').trim(); }
+// 探测分隔符: 取首行按 tab > 逗号 > 中文逗号 > 顿号 顺序判断
+function detectSep(text){
+  const firstLine = (text.split(/\r?\n/)[0] || '');
+  return guessSep(firstLine);
+}
+// RFC4180 兼容解析: 支持引号包裹字段(字段内含分隔符/换行/""转义)
+// 无引号的行与旧行为完全一致(按探测分隔符切分 + cleanCell), 故向后兼容
+function parseCsvRows(text){
+  const sep = detectSep(text);
+  const rows = [];
+  let row = [], cell = '', inQ = false, cellQ = false;
+  const pushCell = () => { row.push(cellQ ? cell.trim() : cleanCell(cell)); cell = ''; cellQ = false; };
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (inQ){
+      if (ch === '"'){
+        if (text[i + 1] === '"'){ cell += '"'; i++; }   // "" → "
+        else { inQ = false; }
+      } else { cell += ch; }
+    } else if (ch === '"' && !cell.trim()){
+      inQ = true; cellQ = true; cell = '';
+    } else if (ch === sep){ pushCell(); }
+    else if (ch === '\n'){ pushCell(); rows.push(row); row = []; }
+    else if (ch === '\r'){ /* 忽略 CR */ }
+    else { cell += ch; }
+  }
+  pushCell(); rows.push(row);
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+function parseText(text){
+  text = (text || '').replace(/^\uFEFF/, '').trim();   // 剥 BOM(Excel/FileReader 导出的 CSV 可能带)
+  if (!text) return null;
+  try { return JSON.parse(text); } catch(e){}
+  return parseCsvRows(text);
+}
+
+function importCatalogFromText(){
+  const text = document.getElementById('cText').value;
+  const parsed = parseText(text);
+  if (!parsed){ flash('内容为空或无法解析'); return; }
+  const pairs = [];
+  if (Array.isArray(parsed) && parsed.length && typeof parsed[0] === 'object' && !Array.isArray(parsed[0])) {
+    // JSON 数组 [{series,name}] 或 [{产品系列,产品名}]
+    parsed.forEach(o => {
+      if (o && (o.series || o.产品系列) && (o.name || o.产品名 || o.名称)) {
+        pairs.push({ series: String(o.series || o.产品系列 || '').trim(), name: String(o.name || o.产品名 || o.名称 || '').trim() });
+      } else if (o && typeof o === 'string') {
+        pairs.push({ series: '未分组', name: o.trim() });
+      }
+    });
+  } else if (parsed && !Array.isArray(parsed) && typeof parsed === 'object' && !Array.isArray(parsed.catalog)) {
+    // 对象 {系列:[产品名...]}
+    Object.entries(parsed).forEach(([s, names]) => {
+      if (Array.isArray(names)) names.forEach(n => pairs.push({ series: String(s).trim(), name: String(n).trim() }));
+    });
+  } else if (Array.isArray(parsed) && parsed.length && Array.isArray(parsed[0])) {
+    // CSV rows
+    const rows = parsed;
+    const first = rows[0];
+    const isHeader = first.some(c => /系列|series/i.test(c)) || first.some(c => /产品|名称|品名|name/i.test(c));
+    let si = -1, ni = -1;
+    if (isHeader){
+      si = first.findIndex(c => /系列|series/i.test(c));
+      ni = first.findIndex((c, idx) => idx !== si && /产品|名称|品名|name/i.test(c));
+      if (si < 0) si = ni === 0 ? 1 : 0;
+      if (ni < 0) ni = si === 0 ? 1 : 0;
+    } else { si = 0; ni = 1; }
+    for (let i = isHeader ? 1 : 0; i < rows.length; i++){
+      const r = rows[i];
+      const s = cleanCell(r[si] || ''), n = cleanCell(r[ni] || '');
+      if (s && n) pairs.push({ series: s, name: n });
+    }
+  } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.catalog)) {
+    // 完整结构 {catalog:[...],asinMap:[...]}
+    parsed.catalog.forEach(o => { if (o && o.series && o.name) pairs.push({ series: String(o.series).trim(), name: String(o.name).trim() }); });
+  }
+  let added = 0;
+  pairs.forEach(p => {
+    if (!p.series || !p.name) return;
+    if (!catalog.some(x => x.series === p.series && x.name === p.name)){ catalog.push({ series: p.series, name: p.name }); added++; }
+  });
+  if (!added){ flash('没有新增的产品（可能已存在）'); } else { flash(`导入成功：新增 ${added} 个产品`); }
+  saveAll(); renderAll();
+}
+
+function importAsinFromText(){
+  const text = document.getElementById('aText').value;
+  const parsed = parseText(text);
+  if (!parsed){ flash('内容为空或无法解析'); return; }
+  const list = [];
+  if (Array.isArray(parsed) && parsed.length && typeof parsed[0] === 'object' && !Array.isArray(parsed[0])) {
+    parsed.forEach(o => {
+      if (o && (o.asin || o.ASIN)) list.push({
+        asin: String(o.asin || o.ASIN).trim().toUpperCase(),
+        series: String(o.series || o.产品系列 || '无').trim(),
+        name: String(o.name || o.产品名 || o.名称 || '无').trim(),
+        country: String(o.country || o.国家 || o.地区 || 'EU').trim().toUpperCase()
+      });
+    });
+  } else if (Array.isArray(parsed) && parsed.length && Array.isArray(parsed[0])) {
+    const rows = parsed;
+    const first = rows[0];
+    const isHeader = first.some(c => /asin|商品编码/i.test(c)) || first.some(c => /系列|series/i.test(c)) || first.some(c => /产品|名称|品名|name/i.test(c));
+    let ai = -1, si = -1, ni = -1, ci = -1;
+    if (isHeader){
+      ai = first.findIndex(c => /asin|商品编码/i.test(c));
+      si = first.findIndex((c, idx) => idx !== ai && /系列|series/i.test(c));
+      ni = first.findIndex((c, idx) => idx !== ai && idx !== si && /产品|名称|品名|name/i.test(c));
+      ci = first.findIndex((c, idx) => idx !== ai && idx !== si && idx !== ni && /country|国家|地区|区域/i.test(c));
+      if (ai < 0) ai = 0;
+      if (si < 0) si = ai === 0 ? 1 : 0;
+      if (ni < 0) ni = 2;
+    } else { ai = 0; si = 1; ni = 2; ci = 3; }
+    for (let i = isHeader ? 1 : 0; i < rows.length; i++){
+      const r = rows[i];
+      const a = cleanCell(r[ai] || '');
+      if (!a) continue;
+      list.push({
+        asin: a.toUpperCase(),
+        series: cleanCell(r[si] || '') || '无',
+        name: cleanCell(r[ni] || '') || '无',
+        country: ci >= 0 && cleanCell(r[ci] || '') ? cleanCell(r[ci]).toUpperCase() : 'EU'
+      });
+    }
+  } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.asinMap)) {
+    parsed.asinMap.forEach(o => { if (o && o.asin) list.push({
+      asin: String(o.asin).trim().toUpperCase(),
+      series: String(o.series || '无').trim(),
+      name: String(o.name || '无').trim(),
+      country: String(o.country || 'EU').trim().toUpperCase()
+    }); });
+  }
+  let added = 0, updated = 0;
+  list.forEach(m => {
+    if (!m.asin) return;
+    if (!COUNTRIES.includes(m.country)) m.country = 'EU';
+    if (m.series !== '无' && m.name !== '无') ensureCatalog(m.series, m.name);
+    const row = asinMap.find(x => x.asin === m.asin && countryOf(x) === m.country);
+    if (row){ if (row.series !== m.series || row.name !== m.name){ row.series = m.series; row.name = m.name; updated++; } }
+    else { asinMap.push(m); added++; }
+  });
+  if (!added && !updated) flash('没有新增或变更的匹配');
+  else flash(`导入完成：新增 ${added} 条，更新 ${updated} 条`);
+  saveAll(); renderAll();
+}
+
+async function importAsinsFromData(){
+  const btn = document.getElementById('btnDiscover');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = '⏳ 读取每日数据…';
+  try {
+    const r = await fetch('./daily_data.json', { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    const set = new Set();
+    const re = /B0[A-Z0-9]{8}/;
+    for (const day of Object.values(j.days || {})){
+      (day.biz || []).forEach(row => { if (row.asin) set.add(row.asin); });
+      for (const items of Object.values(day.ads || {})) for (const it of items){
+        if (it.Asin) set.add(it.Asin);
+        else { const m = (it.CampaignName || it.Name || '').match(re); if (m) set.add(m[0]); }
+      }
+    }
+    if (!set.size){ flash('每日数据中未发现 ASIN'); return; }
+    const existing = new Set(asinMap.map(x => x.asin + '|' + countryOf(x)));
+    let added = 0;
+    for (const a of set){ if (!existing.has(a + '|EU')){ asinMap.push({ asin: a, series: '无', name: '无', country: 'EU' }); added++; } }
+    saveAll(); renderAll();
+    flash(`从每日数据导入完成：共 ${set.size} 个 ASIN，新增未匹配 ${added} 条（默认地区 EU，可逐行选择系列/产品名/国家）`);
+  } catch(e){
+    flash('读取每日数据失败：' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = old;
+  }
+}
+
+// ================= 导出 =================
+function exportJson(){
+  const out = { catalog: catalog, asinMap: asinMap };
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'product_map.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 200);
+  flash('已导出 product_map.json');
+}
+
+// ---- CSV 导出 ----
+// 单元格转义: 含逗号/引号/换行时用双引号包裹, 内部引号翻倍
+function csvCell(v){
+  const s = String(v ?? '');
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function toCsvText(rows){
+  return rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+}
+function downloadText(filename, text, mime){
+  // \uFEFF = UTF-8 BOM, 否则 Excel 打开中文会乱码
+  const blob = new Blob(['\uFEFF' + text], { type: (mime || 'text/csv') + ';charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 200);
+}
+function todayStamp(){
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`;
+}
+// 产品目录 CSV: 表头与批量导入识别词一致 → 导出的文件可直接再导入回来
+function exportCatalogCsv(){
+  if (!catalog.length){ flash('产品目录为空，没有可导出的内容'); return; }
+  const rows = [['产品系列', '产品名']];
+  catalog.slice()
+    .sort((a, b) => (a.series || '').localeCompare(b.series || '', 'zh') || (a.name || '').localeCompare(b.name || '', 'zh'))
+    .forEach(p => rows.push([p.series || '', p.name || '']));
+  downloadText(`产品目录_${todayStamp()}.csv`, toCsvText(rows));
+  flash(`已导出产品目录 CSV：${catalog.length} 个产品 · ${uniqSeries().length} 个系列`);
+}
+// ASIN 匹配 CSV: 表头与批量导入识别词一致 → 导出的文件可直接再导入回来
+function exportAsinCsv(onlyUnmatched){
+  let list = asinMap;
+  if (onlyUnmatched) list = asinMap.filter(m => (m.series || '无') === '无' || (m.name || '无') === '无');
+  if (!list.length){
+    flash(onlyUnmatched ? '没有未匹配的 ASIN（全部已映射）' : 'ASIN 匹配列表为空，没有可导出的内容');
+    return;
+  }
+  const rows = [['ASIN', '产品系列', '产品名', '国家']];
+  list.slice()
+    .sort((a, b) => countryOf(a).localeCompare(countryOf(b)) || (a.series || '').localeCompare(b.series || '', 'zh') || (a.asin || '').localeCompare(b.asin || ''))
+    .forEach(m => rows.push([m.asin || '', m.series || '无', m.name || '无', countryOf(m)]));
+  downloadText(`${onlyUnmatched ? 'ASIN未匹配' : 'ASIN映射'}_${todayStamp()}.csv`, toCsvText(rows));
+  flash(onlyUnmatched
+    ? `已导出未匹配 ASIN CSV：${list.length} 条（填好产品系列/产品名后可直接导入）`
+    : `已导出 ASIN 匹配 CSV：${list.length} 条`);
+}
+
+// ================= 文件选择 =================
+function fileExt(name){ return (name.split('.').pop() || '').toLowerCase(); }
+function readExcelToText(file, cb){
+  if (typeof XLSX === 'undefined'){ flash('Excel 解析库未加载（xlsx.full.min.js 缺失），请改用 JSON/CSV 格式'); return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const wb = XLSX.read(new Uint8Array(rd.result), { type: 'array' });
+      let ws = null, sname = '';
+      for (const n of wb.SheetNames){ if (wb.Sheets[n] && wb.Sheets[n]['!ref']){ ws = wb.Sheets[n]; sname = n; break; } }
+      if (!ws){ flash('Excel 文件中没有可读取的工作表'); return; }
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      if (!csv.trim()){ flash('工作表「' + sname + '」为空'); return; }
+      cb(csv);
+    } catch(e){ flash('解析 Excel 失败：' + e.message); }
+  };
+  rd.onerror = () => flash('读取文件失败');
+  rd.readAsArrayBuffer(file);
+}
+document.getElementById('cFile').addEventListener('change', function(){
+  const f = this.files[0]; if (!f) return;
+  const ext = fileExt(f.name);
+  if (ext === 'xls' || ext === 'xlsx'){ readExcelToText(f, csv => { document.getElementById('cText').value = csv; importCatalogFromText(); }); }
+  else {
+    const rd = new FileReader();
+    rd.onload = () => { document.getElementById('cText').value = rd.result; importCatalogFromText(); };
+    rd.readAsText(f, 'utf-8');
+  }
+  this.value = '';
+});
+document.getElementById('aFile').addEventListener('change', function(){
+  const f = this.files[0]; if (!f) return;
+  const ext = fileExt(f.name);
+  if (ext === 'xls' || ext === 'xlsx'){ readExcelToText(f, csv => { document.getElementById('aText').value = csv; importAsinFromText(); }); }
+  else {
+    const rd = new FileReader();
+    rd.onload = () => { document.getElementById('aText').value = rd.result; importAsinFromText(); };
+    rd.readAsText(f, 'utf-8');
+  }
+  this.value = '';
+});
+
+// ================= 启动 =================
+loadState();
+renderAll();
+const initHash = (location.hash || '').replace('#', '');
+if (initHash === 'asin' || initHash === 'catalog') switchTabView(initHash);
+updateCloudBadge();
+// 首次打开：云端优先（权威数据源），云端不可用时本地无数据才用服务器 product_map.json 预填充
+(async function seed(){
+  if (await cloudLoad()) return;
+  if (localStorage.getItem(K_CAT) || localStorage.getItem(K_ASIN)) return;
+  try {
+    const r = await fetch('./product_map.json', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (Array.isArray(j.catalog)) catalog = j.catalog;
+    if (Array.isArray(j.asinMap)) asinMap = j.asinMap;
+    normalizeAsinMap();
+    try {
+      localStorage.setItem(K_CAT, JSON.stringify(catalog));
+      localStorage.setItem(K_ASIN, JSON.stringify(asinMap));
+    } catch (e) {}
+    renderAll();
+    cloudSave();
+  } catch(e){}
+})();
+</script>
+
+</body>
+</html>

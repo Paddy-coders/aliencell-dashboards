@@ -1,0 +1,10 @@
+=== JoyBuy Data Compass 采集 ===
+范围: 2026-06-11 ~ 2026-10-08 (120 天)
+对比: 2026-02-11 ~ 2026-06-10
+分段: 4 段 (每段 ≤30 天)
+店铺: UK, DE, NL, FR
+模式: 校验会话文件（保存于 2026-10-01T16:19:13.344Z，12 条 cookie）...
+      ✓ 会话有效 → 纯 HTTP 模式（不启动浏览器、不需要登录）
+
+[probe] 会话校验中...
+  status=200 {"popAtcUv":0,"popPdpUv":10,"popPdpPvToOrdersConversionRate":0,"popPaidUsers":0,"popAverageSessionDuration":12.6815,"popStoreUv":0,"popStorePv":0,"popAtcUnits":0,"popPdpUvToPaidUserConversionRate":0,"popAverageRevenuePerPaidUser":0,"popAverageVisitDepth":1,"popPdpPv":10,"currencyUnit":"£"}

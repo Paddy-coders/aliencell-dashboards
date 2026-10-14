@@ -1,0 +1,3303 @@
+URL: https://open-portal.joybuy.com/#/doc/api?apiCateId=32&apiId=73&apiName=listSkus&gwType=1
+
+Open Platform
+Documentation
+Solutions
+Announcements
+Developer Tools
+Support Center
+Console
+English
+mc5l5t625ku9dxd6l8wgx
+Getting Started
+Developer Guide
+API References
+Message & Webhook
+Apps & Services
+Integration Scenarios
+Aftersales‌
+Supply Chain
+Vender
+Product
+ProductOverview‌
+batchPutSkuState
+listProducts
+getQualificationPreSignedUrl
+getProductApplyDetail
+listProductPublishTemplates
+listSkuStocks
+postVideo
+batchDeleteVideo
+listSkus
+listMediaZoneCategories
+listSearchVideos
+listVideoUploadUrls
+patchVideo
+listProductApplies
+patchMediaZoneImage
+putProductStatus
+postQualification
+getMediaZoneImage
+getProduct
+batchPutSkuStock
+batchDeleteMediaZoneImage
+listMediaZoneImages
+listQualificationsCatecory
+batchDeleteQualificationFiles
+listQualificationCenterFiles
+postProductApply
+postMediaZoneImage
+Order
+API Documentation
+Product
+listSkus
+listSkus
+FBM
+GET
+sp-product/v0/skus
+SP-API
+User authorization required
+Version v0
+Updated:10/09/2026 20:52:15
+API Description
+Collapse
+Query SKU list with pagination and filtering.
+APITools
+Collapse
+API Debugging Tool
+API Permission Query Tool
+API Log Troubleshooting Tool
+Signature Tool
+Request
+Request Address and Method
+Pre-release Environment Address
+	
+Production Environment Address
+	
+Call Method
+https://api-pre.joybuy.com/rest
+	
+https://api-eu.joybuy.com/rest
+	
+API invocation method， Click to view
+Common Request Parameters
+Collapse
+Name
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+X-JOS-App-Key
+	
+string
+	
+Yes
+	
+012D834080F3339C1FF301F8EC763E13
+	
+The appKey of the created application.
+
+
+X-JOS-Access-Token
+	
+string
+	
+No
+	
+7f1bcd13fc57d46bac21793a18e560
+	
+The authorization token issued by the platform to the application after user authorization succeeds. If this API document is labeled “User Authorization Required,” this parameter is required. If it is labeled “User Authorization Not Required,” this parameter is not required.
+
+
+X-JOS-Timestamp
+	
+long
+	
+Yes
+	
+1735660800000
+	
+Timestamp accurate to milliseconds. The JD API server allows a client request time deviation of up to 10 minutes.
+
+
+X-JOS-Sign
+	
+string
+	
+Yes
+	
+-
+	
+Signature. Click to view
+
+
+X-JOS-Sign-Method
+	
+string
+	
+No
+	
+md5
+	
+Signature encryption algorithm. Available options are md5, hmacmd5, and hmacsha256. The default is md5.
+
+
+X-JOS-Content-Type
+	
+string
+	
+No
+	
+application/json; charset=utf-8
+	
+Required when the request method is POST, PATCH, or PUT. Optional for GET and DELETE. Fixed value: application/json; charset=utf-8.
+
+
+X-JOS-Request-Identity
+	
+string
+	
+Yes
+	
+vender
+	
+When the API is a multi-business aggregation interface and supports multiple data dimensions, a business identity identifier must be passed in to ensure that data resources for the corresponding business scenario are returned. If the “API Data Dimension” label contains multiple options, this parameter is required. If the label contains only one option or there is no label, this parameter is not required. Available values include：
+vender: store-level data；
+supplier: supplier code-level data；
+userPin: supplier PIN-level data.
+
+
+X-JOS-Request-BizId
+	
+string
+	
+No
+	
+	
+When requesting POP merchant data, enter the venderId. When requesting supplier data, enter the venderCode.
+
+
+X-JOS-site
+	
+string
+	
+No
+	
+	
+UK-Site：UK Site；NL-Site：Netherlands Site；DE-Site：Germany Site；FR-Site：France Site
+
+
+X-JOS-timeZone
+	
+string
+	
+No
+	
+	
+Asia/Shanghai：Shanghai (China)；Asia/Tokyo：Tokyo (Japan)；Asia/Singapore：Singapore；Asia/Seoul：Seoul (Korea)
+
+
+X-JOS-currency
+	
+string
+	
+No
+	
+	
+CNY：CNY；USD：US Dollar；EUR：Euro；JPY：Japanese Yen；GBP：British Pound
+
+
+X-JOS-language
+	
+string
+	
+No
+	
+	
+zh_CN：Simplified Chinese；zh_HK：Traditional Chinese (Hong Kong & Macao)；zh_TW：Traditional Chinese (Taiwan)；en_US：English (US)；en_GB：English (UK)；fr_FR：French；de_DE：German；nl_NL：Dutch
+Query Parameters
+Name
+Expand
+	
+Type
+	
+Required
+	
+Example
+	
+Description
+listSkusRequest
+	
+object
+	
+Yes
+	
+	
+SKU list query request
+
+
+languages
+	
+array
+	
+No
+	
+	
+The language settings adopt a combination of ISO 639-1 ISO 3166-1 ， with an underscore “_” used as the separator between them. For example, Simplified Chinese is represented as "zh_CN"
+
+
+element
+	
+string
+	
+No
+	
+zh_CN
+	
+language
+
+
+productIdList
+	
+array
+	
+No
+	
+	
+List of product IDs, with a maximum of 20 allowed
+
+
+element
+	
+integer(int64)
+	
+No
+	
+123456
+	
+product ID
+
+
+skuStatusList
+	
+array
+	
+No
+	
+	
+SKU status list
+
+
+element
+	
+integer(int32)
+	
+No
+	
+1
+	
+SKU status
+
+
+categoryIdList
+	
+array
+	
+No
+	
+	
+A collection of category IDs, allowing the transmission of first, second, third, and fourth-level categories, and multiple categories are allowed, with a maximum of 10
+
+
+element
+	
+integer(int64)
+	
+No
+	
+123458
+	
+category ID
+
+
+skuName
+	
+string
+	
+No
+	
+Xiaomi SU7
+	
+skuName
+
+
+brandIdList
+	
+array
+	
+No
+	
+	
+Brand ID collection, with a maximum of 10 allowed
+
+
+element
+	
+integer(int64)
+	
+No
+	
+265379
+	
+Brand ID
+
+
+skuIdList
+	
+array
+	
+No
+	
+	
+SKUID list, all SKUIDs need to belong to the same merchant
+
+
+element
+	
+integer(int64)
+	
+No
+	
+3521
+	
+SKUID
+
+
+createStartTime
+	
+integer(int64)
+	
+No
+	
+1526382932
+	
+Creation start time
+
+
+createEndTime
+	
+integer(int64)
+	
+No
+	
+1526382932
+	
+Creation end time
+
+
+modifiedStartTime
+	
+integer(int64)
+	
+No
+	
+15273629040272
+	
+Modify start time
+
+
+modifiedEndTime
+	
+integer(int64)
+	
+No
+	
+15273629040272
+	
+Modify end time
+
+
+shopId
+	
+integer(int64)
+	
+Yes
+	
+100247
+	
+shopID
+
+
+pageSize
+	
+integer(int32)
+	
+No
+	
+10
+	
+Page size (maximum 20 records per page)
+
+
+page
+	
+integer(int32)
+	
+No
+	
+1
+	
+Current page
+
+
+sortBy
+	
+string
+	
+No
+	
+skuId
+	
+Sort field
+
+
+sortOrder
+	
+string
+	
+No
+	
+ASC
+	
+Sort type
+Response
+Response Parameters
+Name
+Expand
+	
+Type
+	
+Example
+	
+Description
+paginationData
+	
+object
+	
+	
+pagination output parameters
+
+
+totalItems
+	
+integer(int64)
+	
+1000
+	
+Total Count
+
+
+totalPages
+	
+integer(int32)
+	
+10
+	
+Total Pages
+
+
+currentPage
+	
+integer(int32)
+	
+1
+	
+Current page
+
+
+pageSize
+	
+integer(int32)
+	
+10
+	
+Page size
+
+
+data
+	
+array
+	
+	
+SKU list data
+
+
+skuInfo
+	
+object
+	
+	
+SKU information object
+
+
+site
+	
+string
+	
+1400
+	
+International station information 1100: Germany Site 1200: France Site 1300: Netherlands Site 1400: UK Site
+
+
+skuId
+	
+integer(int64)
+	
+6355
+	
+SKU ID
+
+
+productId
+	
+integer(int64)
+	
+146152
+	
+Product ID
+
+
+status
+	
+array
+	
+	
+SKU status to end
+
+
+key
+	
+object
+	
+	
+Site + Platform
+
+
+siteStr
+	
+string
+	
+1100
+	
+1100: Germany Site 1200: France Site 1300: Netherlands Site 1400: UK Site
+
+
+uaStr
+	
+string
+	
+1
+	
+1: PC 2: Mobile App 21: Offline Store 20: Mini Program
+
+
+value
+	
+object
+	
+	
+Product Status
+
+
+skuStatus
+	
+integer(int32)
+	
+1
+	
+SKU status
+
+
+onlineTime
+	
+integer(int64)
+	
+1766213838000
+	
+Last listing time
+
+
+offlineTime
+	
+integer(int64)
+	
+1766213838000
+	
+Last delisting time
+
+
+skuPStatus
+	
+integer(int32)
+	
+1
+	
+SKU dimension POP status
+
+
+saleAttrs
+	
+array
+	
+	
+SKU sales attribute
+
+
+attrId
+	
+string
+	
+1232
+	
+Category Attribute ID
+
+
+attrValues
+	
+array
+	
+["290944"]
+	
+Category attribute value
+
+
+attrValueAlias
+	
+array
+	
+["290944"]
+	
+Category attribute value description
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute dimension
+
+
+features
+	
+array
+	
+	
+Attribute feature definition
+
+
+key
+	
+string
+	
+key
+	
+Special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+attrValueAliasLanguage
+	
+array
+	
+	
+Multilingual aliases for sales attribute values
+
+
+key
+	
+string
+	
+en_US
+	
+Multilingual code
+
+
+value
+	
+array
+	
+["小米SU7标准版&Pro版‌"]
+	
+Multilingual aliases
+
+
+attrValuesSeqNo
+	
+array
+	
+[1,2]
+	
+Custom sorting of sales attribute values
+
+
+expands
+	
+array
+	
+["expands"]
+	
+Extended Information
+
+
+units
+	
+array
+	
+["units"]
+	
+Unit Information
+
+
+mappingId
+	
+string
+	
+mappingId
+	
+Whatever the caller passes into this field, the return value will be returned
+
+
+attrName
+	
+string
+	
+销售属性名称
+	
+Sales attribute name
+
+
+shield
+	
+boolean
+	
+true
+	
+Indicate category attribute masking
+
+
+features
+	
+array
+	
+	
+special attributes
+
+
+key
+	
+object
+	
+	
+Site
+
+
+id
+	
+integer(int32)
+	
+1100
+	
+SiteID
+
+
+name
+	
+string
+	
+德国站
+	
+SiteName
+
+
+value
+	
+array
+	
+	
+Special attributes
+
+
+key
+	
+string
+	
+wbzckgz
+	
+special attribute key
+
+
+value
+	
+string
+	
+4997:1963:1440:1980000
+	
+special attribute value
+
+
+outerId
+	
+string
+	
+1500001787
+	
+External Merchant ID
+
+
+skuName
+	
+string
+	
+小米SU7
+	
+SKU name
+
+
+logo
+	
+string
+	
+/t1/4294967296/6815744/111387391142140/36295/694416eaEfe6c084d/fec071326b91ab10.jpg
+	
+Main image, read-only information
+
+
+upcCode
+	
+string
+	
+12312
+	
+standard barcode
+
+
+barCodes
+	
+array
+	
+	
+Barcode list
+
+
+element
+	
+string
+	
+352
+	
+barCode
+
+
+props
+	
+array
+	
+	
+category attributes
+
+
+attrId
+	
+string
+	
+12
+	
+Category Attribute ID
+
+
+attrValues
+	
+array
+	
+[]
+	
+Category attribute value
+
+
+attrValueAlias
+	
+array
+	
+[]
+	
+Category attribute value description
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute dimension, only sales attributes are valid
+
+
+features
+	
+array
+	
+	
+Attribute feature definition
+
+
+key
+	
+string
+	
+key
+	
+Special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+attrValueAliasLanguage
+	
+array
+	
+	
+Multilingual aliases for sales attribute values
+
+
+key
+	
+string
+	
+zh_CN
+	
+Multilingual code
+
+
+value
+	
+array
+	
+["小米SU7标准版&Pro版‌"]
+	
+Multilingual aliases
+
+
+attrValuesSeqNo
+	
+array
+	
+[1,2]
+	
+Custom sorting of sales attribute values
+
+
+expands
+	
+array
+	
+[]
+	
+Extended Information
+
+
+units
+	
+array
+	
+[]
+	
+Unit Information
+
+
+mappingId
+	
+string
+	
+mappingId
+	
+The return value will be the same as what the caller passes in for this field
+
+
+attrName
+	
+string
+	
+red 红色
+	
+Sales attribute name
+
+
+shield
+	
+boolean
+	
+true
+	
+Indicate category attribute masking
+
+
+created
+	
+integer(int64)
+	
+1766213838000
+	
+Created Time
+
+
+modified
+	
+integer(int64)
+	
+1766213838000
+	
+modification time
+
+
+weight
+	
+string
+	
+56
+	
+Product weight, in milligrams
+
+
+length
+	
+string
+	
+320
+	
+Product length, in mm
+
+
+width
+	
+string
+	
+18
+	
+Product width, in mm
+
+
+height
+	
+string
+	
+20
+	
+Product height, in mm
+
+
+valid
+	
+integer(int32)
+	
+1
+	
+SKU validity, read-only
+
+
+jdPrice
+	
+number(decimal)
+	
+54
+	
+SKU JD price
+
+
+imgTag
+	
+integer(int32)
+	
+1
+	
+Image tag, read-only attribute
+
+
+suiteSkus
+	
+array
+	
+	
+List of actual producible SKUs corresponding to virtual set SKUs
+
+
+skuId
+	
+integer(int64)
+	
+12342
+	
+skuId
+
+
+count
+	
+integer(int32)
+	
+1
+	
+SKU quantity
+
+
+isShow
+	
+integer(int32)
+	
+1
+	
+Whether to display in the front-end search page
+
+
+orderSort
+	
+integer(int32)
+	
+1
+	
+The sorting value of producible SKUs on the front-end search page
+
+
+mainSkuId
+	
+integer(int64)
+	
+1234523
+	
+Primary SKU_ID
+
+
+boxRegulations
+	
+integer(int32)
+	
+1
+	
+box specification
+
+
+skuLanguageMap
+	
+array
+	
+	
+SKU dimension multilingual information
+
+
+key
+	
+string
+	
+en_US
+	
+Language string
+
+
+value
+	
+object
+	
+	
+SKU dimension in multiple languages
+
+
+languageCode
+	
+string
+	
+en_US
+	
+Language
+
+
+skuName
+	
+string
+	
+Xiaomi SU7 Super Sports Car Light blue Xiaomi SU7 Standard Edition & Pro Edition
+	
+Product name, multiple languages
+
+
+skuShortTitle
+	
+string
+	
+Xiaomi SU7
+	
+sku short title, multi-language is the storage field, and Chinese corresponds to the shortTitle of the sku dimension
+
+
+skuElectronicFormTitle
+	
+string
+	
+dzmdspjc
+	
+sku electronic label title, corresponding to the dzmdspjc label in the sku dimension in Chinese
+
+
+props
+	
+array
+	
+	
+Category attribute of category - multiple languages
+
+
+attrId
+	
+string
+	
+20393
+	
+Category Attribute ID
+
+
+attrValues
+	
+array
+	
+["290943"]
+	
+Category attribute value
+
+
+attrValueAlias
+	
+array
+	
+["Light blue"]
+	
+Category attribute value description
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute dimension, only sales attributes are valid
+
+
+features
+	
+array
+	
+	
+Attribute feature definition
+
+
+key
+	
+string
+	
+sfhsl
+	
+Special attribute key
+
+
+value
+	
+string
+	
+1
+	
+Special attribute value
+
+
+attrValueAliasLanguage
+	
+array
+	
+	
+Multilingual aliases for sales attribute values
+
+
+key
+	
+string
+	
+zh_CN
+	
+Multilingual code
+
+
+value
+	
+array
+	
+["小米SU7标准版&Pro版‌"]
+	
+Multilingual aliases
+
+
+attrValuesSeqNo
+	
+array
+	
+[1,2]
+	
+Custom sorting of sales attribute values
+
+
+expands
+	
+array
+	
+[]
+	
+Extended Information
+
+
+units
+	
+array
+	
+[]
+	
+Unit Information
+
+
+mappingId
+	
+string
+	
+123
+	
+Whatever the caller passes into this field, that is what will be returned as the value
+
+
+attrName
+	
+string
+	
+Product TypeAY
+	
+Sales attribute name
+
+
+shield
+	
+boolean
+	
+true
+	
+Indicate category attribute masking
+
+
+saleAttrs
+	
+array
+	
+	
+Sales attribute values in multiple languages
+
+
+attrId
+	
+string
+	
+20393
+	
+Category Attribute ID
+
+
+attrValues
+	
+array
+	
+["290943"]
+	
+Category attribute value
+
+
+attrValueAlias
+	
+array
+	
+["Light blue"]
+	
+Category attribute value description
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute dimension, only sales attributes are valid
+
+
+features
+	
+array
+	
+	
+Attribute feature definition
+
+
+key
+	
+string
+	
+sfhsl
+	
+Special attribute key
+
+
+value
+	
+string
+	
+1
+	
+Special attribute value
+
+
+attrValueAliasLanguage
+	
+array
+	
+	
+Multilingual aliases for sales attribute values
+
+
+key
+	
+string
+	
+zh_CN
+	
+Multilingual code
+
+
+value
+	
+array
+	
+["浅蓝色"]
+	
+Multilingual aliases
+
+
+attrValuesSeqNo
+	
+array
+	
+[1,2]
+	
+Custom sorting of sales attribute values
+
+
+expands
+	
+array
+	
+[]
+	
+Extended Information
+
+
+units
+	
+array
+	
+[]
+	
+Unit Information
+
+
+mappingId
+	
+string
+	
+123
+	
+Whatever the caller passes in this field, the return value will be returned
+
+
+attrName
+	
+string
+	
+Product TypeAY
+	
+Sales attribute name, applicable to custom sales attribute mode
+
+
+shield
+	
+boolean
+	
+true
+	
+Indicate category attribute masking
+
+
+productId
+	
+integer(int64)
+	
+102815758
+	
+Product ID
+
+
+skuId
+	
+integer(int64)
+	
+100061066
+	
+skuId
+
+
+color
+	
+string
+	
+red
+	
+color
+
+
+size
+	
+string
+	
+10
+	
+size
+
+
+colorSequence
+	
+integer(int32)
+	
+1
+	
+color sorting
+
+
+sizeSequence
+	
+integer(int32)
+	
+1
+	
+Size sorting
+
+
+supplyUnit
+	
+string
+	
+Vendor_000451
+	
+Supplier Code
+
+
+productCode
+	
+string
+	
+12325
+	
+Self-operated and dedicated, with our own barcode
+
+
+categoryId
+	
+integer(int64)
+	
+7718
+	
+Category ID
+
+
+productName
+	
+string
+	
+小米
+	
+Product Name
+
+
+relatedSpuSkuId
+	
+integer(int64)
+	
+12353
+	
+Associated SPU SKU ID
+
+
+saleAttrType
+	
+string
+	
+mode
+	
+Sales attribute model
+
+
+saleAttrTemplateId
+	
+string
+	
+23
+	
+Sales attribute template id
+
+
+oldSaleAttrs
+	
+array
+	
+	
+Old sales attributes during virtual double-writing
+
+
+attrId
+	
+string
+	
+123
+	
+Category Attribute ID
+
+
+attrValues
+	
+array
+	
+[]
+	
+Category attribute value
+
+
+attrValueAlias
+	
+array
+	
+[]
+	
+Category attribute value description
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute dimension
+
+
+features
+	
+array
+	
+	
+Attribute feature definition
+
+
+key
+	
+string
+	
+key
+	
+Special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+attrValueAliasLanguage
+	
+array
+	
+	
+Multilingual aliases for sales attribute values
+
+
+key
+	
+string
+	
+zh_CN
+	
+Multilingual code
+
+
+value
+	
+array
+	
+["小米SU7标准版&Pro版‌"]
+	
+Multilingual aliases
+
+
+attrValuesSeqNo
+	
+array
+	
+[1,2]
+	
+Custom sorting of sales attribute values
+
+
+expands
+	
+array
+	
+[]
+	
+Extended Information
+
+
+units
+	
+array
+	
+[]
+	
+Unit Information
+
+
+mappingId
+	
+string
+	
+mappingId
+	
+Whatever the caller passes into this field, the return value will be exactly what is passed back
+
+
+attrName
+	
+string
+	
+attrName
+	
+Sales attribute name
+
+
+shield
+	
+boolean
+	
+true
+	
+Indicate category attribute masking
+
+
+imgGroupId
+	
+string
+	
+1
+	
+The colorId corresponding to the image
+
+
+currencySpuId
+	
+integer(int64)
+	
+12
+	
+Global universal standard product ID
+
+
+promiseId
+	
+integer(int64)
+	
+23
+	
+The effective template ID that is applied to the SKU
+
+
+customProps
+	
+array
+	
+	
+custom attribute
+
+
+attrId
+	
+string
+	
+1
+	
+Custom Attribute ID
+
+
+customAttrValues
+	
+array
+	
+	
+Custom attribute value
+
+
+attrValue
+	
+string
+	
+1
+	
+Custom attribute value
+
+
+isChoose
+	
+boolean
+	
+true
+	
+Selected or not
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute value order
+
+
+complexExpands
+	
+array
+	
+	
+Composite extension field
+
+
+expand
+	
+string
+	
+12434
+	
+Composite extension field Specific value
+
+
+prefix
+	
+string
+	
+pre
+	
+prefix
+
+
+suffix
+	
+string
+	
+suf
+	
+suffix
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Complex attribute value order
+
+
+features
+	
+array
+	
+	
+expand
+
+
+key
+	
+string
+	
+key
+	
+Special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+features
+	
+array
+	
+	
+expand
+
+
+key
+	
+string
+	
+key
+	
+special attribute key
+
+
+value
+	
+string
+	
+value
+	
+special attribute value
+
+
+attrValName
+	
+string
+	
+1
+	
+Custom attribute value name
+
+
+index
+	
+integer(int32)
+	
+1
+	
+attribute order
+
+
+features
+	
+array
+	
+	
+expand
+
+
+key
+	
+string
+	
+key
+	
+special attribute key
+
+
+value
+	
+string
+	
+value
+	
+special attribute value
+
+
+customPropsMode
+	
+string
+	
+mode
+	
+custom attribute mode
+
+
+attrName
+	
+string
+	
+1
+	
+Custom attribute name
+
+
+terminalFeatures
+	
+array
+	
+	
+special attributes
+
+
+key
+	
+object
+	
+	
+Site + Platform
+
+
+siteStr
+	
+string
+	
+1100
+	
+Site string
+
+
+uaStr
+	
+string
+	
+1
+	
+Platform string
+
+
+value
+	
+array
+	
+	
+Special attributes
+
+
+key
+	
+string
+	
+key
+	
+special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+enable
+	
+array
+	
+	
+status
+
+
+key
+	
+object
+	
+	
+Site + Platform
+
+
+siteStr
+	
+string
+	
+1100
+	
+Site string
+
+
+uaStr
+	
+string
+	
+1
+	
+Platform string
+
+
+value
+	
+integer(int32)
+	
+1
+	
+Status value
+
+
+mappingId
+	
+string
+	
+1
+	
+Used for mapping between the caller SKU object and the Labrador SKU object
+
+
+productTerminalFeatures
+	
+array
+	
+	
+Special attributes (product dimension), with one set of special attributes for each site
+
+
+key
+	
+object
+	
+	
+Site + Platform
+
+
+siteStr
+	
+string
+	
+1100
+	
+Site string
+
+
+uaStr
+	
+string
+	
+1
+	
+Platform string
+
+
+value
+	
+array
+	
+	
+special attributes
+
+
+key
+	
+string
+	
+key
+	
+Special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+customPropsModes
+	
+array
+	
+	
+Custom attribute mode
+
+
+element
+	
+string
+	
+132
+	
+Custom attribute
+
+
+incrStock
+	
+integer(int64)
+	
+23
+	
+Incremental inventory quantity
+
+
+incrType
+	
+boolean
+	
+true
+	
+Inventory update method
+
+
+stockRfId
+	
+string
+	
+0009
+	
+Incremental inventory anti-re-entry document
+
+
+spec
+	
+string
+	
+spec
+	
+Third-dimensional sales attribute value information (exclusive for self-operated businesses)
+
+
+specName
+	
+string
+	
+spec
+	
+Third-dimensional sales attribute name (exclusive for self-operation)
+
+
+specSequence
+	
+integer(int32)
+	
+1
+	
+Sorting of third-dimensional sales attribute values (for self-operated exclusive use)
+
+
+saleAtts
+	
+string
+	
+[{"dim":4,"saleName":"货期","saleValue":"1","sequenceNo":1}]
+	
+JSON string of four-dimensional and above sales attributes
+
+
+visitorCount
+	
+integer(int64)
+	
+99
+	
+Product details in the last 7 days UV value
+
+
+firstOnShelvesTime
+	
+integer(int64)
+	
+1766213838000
+	
+The first time the SKU was listed on the shelf, read-only
+
+
+guideImageList
+	
+array
+	
+	
+search guide map
+
+
+imageId
+	
+integer(int64)
+	
+13245365
+	
+Image ID
+
+
+productId
+	
+integer(int64)
+	
+1243567
+	
+The ID of the product to which the image belongs
+
+
+colorId
+	
+string
+	
+23456
+	
+Color ID
+
+
+imgUrl
+	
+string
+	
+jfsintlxingyuntest-000-dsm/t1/4294967296/6815744/111387391142140/36295/694416eaEfe6c084d/fec071326b91ab10.jpg
+	
+Square Image Address
+
+
+index
+	
+integer(int32)
+	
+1
+	
+image sorting
+
+
+imgRectangleUrl
+	
+string
+	
+jfsintlxingyuntest-000-dsm/t1/4294967296/6815744/111387391142140/36295/694416eaEfe6c084d/fec071326b91ab10.jpg
+	
+long image address
+
+
+isMain
+	
+integer(int32)
+	
+1
+	
+Is it the main image
+
+
+isGgt
+	
+integer(int32)
+	
+1
+	
+Is it a specification drawing
+
+
+material
+	
+array
+	
+	
+The status of product latitude materials stored in ES
+
+
+key
+	
+string
+	
+key
+	
+key
+
+
+value
+	
+array
+	
+	
+value
+
+
+element
+	
+string
+	
+value
+	
+value
+
+
+terminalImages
+	
+array
+	
+	
+Multi-language main image information
+
+
+imageGroup
+	
+object
+	
+	
+image group information
+
+
+productId
+	
+integer(int64)
+	
+163748
+	
+Product ID
+
+
+imageGroupId
+	
+string
+	
+23451321
+	
+image group ID
+
+
+terminal
+	
+object
+	
+	
+Site + Platform
+
+
+siteStr
+	
+string
+	
+DE
+	
+Site string
+
+
+uaStr
+	
+string
+	
+1
+	
+Platform string
+
+
+imgType
+	
+integer(int32)
+	
+1
+	
+image type
+
+
+languageCode
+	
+string
+	
+zh
+	
+language
+
+
+imageInfos
+	
+array
+	
+	
+image information
+
+
+index
+	
+integer(int32)
+	
+1
+	
+image sorting
+
+
+imgDfsUrl
+	
+string
+	
+111387391142140/36295/694416eaEfe6c084d/fec071326b91ab10.jpg
+	
+image URL
+
+
+imgRectangleUrl
+	
+string
+	
+jfsintlxingyuntest-000-dsm/t1/4294967296/1900544/111387391142143/195821/694416eaE9c35fc8a/fec071326b91ab10.jpg
+	
+deprecated field
+
+
+isMain
+	
+integer(int32)
+	
+1
+	
+Is it the main image
+
+
+imgType
+	
+integer(int32)
+	
+1
+	
+image type
+
+
+imgSize
+	
+integer(int32)
+	
+1
+	
+image size
+
+
+isGgt
+	
+integer(int32)
+	
+1
+	
+Is it a specification drawing
+
+
+multiCategoryId
+	
+integer(int64)
+	
+7718
+	
+Terminal category ID
+
+
+terminalBigInfo
+	
+array
+	
+	
+Product detail information of SKU dimension
+
+
+bigInfoGroup
+	
+object
+	
+	
+Large field group
+
+
+productId
+	
+integer(int64)
+	
+132344
+	
+Product ID
+
+
+bigInfoGroupId
+	
+string
+	
+2345
+	
+Group ID
+
+
+terminal
+	
+object
+	
+	
+Site + Platform
+
+
+siteStr
+	
+string
+	
+DE
+	
+Site string
+
+
+uaStr
+	
+string
+	
+1
+	
+Platform string
+
+
+languageCode
+	
+string
+	
+en_US
+	
+Language code
+
+
+language
+	
+string
+	
+en_US
+	
+Language
+
+
+bigInfoType
+	
+string
+	
+1
+	
+Large field type
+
+
+bigInfo
+	
+string
+	
+1
+	
+Large field
+
+
+skuProp
+	
+array
+	
+	
+Category attribute information of the SKU dimension
+
+
+attrId
+	
+string
+	
+1
+	
+Category Attribute ID
+
+
+attrValues
+	
+array
+	
+[]
+	
+Category attribute value
+
+
+attrValueAlias
+	
+array
+	
+[]
+	
+Category attribute value description
+
+
+index
+	
+integer(int32)
+	
+1
+	
+Attribute dimension
+
+
+features
+	
+array
+	
+	
+Attribute feature definition
+
+
+key
+	
+string
+	
+key
+	
+Special attribute key
+
+
+value
+	
+string
+	
+value
+	
+Special attribute value
+
+
+attrValueAliasLanguage
+	
+array
+	
+	
+Multilingual aliases for sales attribute values
+
+
+key
+	
+string
+	
+de_DE
+	
+multilingual code
+
+
+value
+	
+array
+	
+["德语"]
+	
+Multilingual aliases
+
+
+attrValuesSeqNo
+	
+array
+	
+[1,2]
+	
+Custom sorting of sales attribute values
+
+
+expands
+	
+array
+	
+[]
+	
+Extended Information
+
+
+units
+	
+array
+	
+[]
+	
+Unit Information
+
+
+mappingId
+	
+string
+	
+mappingId
+	
+Whatever the caller passes into this field, that is what will be returned as the return value
+
+
+attrName
+	
+string
+	
+attrName
+	
+Sales attribute name
+
+
+shield
+	
+boolean
+	
+true
+	
+Indicate category attribute masking
+
+
+sourceSkuId
+	
+integer(int64)
+	
+35262
+	
+Lianyuan of sku_id, a global redundant field for Yipinfa
+
+
+skuStockNumbs
+	
+array
+	
+	
+Inventory-POP
+
+
+skuId
+	
+integer(int64)
+	
+12345
+	
+skuId
+
+
+stockNum
+	
+integer(int32)
+	
+5
+	
+Quantity in stock
+
+
+businessType
+	
+integer(int32)
+	
+1
+	
+Business Type
+
+
+storeId
+	
+integer(int32)
+	
+1000
+	
+Warehouse Number
+
+
+operateType
+	
+string
+	
+1
+	
+Inventory operation status
+
+
+brandId
+	
+integer(int64)
+	
+6537
+	
+Brand ID
+
+
+model
+	
+string
+	
+M
+	
+Product Model
+
+
+placeOfProduction
+	
+string
+	
+北京
+	
+Place of Origin
+
+
+skuTax
+	
+array
+	
+	
+SKU tax rate information
+
+
+key
+	
+string
+	
+key
+	
+key
+
+
+value
+	
+string
+	
+value
+	
+value
+
+
+skuMultimediaList
+	
+array
+	
+	
+sku multimedia data
+
+
+mediaId
+	
+string
+	
+24435
+	
+SKU multimedia ID
+
+
+url
+	
+string
+	
+url
+	
+SKU multimedia URL
+
+
+mediaType
+	
+string
+	
+M
+	
+Multimedia type
+
+
+success
+	
+boolean
+	
+true
+	
+Whether it is successful
+
+
+errorList
+	
+array
+	
+	
+Collection of error messages
+
+
+code
+	
+string
+	
+10111001001
+	
+Code identifying the error type
+
+
+details
+	
+string
+	
+The request parameter is empty 请求参数为空
+	
+Additional information for locating or fixing the error
+
+
+message
+	
+string
+	
+The request parameter is empty 请求参数为空
+	
+Brief description of the error
+Response Example
+JSON
+1
+{
+2
+  "Response": {
+3
+    "paginationData": {
+4
+      "totalItems": 1000,
+5
+      "totalPages": 10,
+6
+      "currentPage": 1,
+7
+      "pageSize": 10
+8
+    },
+9
+    "data": [
+10
+      {
+11
+        "skuInfo": {
+12
+          "site": "1400",
+13
+          "skuId": 6355,
+14
+          "productId": 146152,
+15
+          "status": [
+16
+            {
+17
+              "key": {
+18
+                "siteStr": "1100",
+19
+                "uaStr": "1"
+20
+              },
+21
+              "value": {
+22
+                "skuStatus": 1,
+23
+                "onlineTime": 1766213838000,
+24
+                "offlineTime": 1766213838000,
+25
+                "skuPStatus": 1
+26
+              }
+27
+            }
+28
+          ],
+29
+          "saleAttrs": [
+30
+            {
+31
+              "attrId": "1232",
+32
+              "attrValues": "[\"290944\"]",
+33
+              "attrValueAlias": "[\"290944\"]",
+Exception Example
+JSON
+	{
+
+	  "Response": {
+
+	    "errorList": [
+
+	      {
+
+	        "code": "10111001001",
+
+	        "details": "请求参数为空",
+
+	        "message": "按错误提示信息处理"
+
+	      }
+
+	    ],
+
+	    "success": false
+
+	  }
+
+	}
+Return Code
+Return Code
+	
+Return Message
+	
+Solution
+10111001001
+	
+The request parameter is empty
+	
+Handle according to the error prompt information
+
+
+10111001002
+	
+The current page number must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10111001003
+	
+The number of entries per page must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10111001004
+	
+The maximum number of entries per page is supported up to 20
+	
+Handle according to the error prompt information
+
+
+10111001005
+	
+The sorting type is incorrect. It can only be ASC or DESC
+	
+Handle according to the error prompt information
+
+
+10111001006
+	
+The sorting field is incorrect. It can only be skuId, created, modified, or stockNum
+	
+Handle according to the error prompt information
+
+
+10111001007
+	
+The product ID must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10111001008
+	
+The number of product ID lists exceeds the limit of 20
+	
+Handle according to the error prompt information
+
+
+10111001009
+	
+The category ID must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10111001010
+	
+The number of category ID lists exceeds the limit of 10
+	
+Handle according to the error prompt information
+
+
+10111001011
+	
+The brand ID must be greater than or equal to 0
+	
+Handle according to the error prompt information
+
+
+10111001012
+	
+The number of brand id lists exceeds the limit of 10
+	
+Handle according to the error prompt information
+
+
+10111001013
+	
+The merchant ID cannot be empty
+	
+Handle according to the error prompt information
+
+
+10111001014
+	
+The merchant ID must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10111001015
+	
+The skuId must be greater than 0
+	
+Handle according to the error prompt information
+
+
+10111001016
+	
+The number of skuId lists exceeds the limit of 20
+	
+Handle according to the error prompt information
+
+
+10111009001
+	
+RPC remote call exception
+	
+Please refresh and try again or contact the platform operator
+Common Q&A
+Problem
+	
+Solution
+How are pagination and sorting configured for SKU queries.
+	
+When provided, page and pageSize must be greater than zero, with at most 20 records per page; sortBy supports skuId, created, modified, or stockNum, and the order supports asc or desc.
+
+
+What are the limits for batch filters.
+	
+Product IDs and SKU IDs are limited to 20 each, while category IDs and brand IDs are limited to 10 each.
+
+
+Can SKUs be filtered by language and status.
+	
+Yes, use languages for languages and skuStatusList for statuses such as 1 listed, 2 delisted, and 4 deleted.
+How to obtain this API
+Permission package that has this API
+	
+Application types that can obtain/apply for this API permission package
+商品发布
+	
+物流仓储,ISV应用
+Request
+Request Address and Method
+Common Request Parameters
+Query Parameters
+Response
+Response Parameters
+Response Example
+Exception Example
+Return Code
+Common Q&A
+How to obtain this API

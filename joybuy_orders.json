@@ -1,0 +1,286 @@
+{
+ "generatedAt": "2026-10-12T08:56:53.579Z",
+ "source": "joybuy-openapi · sp-order/v0 + sp-aftercare/v0",
+ "window": {
+  "days": 150
+ },
+ "shops": [
+  {
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "shopName": "Aliencell",
+   "currency": "EUR"
+  },
+  {
+   "site": "UK-Site",
+   "shopId": 1500005160,
+   "siteId": 1400,
+   "shopName": "Aliencell",
+   "currency": "GBP"
+  },
+  {
+   "site": "NL-Site",
+   "shopId": 1500001848,
+   "siteId": 1300,
+   "shopName": "Aliencell",
+   "currency": "EUR"
+  },
+  {
+   "site": "FR-Site",
+   "shopId": 1500009866,
+   "siteId": 1200,
+   "shopName": "Aliencell",
+   "currency": "EUR"
+  }
+ ],
+ "orders": [
+  {
+   "orderId": "1063102470000082650",
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "country": "DE",
+   "currency": "EUR",
+   "status": "COMPLETED",
+   "fulfillmentType": "FBM",
+   "createdAt": 1790280853000,
+   "outboundAt": 1790406044000,
+   "finishedAt": 1790951093000,
+   "items": [
+    {
+     "skuId": "100013020071365",
+     "outerSkuId": "AC-HB-X1-01-GL-V01",
+     "skuName": "Aliencell Waben-Lasertisch für X1 & X1Lite Lasergravierer Wabentisch",
+     "num": 1,
+     "salesPrice": 259
+    }
+   ],
+   "grossAmount": 259,
+   "units": 1,
+   "waybills": [
+    {
+     "carrierName": "GLS",
+     "carrierCode": "100005",
+     "waybillCode": "300302337026",
+     "events": 3
+    }
+   ],
+   "carrierNames": [
+    "GLS"
+   ],
+   "logisticsBasis": "LASTMILE",
+   "waybillError": null
+  },
+  {
+   "orderId": "1063802860000085073",
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "country": "DE",
+   "currency": "EUR",
+   "status": "CANCELLED",
+   "fulfillmentType": "",
+   "createdAt": 1790865967000,
+   "outboundAt": null,
+   "finishedAt": null,
+   "items": [
+    {
+     "skuId": "100014170021919",
+     "outerSkuId": "",
+     "skuName": "Aliencell Starterset Bastelmaterialien für Lasergravurmaschinen – Aluminiumplatten, Lindenholzplatten, MDF-Platten, Acrylplatten, Kunstleder mit goldfarbener Zwischenschicht und Schieferuntersetzer.",
+     "num": 1,
+     "salesPrice": 44.9
+    }
+   ],
+   "grossAmount": 44.9,
+   "units": 1,
+   "waybills": [],
+   "carrierNames": [],
+   "logisticsBasis": "UNKNOWN",
+   "waybillError": "fulfillType is empty"
+  },
+  {
+   "orderId": "1062002470000071401",
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "country": "DE",
+   "currency": "EUR",
+   "status": "COMPLETED",
+   "fulfillmentType": "FBM",
+   "createdAt": 1789321497000,
+   "outboundAt": 1789376993000,
+   "finishedAt": 1789629809000,
+   "items": [
+    {
+     "skuId": "100012780037577",
+     "outerSkuId": "",
+     "skuName": "Aliencell X1 20W/40W/60W geschlossene Lasergravier- und Laserschneidemaschine mit Air Assist, zwei 8",
+     "num": 1,
+     "salesPrice": 4199
+    }
+   ],
+   "grossAmount": 4199,
+   "units": 1,
+   "waybills": [
+    {
+     "carrierName": "GEL Express Logistik",
+     "carrierCode": "100396",
+     "waybillCode": "4913077548",
+     "events": 4
+    }
+   ],
+   "carrierNames": [
+    "GEL Express Logistik"
+   ],
+   "logisticsBasis": "LASTMILE",
+   "waybillError": null
+  },
+  {
+   "orderId": "1062002470000071169",
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "country": "DE",
+   "currency": "EUR",
+   "status": "CANCELLED",
+   "fulfillmentType": "",
+   "createdAt": 1789315967000,
+   "outboundAt": null,
+   "finishedAt": null,
+   "items": [
+    {
+     "skuId": "100012780037577",
+     "outerSkuId": "",
+     "skuName": "Aliencell X1 20W/40W/60W geschlossene Lasergravier- und Laserschneidemaschine mit Air Assist, zwei 8-MP-Kameras, 660 × 533 mm Arbeitsbereich, 6,86-Zoll-Touchscreen, kompatibel Mit LightBurn und Aliencell Space 60 W",
+     "num": 1,
+     "salesPrice": 4199
+    }
+   ],
+   "grossAmount": 4199,
+   "units": 1,
+   "waybills": [],
+   "carrierNames": [],
+   "logisticsBasis": "UNKNOWN",
+   "waybillError": "fulfillType is empty"
+  },
+  {
+   "orderId": "1060802740000060819",
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "country": "DE",
+   "currency": "EUR",
+   "status": "COMPLETED",
+   "fulfillmentType": "FBM",
+   "createdAt": 1788290605000,
+   "outboundAt": 1788314455000,
+   "finishedAt": 1788816201000,
+   "items": [
+    {
+     "skuId": "100014170021919",
+     "outerSkuId": "",
+     "skuName": "Aliencell Starterset Bastelmaterialien für Lasergravurmaschinen – Aluminiumplatten, Lindenholzplatt",
+     "num": 1,
+     "salesPrice": 44.9
+    }
+   ],
+   "grossAmount": 44.9,
+   "units": 1,
+   "waybills": [
+    {
+     "carrierName": "Amazon Logistics",
+     "carrierCode": "100312",
+     "waybillCode": "DE5819812564",
+     "events": 4
+    }
+   ],
+   "carrierNames": [
+    "Amazon Logistics"
+   ],
+   "logisticsBasis": "MCF",
+   "waybillError": null
+  },
+  {
+   "orderId": "1060802740000060552",
+   "site": "DE-Site",
+   "shopId": 1500006728,
+   "siteId": 1100,
+   "country": "DE",
+   "currency": "EUR",
+   "status": "CANCELLED",
+   "fulfillmentType": "",
+   "createdAt": 1788290605000,
+   "outboundAt": null,
+   "finishedAt": null,
+   "items": [
+    {
+     "skuId": "100014170021919",
+     "outerSkuId": "",
+     "skuName": "Aliencell Starterset Bastelmaterialien für Lasergravurmaschinen – Aluminiumplatten, Lindenholzplatten, MDF-Platten, Acrylplatten, Kunstleder mit goldfarbener Zwischenschicht und Schieferuntersetzer.",
+     "num": 1,
+     "salesPrice": 44.9
+    }
+   ],
+   "grossAmount": 44.9,
+   "units": 1,
+   "waybills": [],
+   "carrierNames": [],
+   "logisticsBasis": "UNKNOWN",
+   "waybillError": "fulfillType is empty"
+  },
+  {
+   "orderId": "1064602360000097993",
+   "site": "FR-Site",
+   "shopId": 1500009866,
+   "siteId": 1200,
+   "country": "FR",
+   "currency": "EUR",
+   "status": "CANCELLED",
+   "fulfillmentType": "",
+   "createdAt": 1791550314000,
+   "outboundAt": null,
+   "finishedAt": null,
+   "items": [
+    {
+     "skuId": "100013703333614",
+     "outerSkuId": "AC-X1-B60-K007-US-V01",
+     "skuName": "Aliencell X1 machine de gravure et de découpe laser fermée avec Air Assist, doubles caméras 8 MP, zone de travail 660 × 533 mm, écran tactile de 6,86 pouces, compatible avec LightBurn & Aliencell Space 60W",
+     "num": 1,
+     "salesPrice": 4199
+    }
+   ],
+   "grossAmount": 4199,
+   "units": 1,
+   "waybills": [],
+   "carrierNames": [],
+   "logisticsBasis": "UNKNOWN",
+   "waybillError": "fulfillType is empty"
+  }
+ ],
+ "aftersales": [],
+ "warnings": [],
+ "selfCheck": {
+  "ordersBySite": {
+   "DE-Site": 6,
+   "UK-Site": 0,
+   "NL-Site": 0,
+   "FR-Site": 1
+  },
+  "orderIdCount": 7,
+  "orderIdMinLen": 19,
+  "orderIdPrecisionOK": true,
+  "logisticsBasis": {
+   "MCF": 1,
+   "LASTMILE": 2,
+   "UNKNOWN": 4
+  },
+  "carriersSeen": [
+   "Amazon Logistics",
+   "GEL Express Logistik",
+   "GLS"
+  ],
+  "aftersales": 0
+ }
+}
