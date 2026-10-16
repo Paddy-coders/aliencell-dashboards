@@ -272,7 +272,7 @@
   </div>
   <details class="noteFold">
   <summary>📖 指标口径与说明（毛利 / 头程 / 退款 / FBA 库存费细项等）</summary>
-  <div class="note">BuyBox 占有率为各 ASIN 的日均值(该周每日 BuyBox% 的简单平均, 跨国家等权, 取值 0~100%);产品转化率 = 合计订单量 ÷ 合计 Sessions;广告转化率 = 广告订单数 ÷ 广告点击数, 广告点击率 = 广告点击数 ÷ 广告曝光量;广告占比 = 广告花费 ÷ 销售额总额, ROAS = 广告销售额 ÷ 广告花费, ACOS = 广告花费 ÷ 广告销售额(分母为0时显示 —)。广告数据来自易仓广告模块(商品推广SP+品牌推广SB+展示型推广SD), 按投放ASIN归属; 广告花费/广告销售额按各国原币种(US=USD / DE=EUR)。B2B订单数来自易仓 B2B 字段。<br><b>广告费归属</b>: 优先取条目自带 ASIN, 其次活动名里的 ASIN; 品牌推广(SB)报表不含 ASIN, 按活动名的「系列+瓦数」兜底, 且<b>按站点区分</b>(同一 SKU 在北美与欧洲是不同 ASIN)。若归属到的 ASIN 在该站点没有利润报表行(如某国未上架), 该笔广告费仍计入「广告花费」列与合计行的毛利扣减, 但该行自身的毛利显示 —(没有利润报表行可挂)。<br><b>毛利</b> = 报表销售额+促销折扣+销售佣金+配送费+商品成本+仓储费分摊+其他费用分摊(含 5 项库存费) + <b>FBA退货处理费</b> + <b>退款各项</b>(减退款金额与买家运费退款, 加回促销折扣退款/销售佣金退款/配送费退款) − <b>VAT</b>(仅欧洲与英国) − <b>头程</b>(成本表预估) + <b>其他渠道剔除加回</b> − <b>测评费</b> − 本看板广告花费。<b>「商品成本」自 2026-10-13 起改由「产品关系管理」映射到产品成本表的 costRMB × 件数(亚马逊销量 + 多渠道销量) ÷ 当月汇率折算, <u>不再取易仓 productCostTotal</u>(易仓原值仅留作审计); 未匹配到成本表的产品名时该行成本按 0 计并计入「成本缺失」。</b>其余各项数据来自易仓「财务-利润报表-ASIN」, 按<b>亚马逊结算日期</b>归属(与业务报告的下单口径天然存在 5%~15% 差异); 其他费用(推广服务费+服务费+5 项 FBA 库存费细项)按「日期×国家」产品行数均摊, 仓储费(月仓租+长期仓租)与其余库存费细项按 <b>(月,ASIN,站点,店铺) 的日行数</b>均摊(列合计精确等于 ERP 月度值)。利润报表无数据的站点(CA/MX/NL/SE 等)与 2026-07-15 之前的周显示 —; 成本解析不到的 Woot 行同样显示 —(不按 0 成本算, 避免毛利率虚高)。<br><b>毛利(RMB)</b>(2026-10-12 第二轮新增, 排在「毛利」列前): 把目标币种毛利按 <b>CNY per 1 目标币种</b> 折成人民币, 汇率与看板其余折算同源(取 fx_rates.json 最新月份)。<b>毛利列币种</b>: 未选国家或多国混合时按 <b>USD</b> 显示; 筛选到的国家同属一种币种(如单选 US、或多选欧盟国)时按<b>当地货币</b>显示。<br><b>FBA 库存费 8 细项</b>(2026-10-12 第二轮新增): 易仓「FBA库存与入境服务费汇总」按官方公式拆成 8 项单列 —— FBA退货处理费 / 其他FBA库存和入境服务费 / 超量费 / 合仓费 / 合作承运费 / 移除费用 / FBA月仓租费 / FBA长期仓租费。入账规则: <b>FBA退货处理费</b>、<b>仓储费</b>(=FBA月仓租费+FBA长期仓租费)独立计入毛利; 其余 5 项<b>合并进「其他费用」</b>一起分摊计入毛利 —— 那 5 列是「其他费用」的明细, <b>不要与「其他费用」相加</b>。该汇总里的「<b>FBA物流国际货运费</b>」(即上一轮的入境货运费, ERP 只挂在站点级月度行)与「头程」是同一笔成本的两个来源, 按确认口径<b>既不展示也不计入毛利</b>。<br><b>退款</b>(2026-10-12 第二轮新增): 「退款金额 / 促销折扣退款 / 销售佣金退款 / 退款净额 / 退款率」。毛利<b>减去退款金额与买家运费退款</b>, <b>加回促销折扣退款、销售佣金退款与配送费退款</b>(按易仓原始符号直接相加, 「退款净额」列即这些项的绝对值合计); <b>退款率 = 退款件数 ÷ 利润报表销量</b>(数量口径, 与易仓界面一致)。<br><b>多渠道</b>(2026-10-12 第一轮): 多渠道配送的<b>产品成本 / 头程 / 配送费</b>三项在 ERP 公式里本来就已含在「商品成本」与「配送费」内, 所以不重复扣, 只单独列出「多渠道销量」「多渠道损失」(= 三项之和)供观察。<br><b>其他渠道剔除</b>(2026-10-12 第一轮): 在财务录入窗口按「月份 + ASIN + 数量」导入非亚马逊渠道订单后, 系统按该(月,ASIN)的多渠道销量占比匹配出对应部分, 把其「产品成本+头程+配送费」<b>从亚马逊口径移出</b>(以正数加回毛利, 即「其他渠道已剔除」列)。ERP 的多渠道记录按 (ASIN×站点×日) 聚合、<b>没有订单号</b>, 因此只能做到月度匹配, 无法实时逐单剔除。<br><b>测评费</b>(2026-10-12 第一轮): 易仓利润报表的评测相关字段全期为 0, 故由财务在录入窗口按月导入(月份+站点+ASIN+金额+币种+备注), 按币种折算后以「站点×月销量占比」摊到 SKU, <b>计入毛利</b>。<br><b>费用占比列</b>(2026-10-10 新增): 成本% = 商品成本÷报表销售额; FBA / FBA% = 配送费; promotion / promotion% = 促销折扣; 仓储 / 仓储% = FBA 仓储费; 头程 / 头程% = 头程费用; 其他费用 / 其他费用% = 推广服务费+服务费; VAT / VAT% = 增值税(仅欧洲与英国)。占比分母统一为<b>利润报表销售额</b>, 除成本外其他费用同时列出绝对值(取正数显示)。<br><b>VAT</b>(2026-10-10 新增): 易仓利润报表的「产品税」与「亚马逊代扣代缴税款」正好互相抵消(净额 0) ⇒ 报表没把 VAT 从毛利里扣掉, 看板按 <b>(报表销售额 − 促销折扣) × 税率</b> 手动扣减(基数即「销售价 − 优惠价」); 税率见 <code>vat_rates.json</code>(UK 20%、DE 19%、FR 20%、IT 22%、ES 21%、NL/BE 21%、IE/PL 23%、SE 25%), 非欧洲站点为 0。若确认报表销售额已是不含税口径而无需再扣, 把该文件税率置 0 重跑构建即可。<br><b>头程</b>取产品成本表(用户提供)的「头程费用/RMB × 利润报表销量 ÷ 当月 CNY 汇率」, 目前为<b>预估值</b>, 后续以实际推移头程替换; 成本表未覆盖的 ASIN/站点头程为 0(占比按 0 计)。<b>2026-10-12 起头程已正式计入毛利</b>(头程与 ERP 的「FBA物流国际货运费」只能选一个进毛利, 选成本表预估口径, ERP 那笔只作对账列)。<b>尾程</b>(海外仓尾程配送)仅 FBM 订单计入, FBA 订单不计 —— 本看板店铺均走 FBA, 故不入成本口径。</div>
+  <div class="note">BuyBox 占有率为各 ASIN 的日均值(该周每日 BuyBox% 的简单平均, 跨国家等权, 取值 0~100%);产品转化率 = 合计订单量 ÷ 合计 Sessions;广告转化率 = 广告订单数 ÷ 广告点击数, 广告点击率 = 广告点击数 ÷ 广告曝光量;广告占比 = 广告花费 ÷ 销售额总额, ROAS = 广告销售额 ÷ 广告花费, ACOS = 广告花费 ÷ 广告销售额(分母为0时显示 —)。广告数据来自易仓广告模块(商品推广SP+品牌推广SB+展示型推广SD), 按投放ASIN归属; 广告花费/广告销售额按各国原币种(US=USD / DE=EUR)。B2B订单数来自易仓 B2B 字段。<br><b>广告费归属</b>: 优先取条目自带 ASIN, 其次活动名里的 ASIN; 品牌推广(SB)报表不含 ASIN, 按活动名的「系列+瓦数」兜底, 且<b>按站点区分</b>(同一 SKU 在北美与欧洲是不同 ASIN)。若归属到的 ASIN 在该站点没有利润报表行(如某国未上架), 该笔广告费仍计入「广告花费」列与合计行的毛利扣减, 但该行自身的毛利显示 —(没有利润报表行可挂)。<br><b>毛利</b> = 报表销售额+促销折扣+销售佣金+配送费+商品成本+仓储费分摊+其他费用分摊(含 5 项库存费) + <b>FBA退货处理费</b> + <b>退款各项</b>(减退款金额与买家运费退款, 加回促销折扣退款/销售佣金退款/配送费退款) − <b>VAT</b>(仅欧洲与英国) − <b>头程</b>(成本表预估) + <b>其他渠道剔除加回</b> − <b>测评费</b> − 本看板广告花费。<b>「商品成本」自 2026-10-13 起改由「产品关系管理」映射到产品成本表的 costRMB × 件数(亚马逊销量 + 多渠道销量) ÷ 当月汇率折算, <u>不再取易仓 productCostTotal</u>(易仓原值仅留作审计); 未匹配到成本表的产品名时该行成本按 0 计并计入「成本缺失」。</b>其余各项数据来自易仓「财务-利润报表-ASIN」, 按<b>亚马逊结算日期</b>归属(与业务报告的下单口径天然存在 5%~15% 差异); 其他费用(推广服务费+服务费+5 项 FBA 库存费细项)按「日期×国家」产品行数均摊, 仓储费(月仓租+长期仓租)与其余库存费细项按 <b>(月,ASIN,站点,店铺) 的日行数</b>均摊(列合计精确等于 ERP 月度值)。利润报表无数据的站点(CA/MX/NL/SE 等)与 2026-07-15 之前的周显示 —; 成本解析不到的 Woot 行同样显示 —(不按 0 成本算, 避免毛利率虚高)。<br><b>毛利(RMB)</b>(2026-10-12 第二轮新增, 排在「毛利」列前): 把目标币种毛利按 <b>CNY per 1 目标币种</b> 折成人民币, 汇率与看板其余折算同源(取 fx_rates.json 最新月份)。<b>毛利列币种</b>: 未选国家或多国混合时按 <b>USD</b> 显示; 筛选到的国家同属一种币种(如单选 US、或多选欧盟国)时按<b>当地货币</b>显示。<br><b>FBA 库存费 8 细项</b>(2026-10-12 第二轮新增): 易仓「FBA库存与入境服务费汇总」按官方公式拆成 8 项单列 —— FBA退货处理费 / 其他FBA库存和入境服务费 / 超量费 / 合仓费 / 合作承运费 / 移除费用 / FBA月仓租费 / FBA长期仓租费。入账规则: <b>FBA退货处理费</b>、<b>仓储费</b>(=FBA月仓租费+FBA长期仓租费)独立计入毛利; 其余 5 项<b>合并进「其他费用」</b>一起分摊计入毛利 —— 那 5 列是「其他费用」的明细, <b>不要与「其他费用」相加</b>。该汇总里的「<b>FBA物流国际货运费</b>」(即上一轮的入境货运费, ERP 只挂在站点级月度行)与「头程」是同一笔成本的两个来源, 按确认口径<b>既不展示也不计入毛利</b>。<br><b>退款</b>(2026-10-12 第二轮新增): 「退款金额 / 促销折扣退款 / 销售佣金退款 / 退款净额 / 退款率」。毛利<b>减去退款金额与买家运费退款</b>, <b>加回促销折扣退款、销售佣金退款与配送费退款</b>(按易仓原始符号直接相加, 「退款净额」列即这些项的绝对值合计); <b>退款率 = 退款件数 ÷ 利润报表销量</b>(数量口径, 与易仓界面一致)。<br><b>多渠道</b>(2026-10-12 第一轮): 多渠道配送的<b>产品成本 / 头程 / 配送费</b>三项在 ERP 公式里本来就已含在「商品成本」与「配送费」内, 所以不重复扣, 只单独列出「多渠道销量」「多渠道损失」(= 三项之和)供观察。<br><b>其他渠道剔除</b>(2026-10-12 第一轮): 在财务录入窗口按「月份 + ASIN + 数量」导入非亚马逊渠道订单后, 系统按该(月,ASIN)的多渠道销量占比匹配出对应部分, 把其「产品成本+头程+配送费」<b>从亚马逊口径移出</b>(以正数加回毛利, 即「其他渠道已剔除」列)。ERP 的多渠道记录按 (ASIN×站点×日) 聚合、<b>没有订单号</b>, 因此只能做到月度匹配, 无法实时逐单剔除。<br><b>测评费</b>(2026-10-12 第一轮): 易仓利润报表的评测相关字段全期为 0, 故由财务在录入窗口按月导入(月份+站点+ASIN+金额+币种+备注), 按币种折算后以「站点×月销量占比」摊到 SKU, <b>计入毛利</b>。<br><b>费用占比列</b>(2026-10-10 新增): 成本% = 商品成本÷报表销售额; FBA / FBA% = 配送费; promotion / promotion% = 促销折扣; 仓储 / 仓储% = FBA 仓储费; 头程 / 头程% = 头程费用; 其他费用 / 其他费用% = 推广服务费+服务费; VAT / VAT% = 增值税(仅欧洲与英国)。占比分母统一为<b>利润报表销售额</b>, 除成本外其他费用同时列出绝对值(取正数显示)。<br><b>VAT</b>(2026-10-10 新增): 易仓利润报表的「产品税」与「亚马逊代扣代缴税款」正好互相抵消(净额 0) ⇒ 报表没把 VAT 从毛利里扣掉, 看板按 <b>(报表销售额 − 促销折扣) × 税率</b> 手动扣减(基数即「销售价 − 优惠价」); 税率见 <code>vat_rates.json</code>(UK 20%、DE 19%、FR 20%、IT 22%、ES 21%、NL/BE 21%、IE/PL 23%、SE 25%), 非欧洲站点为 0。若确认报表销售额已是不含税口径而无需再扣, 把该文件税率置 0 重跑构建即可。<br><b>头程</b>(2026-10-16 起为实际推演口径)优先取「物流头程运费推演系统」推送的实际推演值(ASIN→产品名→该周(周六~周五)推演结转单价, 产品级单价不分站点; 该产品/周推演未覆盖时自动回退产品成本表预估「头程费用/RMB × 利润报表销量 ÷ 当月 CNY 汇率」); 两处均未覆盖的头程为 0(占比按 0 计)。销量修正/取消后由推演系统自动重算重推, 本看板每次加载拉最新推演数据。<b>2026-10-12 起头程已正式计入毛利</b>(头程与 ERP 的「FBA物流国际货运费」只能选一个进毛利, 选成本表预估口径, ERP 那笔只作对账列)。<b>尾程</b>(海外仓尾程配送)仅 FBM 订单计入, FBA 订单不计 —— 本看板店铺均走 FBA, 故不入成本口径。</div>
 </details>
 </div>
 
@@ -522,6 +522,14 @@ function wootAllocByAsin(es, qs, qe){
       try { cur = JSON.parse(localStorage.getItem('pc_woot') || 'null'); } catch(e) {}
       if (JSON.stringify(j.woot) !== JSON.stringify(Array.isArray(cur) ? cur : [])) {
         localStorage.setItem('pc_woot', JSON.stringify(j.woot)); dirty = true;
+      }
+    }
+    // ③ 头程推演同步 (2026-10-16)：物流头程运费推演系统 推送 data.freight → 本看板头程优先取推演
+    if (j.freight && j.freight.schema === 'freight-alloc-v2') {
+      let cur = null;
+      try { cur = JSON.parse(localStorage.getItem('pc_freight') || 'null'); } catch (e) {}
+      if (JSON.stringify(j.freight) !== JSON.stringify(cur)) {
+        localStorage.setItem('pc_freight', JSON.stringify(j.freight)); dirty = true;
       }
     }
     if (dirty) location.reload();
@@ -827,6 +835,27 @@ function headRmbOf(asin, cc) {
   const rg = hfRegionOf(cc);
   return (p && rg) ? (Number(p[rg]) || 0) : 0;
 }
+// ---------- 头程推演数据 (2026-10-16 新增，周度看板专属口径)：由「物流头程运费推演系统」自动推送到 mapping.freight ----------
+// 取值链：ASIN→产品关系管理→产品名；周 label→DATA.weeks.start(周六)；推演 groups(WA 财务口径)该周 allocPrice(CNY/台)
+// 注意：推演是产品级单价(不分 US/EU/UK)；推演未覆盖的产品/周返回 null → 回退成本表预估 headRmbOf
+function freightData(){
+  try { return JSON.parse(localStorage.getItem('pc_freight') || 'null'); } catch (e) { return null; }
+}
+function freightHeadOfWeek(asin, weekLabel){
+  const f = freightData();
+  const p = f && f.schema === 'freight-alloc-v2' ? (f.payload || null) : null;
+  const groups = p && p.methods && p.methods.WA && p.methods.WA.groups || [];
+  if (!groups.length) return null;
+  const meta = (typeof asinMetaOf === 'function') ? asinMetaOf(asin) : null;
+  const wk = (DATA.weeks || []).find(w => w.label === weekLabel);
+  if (!meta || !wk) return null;
+  for (const g of groups) {
+    if (!g || g.name !== meta.name) continue;
+    const w = (g.weeks || []).find(x => x && x.weekStart === wk.start && Number(x.sold) > 0);
+    return (w && Number(w.allocPrice) > 0) ? Number(w.allocPrice) : null;   // 产品有推演但该周无结转 → 回退
+  }
+  return null;   // 产品不在推演数据里 → 回退
+}
 function fxHeadCny(cny) {            // CNY → 当前目标币种 (按当前周的月份汇率)
   if (!cny) return 0;
   const rt = fxTbl()[targetCur()];
@@ -840,7 +869,7 @@ function rmbRateOf(o) {               // CNY per 1 目标币种: 优先「该行
 function rmbRate() { return rmbRateOf(null); }
 // 毛利口径: 毛利 = 报表销售额+促销折扣+销售佣金+配送费+商品成本+仓储分摊+其他费用分摊(含 5 项库存费)
 //            + FBA退货处理费 + 退款各项(减退款金额与买家运费退款, 加回促销折扣退款/销售佣金退款/配送费退款)
-//            − VAT(EU/UK) − 头程(成本表预估) + 其他渠道剔除加回 − 测评费 − 本看板广告花费
+//            − VAT(EU/UK) − 头程(推演优先, 回退成本表预估) + 其他渠道剔除加回 − 测评费 − 本看板广告花费
 // (ERP 各项费用为负值, 直接相加; 报表按结算日期归属; 无利润报表数据的站点/周显示 —)
 function profitOf(pw) {
   if (!pw || !pw.pN) return null;
@@ -890,7 +919,7 @@ const METRICS = [
   { key:'promoPct',     short:'promotion%',   label:'promotion% = 促销折扣÷报表销售额', pct:true, grp:'毛利' },
   { key:'storageAbs',   short:'仓储',         label:'FBA 仓储费 (绝对值)', money:true, grp:'毛利' },
   { key:'storagePct',   short:'仓储%',        label:'仓储% = 仓储费÷报表销售额', pct:true, grp:'毛利' },
-  { key:'headAbs',      short:'头程',         label:'头程 (绝对值, 成本表RMB×销量换算)', money:true, grp:'毛利' },
+  { key:'headAbs',      short:'头程',         label:'头程 (绝对值, 推演优先/成本表RMB×销量换算)', money:true, grp:'毛利' },
   { key:'headPct',      short:'头程%',        label:'头程% = 头程÷报表销售额', pct:true, grp:'毛利' },
   { key:'otherAbs',     short:'其他费用',      label:'其他费用 (绝对值)', money:true, grp:'毛利' },
   { key:'otherPct',     short:'其他费用%',     label:'其他费用% = 其他费用÷报表销售额', pct:true, grp:'毛利' },
@@ -1376,9 +1405,10 @@ function asinWeekData(asin, weekLabel) {
       acc.pRefComm += fxv(p.refComm || 0, c); acc.pRefShip += fxv(p.refShip || 0, c);
       acc.pRefFba += fxv(p.refFba || 0, c); acc.pRefQty += (p.refQty || 0);
       acc.pN += (p.n || 0); acc.pMiss += (p.miss || 0);
-      if (p.qty) {                                  // 头程: 成本表RMB × 利润报表销量 → 目标币种
+      if (p.qty) {                                  // 头程: 优先推演(mapping.freight 产品级CNY/台), 回退成本表RMB × 销量 → 目标币种
         acc.pQty += p.qty;
-        const hr = headRmbOf(asin, c);
+        const fr = freightHeadOfWeek(asin, weekLabel);
+        const hr = (fr != null) ? fr : headRmbOf(asin, c);
         if (hr) acc.pHead += fxHeadCny(hr * p.qty);
       }
     }
@@ -1449,7 +1479,7 @@ function calc() {
           o.pRefComm += fxv(p.refComm || 0, c); o.pRefShip += fxv(p.refShip || 0, c);
           o.pRefFba += fxv(p.refFba || 0, c); o.pRefQty += (p.refQty || 0);
           o.pN += (p.n || 0); o.pMiss += (p.miss || 0);
-          if (p.qty) { o.pQty += p.qty; const hr = headRmbOf(a, c); if (hr) o.pHead += fxHeadCny(hr * p.qty); }
+          if (p.qty) { o.pQty += p.qty; const fr = freightHeadOfWeek(a, w.label); const hr = (fr != null) ? fr : headRmbOf(a, c); if (hr) o.pHead += fxHeadCny(hr * p.qty); }
         });
         FX_CUR_WK = w.label;            // 逐月汇率上下文(孤儿单元也按该周月份折算)
         if (!perWeek[w.label]) perWeek[w.label] = { pWk: w.label, sessions:0, mob_sessions:0, brw_sessions:0, pv:0, units:0, b2b_units:0, orders:0, sales:0, bbSum:0, bbCount:0, adSpend:0, adClicks:0, adOrders:0, adImpressions:0, adSales:0, pSales:0, pPromo:0, pComm:0, pFba:0, pCost:0, pStorage:0, pOther:0, pN:0, pMiss:0, pQty:0, pHead:0, pVat:0, pMqty:0, pMcost:0, pMhead:0, pMship:0, pMcAdj:0, pReview:0, pFbRet:0, pFbOth:0, pFbOvr:0, pFbCon:0, pFbCar:0, pFbRem:0, pFbMst:0, pFbLst:0, pRefSales:0, pRefPromo:0, pRefComm:0, pRefShip:0, pRefFba:0, pRefQty:0 };
