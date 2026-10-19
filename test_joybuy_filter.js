@@ -1,7 +1,8 @@
 /**
  * JoyBuy 看板 —— 六维筛选逻辑回归（本地 file:// 直开 joybuy.html）
  *
- *   前置：node joybuy_browser.js --keep; sleep 5400   （CDP 9333，放后台任务）
+ *   前置：node joybuy_browser.js --keep   （CDP 9333，默认 headless 无窗口，放后台任务）
+ *        跑完务必 node joybuy_browser.js --stop 收尾（否则心跳自愈会让它一直驻留）
  *   运行：node test_joybuy_filter.js
  *
  * 覆盖项：

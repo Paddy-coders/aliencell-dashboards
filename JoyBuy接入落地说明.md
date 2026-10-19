@@ -3,7 +3,7 @@
 > 上游指引：`C:\Users\paddy\WorkBuddy\2026-08-17-14-21-33\JoyBuy接入指引.md`（抓取自 open-portal.joybuy.com 官方文档）
 > 本文档记录**接入落地**：代码、凭证、命令、看板、口径与测试。
 > 代码目录：`C:\Users\paddy\WorkBuddy\2026-08-18-14-43-38`（与亚马逊看板同目录，共用云端链接）
-> 更新时间：2026-10-02（新增 ⑭：Data Compass 采集免登录化 + 防串站自检）
+> 更新时间：2026-10-19（新增 ⑮：调试浏览器默认 headless + `--stop`，修掉「每次跑测试都弹后台、关掉又弹」）
 
 ---
 
@@ -27,6 +27,7 @@
 | ⑫ | **周筛选真正驱动图表 X 轴 / 周度表 / 日明细（`visibleWeeks()`）+「窗口」标签跟随筛选** | ✅ 完成**并已发布**，筛选回归 **80/80**、入口 e2e **19/19**（本地 + 线上双跑） |
 | ⑬ | **回归断言去硬编码**（期望值改为从构建产物内嵌 `PAYLOAD` 自算）+ **修掉「窗口」标签把进行中的半周算进覆盖期** | ✅ 完成**并已发布**，筛选回归 **86/86**（80→86）、线上验收 **22/22**（2026-09-28） |
 | ⑭ | **Data Compass 采集免登录化**：会话文件 + 纯 HTTP 直连（日常零浏览器零登录），并修掉「切店铺靠 `Set-Cookie: b_belong`、忽略响应头会静默串站」这颗雷 + 新增防串站自检 | ✅ 完成（2026-10-02）：两模式**逐项等价**（同参数 UK 30 天全一致）；双站切换自检 `UK:9 ｜ FR:19` 通过 |
+| ⑮ | **调试浏览器默认无窗口**：`joybuy_browser.js` 改 headless 默认（`--headful` 仅人工登录），新增 `--stop`（先停心跳再 `Browser.close`）+ pid 单实例锁 + 自愈上限，修掉「每次跑测试自动弹出商家后台、关掉 30s 又被弹回来」 | ✅ 完成（2026-10-19）：headless 下 filter **86/86**、entry_e2e **19/19**；登录态正常（后台直接显示 Aliencell）；`--stop` 实测端口释放、pid 清理 |
 
 > **🟢 整条链路闭环**：注册 → 建应用 → 一键授权 → SP-API 采集 → Data Compass 采集 → 看板 → 线上。
 > 线上链接：`https://3577d1e878e64dc5837e56f9471dcefc.app.workbuddy.host`（统一入口 `index.html` → 侧边栏 JoyBuy 分组）
@@ -212,9 +213,10 @@ node fetch_joybuy_api.js collect --days 90
 #    ✅ 正常情况【不需要浏览器、不需要登录】：先探活确认走哪条路
 node joybuy_compass_fetch.js --probe
 #      · 打印「✓ 会话有效 → 纯 HTTP 模式」→ 直接采集，别再启浏览器（会话文件长期有效）
-#      · 打印「✗ 会话已失效 / 未找到会话文件」→ 才需要下面的保活 + 重新导出会话
-node joybuy_browser.js --keep            # 仅上一种情况需要；人工登录一次后：
+#      · 打印「✗ 会话已失效 / 未找到会话文件」→ 才需要下面的浏览器 + 重新导出会话
+node joybuy_browser.js --keep --headful   # 仅上一种情况需要（要人看得见登录页；必须带 --keep 才能保持到导出会话）
 node joybuy_compass_fetch.js --save-session   # 导出会话（此后又回到纯 HTTP）
+node joybuy_browser.js --stop             # 导出完立刻关，别让窗口常驻
 node joybuy_compass_fetch.js --shops UK,DE,NL,FR --days 120
 #    单站点：--shops DE    探路/调参：--probe    验证不覆盖正式数据：--out _bak/x.json
 #    ⚠️ 收尾必看「防串站自检」：各站 SKU 数应互不相同；失败说明切店铺没生效（退出码 4）
@@ -256,8 +258,9 @@ node joybuy_compass_fetch.js --probe     # 打印「✓ 会话有效 → 纯 HTT
 会话是一次性准备的，之后长期复用：
 
 ```bash
-node joybuy_browser.js --keep                  # 人工登录一次
+node joybuy_browser.js --keep --headful        # 人工登录一次（要看得见登录页，必须带 --headful）
 node joybuy_compass_fetch.js --save-session    # 导出 .joybuy.com 域 cookie（实测 12 条）
+node joybuy_browser.js --stop                  # 导出完关掉
 ```
 
 登录票据是长效的（`pin` 至 2027-10 / `__jda` 至 2027-03），所以正常每周采集都不需要登录。
@@ -458,7 +461,7 @@ python build_joybuy_dashboard.py --api _demo_joybuy_api.json --out _demo_joybuy.
 | `build_joybuy_dashboard.py` | 合并两路数据 → `joybuy.html`（`--compass` / `--api` / `--out`） |
 | `joybuy_template.html` | 看板模板（7 标签页 × 六维筛选 · KPI 5 槽位可替换 · 指标中文；占位符 `__PAYLOAD__` / `__CHARTJS__`） |
 | `joybuy.html` | 构建产物（部署到 `_deploy/`） |
-| `joybuy_browser.js` | JoyBuy 调试浏览器（独立 profile，CDP 9333）；**仅会话失效时才需要** |
+| `joybuy_browser.js` | JoyBuy 调试浏览器（独立 profile，CDP 9333）。**默认 headless 无窗口**；`--headful` 仅首次人工登录用；`--stop` 收尾关闭。会话失效与页面级测试时才需要 |
 | `joybuy_apipaths.json` | 实测导出的 44 个 API 路径清单 |
 | `joybuy_apilist.txt` | 各分组的接口名 + 路径 + 简述 |
 | `_gen_joybuy_demo.py` | 生成示例数据（仅版式预览，不进生产链路） |
@@ -493,25 +496,29 @@ BASE=<线上地址> node test_joybuy_portal.js
 
 # 统一入口端到端（外壳 index.html → JoyBuy 页签 → iframe 内看板，浏览器真跑一遍）
 # 需两个前置：cd _deploy && python -m http.server 8917 --bind 127.0.0.1
-#             node joybuy_browser.js --keep   （CDP 9333）
+#             node joybuy_browser.js --keep   （CDP 9333，默认 headless 无窗口）
 # 注：页面级测试（entry_e2e / filter / online）要真实浏览器渲染，所以仍需 CDP 9333；
 #     这与「采集可用纯 HTTP 免登录」是两回事 —— 别因为采集不用登录就省掉这一步。
 #     ❗所谓「常驻」保活实例也会死（2026-10-12 实测：9333 无监听、无 msedge 进程，来自 09-28 的实例已消失）
 #     → 跑任何 JoyBuy 测试前先 `netstat -ano | grep 9333`，不通就先 `--keep` 重起、**等约 20s 确认 LISTENING** 再跑；
 #       否则报 `connect ECONNREFUSED 127.0.0.1:9333`，别误判成代码坏了。
+#     ✅ 已内置 pid 单实例锁：重复 --keep 返回 already_running，不会起第二个。
 node test_joybuy_entry_e2e.js                     # 19/19
 # 只桩掉 Supabase 会话校验（外壳会异步校验，无真实登录态会跳登录页），其余走真实文件
 node test_joybuy_entry_e2e.js https://3577d1e878e64dc5837e56f9471dcefc.app.workbuddy.host/
 
-# 六维筛选逻辑（需 joybuy_browser.js 保活；真实点 .dd-btn，能暴露内联 onclick 作用域问题）
+# 六维筛选逻辑（需 CDP 9333；真实点 .dd-btn，能暴露内联 onclick 作用域问题）
 node test_joybuy_filter.js                       # 86/86（原 _jb_f_test.js，已并入 test_joybuy_* 家族）
 # ⚠️ 预期项数 = 86，但**期望值不是写死的**：脚本会先解出 joybuy.html 内嵌的 PAYLOAD，
 #    再按复刻的前端口径自算（周数/SKU 数/订单/销售额/窗口日期…）。数据重采后**不该再红**。
 # 覆盖 8f：窗口从首个有数据的周开始（== payload 复算的可见周；选 DE 起点必须后移、起点前的周必须消失）
 
-# 线上发布验收（发布后必跑；需 joybuy_browser.js 保活）
+# 线上发布验收（发布后必跑；需 CDP 9333）
 node test_joybuy_online.js                       # 22/22
 node test_joybuy_online.js --skip-bytes          # 只验功能值，跳过字节比对
+
+# 测试全部跑完：关掉调试浏览器（必做！否则心跳自愈会让它驻留数天、用户关窗又被弹回来）
+node joybuy_browser.js --stop
 # ⚠️ 两层缓存：① 发布后有几十秒 CDN 不一致窗口（读到旧版，A 段已内置重试）；
 #    ② CDN 按「完整 URL」缓存 —— 裸 URL / 入口用的 ?v=<小时数> / 你加的 ?cb= 是三个变体，
 #       且同一小时内重发不换 URL。所以 A 段**必须带唯一 ?cb=**、B 段必须 setCacheDisabled + iframe 走 ?cb=。
@@ -607,8 +614,8 @@ node verify_filters3.js                           # 全 PASS
 # 0) 先探活，决定要不要浏览器（正常情况都不用）
 node joybuy_compass_fetch.js --probe
 #    · ✓ 会话有效 → 纯 HTTP 模式，直接跳到第 1 步（零浏览器、零登录）
-#    · ✗ 会话失效 / 未找到会话文件 → 才需要保活 + 人工登录一次 + 重新导出会话：
-#        node joybuy_browser.js --keep            # 另开终端/后台任务，否则 Edge 被回收后 CDP 端口 ECONNREFUSED
+#    · ✗ 会话失效 / 未找到会话文件 → 才需要有界面浏览器 + 人工登录一次 + 重新导出会话：
+#        node joybuy_browser.js --keep --headful  # 另开终端/后台任务；要看得见登录页，导出后 --stop
 #        node joybuy_compass_fetch.js --save-session
 
 # 1) 开放平台 SP-API：订单 / 商品 / SKU / 库存 / 售后
@@ -659,9 +666,9 @@ node test_joybuy_online.js                        # 22/22；A 段比字节，B �
 | 任务名 | JoyBuy 数据看板每周自动更新（采集→构建→发布·周一15:30） |
 | 任务 ID | `8dcc5b19-2da3-42d6-b1f0-d4937dcb28e6` |
 | 频率 | 每周一 15:30（**错开**同日的广告周度 / 产品周汇总两个 15:00 任务，避免三者同时跑采集+构建抢资源） |
-| 覆盖步骤 | **探活 `--probe`（✓ 则免登录纯 HTTP；✗ 才保活 CDP 9333 并 `--save-session` 续期）** → SP-API 采集 → Data Compass 采集（**查防串站自检**）→ SKU 映射体检 → 重建看板 → 双回归（**filter 86/86 + entry_e2e 19/19**）→ 同步 `_deploy` → 发布（复用 sandboxId，链接不变）→ **线上验收 `test_joybuy_online.js`（22/22，含字节比对）** |
+| 覆盖步骤 | **探活 `--probe`（✓ 则免登录纯 HTTP；✗ 才 `--keep --headful` 人工登录并 `--save-session` 续期）** → SP-API 采集 → Data Compass 采集（**查防串站自检**）→ SKU 映射体检 → 重建看板 → **起 `--keep`（headless 无窗口）** → 双回归（**filter 86/86 + entry_e2e 19/19**）→ 同步 `_deploy` → 发布（复用 sandboxId，链接不变）→ **线上验收 `test_joybuy_online.js`（22/22，含字节比对）** → **`--stop` 收尾** |
 | ⚠️ 已知卡点 | **自动化会话里 `workbuddy_sites_deploy` 可用性不稳定**：09-28 报 not available，**10-05 / 10-12 连续两次可用且发布成功**（复用同一 sandboxId，链接不变）→ 到步骤 7 **先 ToolSearch 试一次**，成功即发；确实不可用才交交互会话补做，补做后务必跑一次 `test_joybuy_online.js` |
-| ⚠️ 测试前置 | `test_joybuy_filter.js` / `entry_e2e` / `online` **都依赖 CDP 9333**，且该「常驻」实例会随机器/会话结束而死（10-12 实测）→ **跑前先 `netstat \| grep 9333`**，不通就先后台 `node joybuy_browser.js --keep; sleep 5400` 并等约 20s 确认 LISTENING |
+| ⚠️ 测试前置 | `test_joybuy_filter.js` / `entry_e2e` / `online` **都依赖 CDP 9333**，且该「常驻」实例会随机器/会话结束而死（10-12 实测）→ **跑前先 `netstat \| grep 9333`**，不通就后台 `node joybuy_browser.js --keep`（默认 headless，二十秒内 LISTENING）**，跑完必须 `node joybuy_browser.js --stop`**（不关会驻留数天，用户关窗又被心跳弹回来 —— 2026-10-19 投诉项） |
 | 失败约定 | 登录态失效 / SP-API token 失效**不自动重试**，直接汇报要求人工介入；口径等式偏离先重跑一次采集，仍偏则在汇报首行标「【⚠更新失败】」 |
 
 > 想改时间或暂停：直接说「把 JoyBuy 定时任务改到 X 点」/「暂停 JoyBuy 定时任务」即可，不必手改配置。

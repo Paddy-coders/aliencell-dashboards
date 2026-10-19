@@ -8,7 +8,8 @@
  *   「发布没生效」然后去改正确的代码。
  *
  * 用法：
- *   1) 保活调试浏览器：node joybuy_browser.js --keep        （CDP 9333）
+ *   1) 保活调试浏览器：node joybuy_browser.js --keep        （CDP 9333，默认 headless 无窗口）
+ *      跑完务必 node joybuy_browser.js --stop 收尾
  *   2) node test_joybuy_online.js                           # 默认线上固定链接
  *      node test_joybuy_online.js http://127.0.0.1:8917/    # 也可指向本地静态服务
  *      node test_joybuy_online.js <baseUrl> --skip-bytes    # 跳过字节比对，只验功能

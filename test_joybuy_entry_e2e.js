@@ -9,7 +9,8 @@
  * 用法：
  *   1) 先起静态服务（必须从 _deploy 目录起，页面里的相对路径才成立）
  *        cd _deploy && python -m http.server 8917 --bind 127.0.0.1
- *   2) 保活调试浏览器：node joybuy_browser.js --keep   （CDP 9333）
+ *   2) 保活调试浏览器：node joybuy_browser.js --keep   （CDP 9333，默认 headless 无窗口）
+ *      跑完务必 node joybuy_browser.js --stop 收尾（否则心跳自愈会让它一直驻留）
  *   3) node test_joybuy_entry_e2e.js [baseUrl]         # 默认 http://127.0.0.1:8917/
  *
  * 断言：外壳 nav 含 joybuy · hash 直达高亮 · iframe 加载 joybuy.html ·

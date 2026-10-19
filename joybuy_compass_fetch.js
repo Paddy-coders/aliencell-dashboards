@@ -24,16 +24,19 @@
  * 网关即可拿到完全一样的数据（实测 code=200 success=true）。
  *
  *   优先顺序：joybuy_compass_session.json 存在且探活通过 → 纯 HTTP（零浏览器、零登录）
- *             否则 → 回退浏览器模式（需先 node joybuy_browser.js --keep）
+ *             否则 → 回退浏览器模式（需先 node joybuy_browser.js --keep，默认无窗口）
  *
  * 会话续期：Cookie 里的登录票据 pin 有效期至 2027-10，__jda 至 2027-03，通常很久才失效。
  *          真失效时会明确提示「请重新登录后执行 --save-session」，不会静默跑出空数据。
- * 首次准备：node joybuy_browser.js --keep   # 人工登录一次
+ * 首次准备（要人工登录，所以必须 --headful，否则看不到登录页）：
+ *          node joybuy_browser.js --keep --headful
  *          node joybuy_compass_fetch.js --save-session
+ *          node joybuy_browser.js --stop
  *          之后每周自动化就再也不需要浏览器了。
  *
  * 前置（仅浏览器模式）：调试浏览器已启动并登录 partner.joybuy.com
- *   node joybuy_browser.js --keep
+ *   node joybuy_browser.js --keep            # 无窗口，只取数不需要界面
+ *   node joybuy_browser.js --keep --headful  # 需要人工登录时
  *
  * 输出：joybuy_compass_data.json
  *
@@ -305,7 +308,9 @@ function chunkRange(start, end, maxDays) {
     if (!sess) {
       log('模式: 浏览器（未找到会话文件 ' + path.basename(SESSION) + '）');
       log('      一次性导出会话后即可改用纯 HTTP（不再需要浏览器与登录）：');
-      log('      node joybuy_browser.js --keep  &&  node joybuy_compass_fetch.js --save-session');
+      log('      node joybuy_browser.js --keep --headful   （有界面，便于人工登录）');
+      log('      node joybuy_compass_fetch.js --save-session');
+      log('      node joybuy_browser.js --stop             （导出后关掉）');
     } else {
       log('模式: 校验会话文件（保存于 ' + sess.savedAt + '，' + sess.count + ' 条 cookie）...');
       const pr = await httpDsm('dsm.compass.pop.traffic.querySummary', {
@@ -324,7 +329,9 @@ function chunkRange(start, end, maxDays) {
           || (pr.raw ? String(pr.raw).slice(0, 60)
             : (pr.status !== undefined ? 'HTTP ' + pr.status : '')))) || '未知';
         log('      ✗ 会话已失效（' + why + '）→ 回退浏览器模式');
-        log('        重新登录后执行 `node joybuy_compass_fetch.js --save-session` 即可恢复纯 HTTP');
+        log('        续期：node joybuy_browser.js --keep --headful（人工登录）');
+        log('              node joybuy_compass_fetch.js --save-session');
+        log('              node joybuy_browser.js --stop');
       }
     }
   }
