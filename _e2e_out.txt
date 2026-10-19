@@ -1,0 +1,22 @@
+base = http://127.0.0.1:8917/
+  ✓ 外壳 page  当前 index.html#joybuy
+  ✓ nav 含 joybuy  [ad, product, daily, monthly, target, joybuy]
+  ✓ #joybuy 直达高亮
+  ✓ iframe 指向 joybuy.html  joybuy.html?v=497887
+  ✓ 找到 joybuy iframe
+  ✓ KPI 固定 5 张  实际 5
+  ✓ 5 张卡片都可下拉替换  5 个下拉
+  ✓ KPI 指标名为中文（无 UV/PV/PDP）  订单量,销售额,销售件数,商品访客数,商品浏览量
+  ✓ 筛选下拉 6 个（国家/系列/产品名/套装/SKU/周数）  实际 6
+  ✓ 国家候选 4 个站点  实际 4
+  ✓ 标签页 7 个  ["概览趋势","商品 · 产品名","加购 / 收藏","店铺流量","渠道来源","搜索词","每日明细"]
+  ✓ 页签 trend  canvas[655x290,655x290] 行[17]
+  ✓ 页签 traffic  canvas[1357x290] 行[17]
+  ✓ 页签 product  canvas[] 行[8,21,81]
+  ✓ 页签 funnel  canvas[1357x250] 行[21,17]
+  ✓ 页签 channel  canvas[1357x250] 行[12]
+  ✓ 页签 keyword  canvas[1357x250] 行[371]
+  ✓ 页签 daily  canvas[] 行[114]
+  ✓ 零 JS 报错
+
+结果: 19 通过 / 0 失败

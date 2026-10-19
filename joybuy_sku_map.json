@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-10-12T07:30:45.262Z",
+ "generatedAt": "2026-10-19T07:30:44.002Z",
  "source": "build_joybuy_sku_map.py（规则推导 + overrides 人工覆盖）",
  "seriesOrder": [
   "X1",
@@ -847,8 +847,8 @@
    "name": "Air Purifier 主机",
    "bundle": "标配",
    "srcSeries": "Air Purifier",
-   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control",
-   "color": "",
+   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control Air Purifier",
+   "color": "Air Purifier",
    "review": false,
    "note": ""
   },
@@ -1077,6 +1077,20 @@
    "note": ""
   },
   {
+   "skuId": "100025345242348",
+   "site": [
+    "FR"
+   ],
+   "series": "X1 Lite",
+   "name": "X1 Lite 60W",
+   "bundle": "标配",
+   "srcSeries": "X1 Lite",
+   "skuName": "Aliencell X1 Lite 60 W laser engraving machine, 610 × 465 mm working area, Speed up to 600 mm/s, Maximum acceleration of 20,000 mm/s², Laser class 1, For wood, metal and acrylic",
+   "color": "",
+   "review": false,
+   "note": ""
+  },
+  {
    "skuId": "100025475034994",
    "site": [
     "NL"
@@ -1087,6 +1101,118 @@
    "srcSeries": "X1 Lite",
    "skuName": "Aliencell X1 Lite 40 W Laser Engraving Machine, 610 × 465 mm Working Area, Speed up to 600 mm/s, Maximum Acceleration of 20,000 mm/s², Laser Class 1, for Wood, Metal and Acrylic",
    "color": "",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028280449186",
+   "site": [
+    "UK"
+   ],
+   "series": "Air Purifier",
+   "name": "Air Purifier 滤芯F8",
+   "bundle": "标配",
+   "srcSeries": "Air Purifier",
+   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control F8 Medium Efficiency Filter",
+   "color": "F8 Medium Efficiency Filter",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028280450995",
+   "site": [
+    "UK"
+   ],
+   "series": "Air Purifier",
+   "name": "Air Purifier 滤芯H11",
+   "bundle": "标配",
+   "srcSeries": "Air Purifier",
+   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control H11 High-Performance Filter",
+   "color": "H11 High-Performance Filter",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028280451639",
+   "site": [
+    "UK"
+   ],
+   "series": "Air Purifier",
+   "name": "Air Purifier 滤芯活性炭",
+   "bundle": "标配",
+   "srcSeries": "Air Purifier",
+   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control Active carbon filter",
+   "color": "Active carbon filter",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028280452655",
+   "site": [
+    "UK"
+   ],
+   "series": "Air Purifier",
+   "name": "Air Purifier 滤芯超密碳网",
+   "bundle": "标配",
+   "srcSeries": "Air Purifier",
+   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control Ultra-Dense Carbon Mesh Filter",
+   "color": "Ultra-Dense Carbon Mesh Filter",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028280453971",
+   "site": [
+    "UK"
+   ],
+   "series": "Air Purifier",
+   "name": "Air Purifier 滤芯H13",
+   "bundle": "标配",
+   "srcSeries": "Air Purifier",
+   "skuName": "Aliencell Air Purifier for 3D Printer & Laser Engraver, 5-Stage Smoke Dust and Odor Filtration System with AQI Display, 3-Speed Airflow, Bluetooth Control H13 High-Performance Filter",
+   "color": "H13 High-Performance Filter",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028290273787",
+   "site": [
+    "UK"
+   ],
+   "series": "Laser Module",
+   "name": "Laser Module 20W",
+   "bundle": "标配",
+   "srcSeries": "Laser Module",
+   "skuName": "Aliencell 20W, 40W, 60W Laser Module for X1 & X1 Lite 20 W",
+   "color": "20 W",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028290274925",
+   "site": [
+    "UK"
+   ],
+   "series": "Laser Module",
+   "name": "Laser Module 40W",
+   "bundle": "标配",
+   "srcSeries": "Laser Module",
+   "skuName": "Aliencell 20W, 40W, 60W Laser Module for X1 & X1 Lite 40 W",
+   "color": "40 W",
+   "review": false,
+   "note": ""
+  },
+  {
+   "skuId": "100028290275307",
+   "site": [
+    "UK"
+   ],
+   "series": "Laser Module",
+   "name": "Laser Module 60W",
+   "bundle": "标配",
+   "srcSeries": "Laser Module",
+   "skuName": "Aliencell 20W, 40W, 60W Laser Module for X1 & X1 Lite 60 W",
+   "color": "60 W",
    "review": false,
    "note": ""
   }
