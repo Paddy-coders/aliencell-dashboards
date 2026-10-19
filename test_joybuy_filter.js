@@ -516,11 +516,24 @@ function ck(name, ok, detail) {
     dim: document.querySelectorAll('#ddSiteList .dd-opt.dim').length,
     foot: (document.querySelector('#ddSiteList .dd-foot.info') || {}).innerText || ''
   }));
-  ck('选「激光模块」后不卖它的站点（' + (NON_LASER.join('/') || '无') + '）直接消失',
-    siteNarrow.opts.length > 0 && siteNarrow.opts.every((t) => NON_LASER.every((c) => t.indexOf(c) < 0)),
-    siteNarrow.opts.join(' '));
+  // ⚠️ 期望值必须从 payload 复算，**不能假设「UK 不卖激光模块」**：
+  //    2026-10-19 UK 新上 3 个 Laser Module SKU 后四站全卖 → NON_LASER 变空集，
+  //    此时「站点候选人变少」「底部提示已隐藏 N 项」都本就不该出现。
+  ck(NON_LASER.length
+    ? '选「激光模块」后不卖它的站点（' + NON_LASER.join('/') + '）直接消失'
+    : '四站都卖「激光模块」→ 站点候选不缩减（' + LASER_SITES.length + ' 个）',
+  siteNarrow.opts.length > 0 && (NON_LASER.length
+    ? siteNarrow.opts.every((t) => NON_LASER.every((c) => t.indexOf(c) < 0))
+    : siteNarrow.opts.length === LASER_SITES.length),
+  siteNarrow.opts.join(' '));
   ck('用的是「隐藏」而非「置灰」', siteNarrow.dim === 0, '置灰项 ' + siteNarrow.dim);
-  ck('面板底部提示已隐藏项数', siteNarrow.foot.indexOf('已按当前筛选隐藏') >= 0, siteNarrow.foot || '（缺失）');
+  // 隐藏提示只在真有隐藏项时渲染（前端 `if (hiddenN)` 才输出 dd-foot.info）
+  const hidN = (siteNarrow.foot.match(/已按当前筛选隐藏\s*(\d+)\s*项/) || [])[1];
+  ck(NON_LASER.length
+    ? '面板底部提示已隐藏项数（应 ' + NON_LASER.length + '）'
+    : '无隐藏项时不显示隐藏提示（不误报「有项被藏」）',
+  NON_LASER.length ? Number(hidN) === NON_LASER.length : siteNarrow.foot.trim() === '',
+  siteNarrow.foot.trim() || '（无提示，符合预期）');
   const EXP_W_LASER = visibleWeekOpts({ series: ['Laser Module'] });
   const wkAll = await page.evaluate(() => [...document.querySelectorAll('#ddWeekList .dd-opt')]
     .map((x) => x.innerText.split(' ')[0]));
@@ -534,15 +547,22 @@ function ck(name, ok, detail) {
     NON_LASER.every((c) => siteHint.indexOf(c) < 0), siteHint);
 
   // 需求③ 的附带收益：候选已按其余维度收窄，**UI 上选不出「两个维度无交集」的组合**了。
-  // 选了 UK 之后，只在 DE/FR/NL 卖的「激光模块」直接从系列候选里消失，点都点不到，
-  // 自然也就不会出现「刚选的项被系统悄悄取消」。pruneOther + 「自动取消」提示保留作兜底
+  // 选了 UK 之后，UK 根本没数据的系列直接从候选里消失，点都点不到，自然也就不会出现
+  // 「刚选的项被系统悄悄取消」。pruneOther + 「自动取消」提示保留作兜底
   // （数据重采后商品下架、或带失效值的旧链接仍有概率触发）。
+  // ⚠️ 断言不能写死「激光模块必须消失」：那是「UK 不卖激光模块」这个**数据事实**，
+  //    站点上新就会过期（2026-10-19 即如此）。改为「UK 的系列候选 == UK 真实有数据的系列」，
+  //    该在的必须在、不该在的必须不在，两个方向都覆盖。
   await reset();
   await pickOpt('ddSite', 'ddSiteList', 'UK');
-  const laserUnder = await page.evaluate(() => [...document.querySelectorAll('#ddSeriesList .dd-opt')]
-    .some((x) => x.innerText.indexOf('Laser Module') >= 0));
-  ck('选了 UK 后「激光模块」系列已被隐藏（选不出无效组合）', laserUnder === false,
-    laserUnder ? '仍可选 → 可能选出空集' : '已隐藏');
+  const ukSeries = await page.evaluate(() => [...document.querySelectorAll('#ddSeriesList .dd-opt')]
+    .map((x) => ((x.querySelector('.opt-name') || x).innerText || '').trim()));
+  const UK_SERIES = Array.from(new Set(rowsOf({ site: ['UK'] }).map((r) => r.series))).sort();
+  const UK_HAS_LASER = UK_SERIES.indexOf('Laser Module') >= 0;
+  ck('选了 UK 后系列候选 == UK 真实有数据的系列（' + UK_SERIES.length + ' 个；激光模块应'
+    + (UK_HAS_LASER ? '保留' : '隐藏') + '）',
+  ukSeries.length === UK_SERIES.length && ukSeries.slice().sort().join('|') === UK_SERIES.join('|'),
+  ukSeries.join(' / ') || '（空）');
   await reset();
 
   console.log('\n=== 8f. 窗口从「首个有数据的周」开始（早期连续全 0 的周已删除） ===');
