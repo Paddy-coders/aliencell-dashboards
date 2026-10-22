@@ -429,7 +429,9 @@ function isoWeek(ds) {
         headCount = pks.length;
         const fn0 = pks[0];
         if (fn0 && (tcost.products[fn0].headRMB || {}).US) {
-          headDataMark = '"' + fn0 + '":{"US":';
+          // 键序无关匹配: 构建改走云端成本缓存(_cost_cache.json)后 headRMB 序列化键序为 EU→UK→US,
+          // 精确相邻串 '"X":{"US":' 会误报(2026-10-22 实测)。改为「产品名:{...内含 "US":」的键序无关断言。
+          headDataMark = new RegExp('"' + fn0 + '":\\{[^{}]*"US":');
         }
       } catch (e) { /* 空表/文件缺失 → 下面统一报错 */ }
       if (!headDataMark) probs.push('成本表(product_cost_table.json)无 US 头程数据或文件缺失');
@@ -451,7 +453,7 @@ function isoWeek(ds) {
         if (backAgain.length) probs.push(label + '已被口径下线的字段复活(入境货运费):' + backAgain.join(','));
         const missHead = (HEAD_MARK[bf] || []).filter(k => !s.includes(k));
         if (missHead.length) probs.push(label + '缺头程注入:' + missHead.join(','));
-        if (headDataMark && !s.includes(headDataMark)) probs.push(label + '头程表为空(未真实注入)');
+        if (headDataMark && !headDataMark.test(s)) probs.push(label + '头程表为空(未真实注入)');
         const leak = PLACEHOLDERS.filter(p => s.includes(p));
         if (leak.length) probs.push(label + '占位符泄漏:' + leak.join(','));
       }
