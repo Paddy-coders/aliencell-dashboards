@@ -170,8 +170,25 @@ function fetchJson(url) {
     }, REF_DAY);
     t(`${REF_DAY} 退款日 毛利值对账(含退款与退货处理费)`, gotR.profit !== null && near(gotR.profit, expR.profit, 0.005),
       { got: gotR.profit, exp: +expR.profit.toFixed(2) });
-    t(`${REF_DAY} 退款各项取值非零(退款金额/促销折扣退款)`, Math.abs(gotR.refAbs) > 0 && gotR.refPromo !== 0,
+    t(`${REF_DAY} 退款金额已接进看板(非零)`, Math.abs(gotR.refAbs) > 0,
       { refAbs: gotR.refAbs, refPromo: gotR.refPromo, refComm: gotR.refComm, refQty: gotR.refQty });
+  }
+  // ②c 促销折扣退款：单日经常为 0（源数据 2026-10-17 就是 0，全期只有 09-08 / 09-29 有）
+  //   ⇒ 动态挑「最近一个 refPromo 非零的日」；整期都没发生则跳过，不把源数据的空当成看板回归
+  const PROMO_DAY = (() => {
+    const byDay = {};
+    pm.rows.forEach(r => { if (r.refPromo) byDay[r.d] = (byDay[r.d] || 0) + r.refPromo; });
+    const ks = Object.keys(byDay).sort();
+    return ks.length ? ks[ks.length - 1] : null;
+  })();
+  if (PROMO_DAY) {
+    const gp = await page.evaluate((d) => {
+      const v = metricVals(aggRows(d, new Set(), new Set()));
+      return { refPromo: v.refPromo, refAbs: v.refAbs };
+    }, PROMO_DAY);
+    t(`${PROMO_DAY} 促销折扣退款已接进看板`, gp.refPromo !== 0, gp);
+  } else {
+    console.log('  SKIP 全期无促销折扣退款(源数据未发生，非回归)');
   }
 
   // ③ 利润报表无数据的日期(6月) → 毛利为 —

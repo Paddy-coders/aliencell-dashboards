@@ -55,14 +55,16 @@ async function installFakeBackend(page) {
   await installFakeBackend(p);
   p.on('dialog', d => d.accept());
 
-  // 展开当前（过滤后）的全部分组，保证 .grp-row 计数反映完整列表
+  // 展开当前（过滤后）的全部层级，保证 .grp-row 计数反映完整列表
+  // 三层树语义：collapsedAsin 是「已折叠」集合，清空即全展开
   const expandAll = () => p.evaluate(() => {
-    openAsin.clear();
-    const keys = [...new Set(filteredAsinMap().map(m => asinGroupBy === 'country' ? countryOf(m) : (m.series || '无')))];
-    keys.forEach(k => openAsin.add(k));
+    collapsedAsin.clear();
     renderAsinTable();
   });
-  const collapseAll = () => p.evaluate(() => { openAsin.clear(); renderAsinTable(); });
+  const collapseAll = () => p.evaluate(() => {
+    asinTreeKeys(filteredAsinMap()).forEach(k => collapsedAsin.add(k));
+    renderAsinTable();
+  });
   const view = () => p.evaluate(() => {
     const groups = [...document.querySelectorAll('#asinTable .grp')];
     const countOf = gname => {

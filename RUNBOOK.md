@@ -125,6 +125,153 @@ cd C:/Users/paddy/WorkBuddy/2026-08-18-14-43-38 && python build_profit_metrics.p
 - ⚠️ `site` 字段会漏空（实测 1631 行里 53 行空），**用店铺 `userAccount` 后缀反推站点**（`Aliencell_Direct_DE` → `DE`）——`build_profit_metrics.py` 的 `site_of()` 已处理，不要绕过它直接用 `r['site']` 分组
 - 补充历史：`node fetch_profit_data.js --from 2026-06-01`（利润报表数据自 2026-07-15 起，更早返回 0 行）
 
+### §A.2c 成本表上云 + 未映射提醒（2026-10-21 新增）
+
+**① 成本表已上云**：`product_cost_table.json` → 云端 `mapping.data.costTable`，所有应用读同一份。
+
+```
+python upload_cost_table.py            # 本地 → 云端（读最新 data → 只换 costTable → 整体 PATCH）
+python upload_cost_table.py --dry-run  # 只比对不写
+```
+- 读取端统一收口 `cost_from_table.cost_table_doc()`：**云端优先** → 6h 快照缓存 `_cost_cache.json` → 拉不到回退本地文件。
+  已接入 4 处：`build_profit_metrics.py`(Resolver) / `build_daily_dashboard.py`(头程 + Woot 成本) / `build_monthly_dashboards.py` / `build_joybuy_profit.py`。
+- ⚠️ **本地文件仍是编辑入口**：改完 `product_cost_table.json` 必须跑 `upload_cost_table.py`，
+  否则只有本机构建吃新价、别的应用仍是旧价。防呆已内置：本地 mtime 比快照新 ⇒ 用本地并打印「记得上传」。
+- ⚠️ **成本数据不要放进 `_deploy/`**（静态站，谁拿到链接都能下）。云端 `costTable` 与 mapping 同权限（anon key 可读），
+  属于"内部工具可接受"的暴露面；要收紧就得改成独立表 + RLS，先别擅自加。
+
+**② 未映射提醒**（挂在 `build_daily_dashboard.py` 末尾自动跑，失败不阻断构建）：
+
+```
+python sync_unmapped.py                # 扫近 30 天 → 写云端 mapping.data.unmapped + _unmapped.json
+python sync_unmapped.py --dry-run      # 只打印
+python sync_unmapped.py --days 60      # 换窗口
+```
+- 两类问题：`no-map`（映射里没有这个 ASIN，页面归「无」、成本 0）、`no-cost`（映射到的产品名不在成本表，成本仍 0）
+- 前端：`mapping.html` 顶部红条 + 首次自动弹窗（每条可直接选产品名建立关系，建完立刻从清单消失）；
+  `index.html` 左侧「产品关系管理」旁红色感叹号（60s 轮询 + map-changed 即时刷新）
+- 单独测试：`node test_unmapped_notice.js`（13 项，含「弹窗行数 = 云端清单实时过滤后条数」这类动态断言，别写死数字）
+
+### §A.2d 匹配列表三层视图 + 改映射页的测试红线（2026-10-21 新增）
+
+**① 三层树**（`mapping.html` 「ASIN 匹配」tab 的匹配列表）：
+
+```
+按系列  →  🏷️ 产品系列  ›  🌍 国家/地区  ›  📦 产品名  ›  ASIN 行
+按国家  →  🌍 国家/地区  ›  🏷️ 产品系列  ›  📦 产品名  ›  ASIN 行
+```
+- 折叠状态是**「已折叠」集合 `collapsedAsin`**（不是老的 `openAsin`）⇒ **默认全部展开**，点一次收一层。
+  localStorage 键名沿用 `pc_open_asin`（存的内容变语义），老数据不匹配新 key → 顶多表现为全展开，无害。
+- 树 key 形如 `s:X1系列` / `s:X1系列›c:US` / `…›n:X1主机`（`›` = `\u203a`，产品名里不会出现）。
+- 排序：**国家按 `COUNTRIES` 固定顺序**（EU/UK/US/CA/JP/AU），系列/产品名按中文拼音，**「无」一律沉底**。
+- **单产品国家不单开 L3**：该国家下只有 1 个产品名时，产品名内联进国家头（`🌍 US · 📦 A主机`），直接列 ASIN 行。
+  51 条真实数据下从 113 行降到 65 行左右，不牺牲信息。
+- 回归：`node test_mapping_tree.js`（25 项）。老测试 `test_mapping_country_filter.js` 的 `expandAll/collapseAll` 已同步改新语义。
+
+**② ⚠️⚠️ 改映射页的 playwright 测试必须先拦住写链路**（2026-10-21 真实事故）：
+- `mapping.html` 的 `saveAll()` → 400ms 防抖 → `cloudSave()` → **直接 PATCH 云端**。
+  测试里只要碰一下 `rowSeriesChange` / `rowNameChange` / `delAsin` / `saveAll`，**假数据就会真的写进生产云端**。
+- 事故经过：临时脚本注入 6 条假数据验证三层树，`PATCH` 未拦截 ⇒ **云端 `asinMap` 51→5、`catalog` 26→3**。
+  靠 `_map_cache.json` 全量回滚恢复（51/26 逐字段一致），其它键（woot/freight/wootCfg/unmapped/costTable）未受影响。
+- **写测试的硬要求**（两条都要）：
+  ```js
+  await page.route('**/rest/v1/mapping*', async route => {      // ① 网络层：GET 给假数据，PATCH 只计数
+    if (route.request().method() === 'PATCH') { patches++; return route.fulfill({ status: 204 }); }
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([{ data: FIXTURE }]) });
+  });
+  await page.addInitScript(() => {                              // ② 存储层：业务键不让落本地
+    const o = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) { if (String(k).indexOf('pc_') === 0) return; return o.call(this, k, v); };
+  });
+  ```
+  只加 `window.fetch` 包装不够稳（XHR/顺序问题都会绕开），**`page.route` 才是兜底**。
+- **写完测试第一件事**：核对云端条数，别等用户发现：
+  ```
+  # 期望 51 / 26 / 25 产品 / unmapped 4
+  ```
+**③ 应急恢复**：`python restore_cloud_map.py`（从 `_map_cache.json` 恢复 `asinMap` + `catalog`，只换这两个键、
+回读逐字段校验、打印残留测试行；`--dry-run` 只比对）。恢复后**必须**核对 `woot/freight/wootCfg/unmapped/costTable` 仍在。
+
+### §A.2e 产品成本表页（💰 tab，仅管理员）+ 管理员权限（2026-10-21 新增）
+
+**在哪**：`mapping.html` 第三个 tab「💰 产品成本」。表格 11 列：产品名 / 成本¥ / 头程 US·EU·UK /
+尾程 US·EU·UK / 关联 ASIN 数 / 状态 / 操作。可直接改、可新增、可删除、可导出 CSV、可导入 CSV 批量回填。
+
+**它解决的两个坑**（这两个坑以前是"看不见的错"）：
+1. **目录里有产品名、成本表却没有这一行** ⇒ 这类产品一旦有 ASIN 映射，成本就是 0、毛利虚高，但页面
+   以前根本不会把它列出来。现在表格会把它们**合成为「待补」行**（黄底 + 目录里有，成本表还没这一行），
+   填了值才真正落到 `costTable`，没动过就不写进云端。
+2. **成本表有行、但目录里没这个名字** ⇒ 永远匹配不上（当前 `气泵` 就是）。现在标「匹配不上」+ 红底。
+
+**状态判据**（`costHealth()`，4 类）：
+- `缺成本`（红）＝ `costRMB` 不是正数
+- `缺头程 US/EU/UK`（黄）＝ costRMB 有但某个区域 `headRMB` 不是正数
+- `匹配不上`（灰红）＝ 目录里没这个名字，且没有 ASIN 用它
+- `暂未使用`（灰）＝ 成本齐全但暂时没有 ASIN 指向它（备而不用，正常）
+- `OK`（绿）＝ 三项齐全且被 ASIN 使用
+
+**权限（两道，任一命中即为管理员）**：
+1. `wb_auth.role === 'admin'` —— 正道。角色由 `login.html` 从 `profiles` 表拉到后写进 `wb_auth`，
+   `index.html` 右上角能直接看到「管理员 / 访客」；改角色走「👥 用户管理」`admin_users.html`。
+2. 云端 `mapping.data.costAdmins` 邮箱白名单 —— **救急通路**。用 `python set_cost_admin.py add <邮箱>` 维护
+   （`remove` / `clear` / `--dry-run`）。本机会缓存一份（`pc_cost_admins`），云端拉不到也能进。
+
+> 为什么要留白名单：如果 `profiles` 里某个账号 role 还是 `viewer`，那他自己也看不到刚做的成本页，
+> **而且没有任何报错，只是 tab 不出现**。这时候白名单是唯一能自救的路。
+
+**防误操作的三条**（都是故意的）：
+- 保存是**显式按钮**，不做自动推送 —— 成本是敏感数据 + `id=1` 单行共用，误推代价很大。
+- 新增行时产品名走 `<datalist>` 自动补全目录产品名；**手打一个目录里没有的名字会弹二次确认**
+  （成本按产品名精确匹配，拼错就永远对不上 ⇒ 毛利虚高且无报错）。
+- 删除被 ASIN 使用的成本行会提示「正被 N 条映射使用」。
+
+**⚠️ 改完必须重跑构建**：表格里改的是云端 `costTable`，而看板里的成本/头程是**构建期内嵌**的，
+所以「保存到云端」≠「毛利立刻变」。顺序是 `python build_profit_metrics.py` → 重建看板 → 部署；
+不然就等次日 15:00 的定时任务。
+
+**测试**：`node test_cost_table_admin.js`（54 项；访客不可见/深链被弹回、表格数值与 fixture 逐格比对、
+仅看待补、编辑→dirty→保存拦截、草稿行 datalist、导出 CSV 内容、白名单兜底）。
+**跑完最后两条是硬的**：真去核云端 `costTable` 仍 25 个产品、`asinMap` 51 / `catalog` 26 未被测试污染。
+
+**⚠️ TDZ 红线（G20）**：这块 JS 变量（`costAdminSet` / `costTable` / `costSig`…）**必须声明在脚本顶部**。
+`applyAdminUI() → isAdmin()` 是在初始化流里**同步**调用的，若把这些 `let` 写在文件末尾，
+初始化时读它就会踩 TDZ，**整个页面的 script 直接崩掉**（`Cannot access 'costAdminSet' before initialization`），
+连 tab 都渲染不出来 —— 测试第一版就是这么炸出来的。
+
+### §A.2f 月度看板「销售趋势」三张曲线图（2026-10-23 新增）
+
+`monthly.html` 筛选区下方三张折线：**总计 / 主机 / 配件**，每张两条线
+（销售额 = 业务报告 `sales`；营收额 = 销售额 − 促销）。纯 SVG 手绘，**不引第三方图表库**
+（看板是单文件自包含，CDN 挂了就全白）。代码在模板 `renderCharts()` / `chSvg()` / `chBucket()`。
+
+**⚠️ 分类规则（最容易踩）**：系列名带「系列」后缀，且配件系列也含 "X1"：
+
+| 系列 | 归类 |
+|---|---|
+| `X1系列` / `X1 Lite系列` / `E1系列` | 主机 |
+| `X1系列配件`（激光头/蜂窝板/增高底座/净化器/吸尘器/材料包） | **配件** |
+| `无`（未映射）/ `Woot` | **不归类**，只计入总计 |
+
+所以判据是 `String(series).replace(/系列$/, '')` 后**精确匹配** `X1` / `X1 Lite` / `E1` ——
+绝不能按"包含 X1"或前缀判断，否则 `X1系列配件` 会被错判成主机。
+
+**⚠️ 口径三条**：
+1. **营收 = `sales + pPromo`**（`pPromo` 在易仓里是**负数**），不是减法。
+2. **图表不含 JoyBuy**（用户 2026-10-23：JoyBuy 还没做产品映射）。因此
+   `图表合计 + JoyBuy = 表格合计`，两者数字天然略有差异（当前 JoyBuy 全期仅 ~$1.6K）。
+3. **X 轴跟随月份筛选**（`filteredRows()` 本身不含月份维度，`chartRows()` 里单独补的），
+   否则"表格只算所选月、图是全期"会对不上。
+
+**⚠️ 纵轴刻度 = 固定 20K 一格**（用户 2026-10-23 要求，**不要退回 1/2/5「好看步长」**）：
+- `CH_STEP0 = 20000`，`chNiceStep(maxV)` 只在网格线会超过 9 条时才 `s *= 2`，
+  即刻度恒为 **20K 的整数倍**（20K→40K→80K…），绝不会出现 25K 这种碎刻度。
+- 非 USD 币种：`chStepBase()` 把 20K 美元按当前显示币种折算（`fxv(20000,'US',ym)`），
+  再**对齐到 20K 的整数倍**（CNY ≈ 140K/格，避免出现 142K 这种数）。
+
+**测试**：`node test_monthly_charts.js`（37 项）。关键断言是
+「图表 + JoyBuy = 页面表格合计」（证明既没漏算也没重复算）、「三组覆盖全部行」、
+「只筛一个月时单点仍绘制」。金额/月份数一律现算，别写死。
+
 ### §A.3 / §A.4 重建看板
 
 ```
@@ -153,6 +300,8 @@ cp daily.html monthly.html target.html _deploy/
 cp product_map.json _deploy/product_map.json        # 若存在
 cp daily_data.json _deploy/daily_data.json          # 映射管理页「从每日数据导入ASIN」依赖它
 cp mapping.html _deploy/mapping.html                # 静态文件，通常不变
+cp _unmapped.json _deploy/_unmapped.json            # 未映射清单（mapping 页离线兜底，2026-10-21）
+# ⚠️ 不要把 product_cost_table.json 复制进 _deploy/ —— 成本是敏感数据，静态站上谁都能下
 cp finance_inputs.html finance_inputs.json _deploy/ # 财务录入窗口(其他渠道订单/测评费) —— 2026-10-12 新增
 ```
 - **不要覆盖** `_deploy/index.html` / `ad.html` / `product.html` / `joybuy.html`（各有归属）

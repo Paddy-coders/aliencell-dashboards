@@ -80,6 +80,12 @@
     border-radius:9px; font-size:12.5px; font-weight:600; color:var(--text); transition:background .15s;
   }
   .map-btn:hover { background:#f0f4fb; }
+  /* 未维护成本依据的红色感叹号（2026-10-21）：数据来自 mapping.data.unmapped */
+  .map-alert {
+    display:none; margin-left:auto; min-width:18px; height:18px; padding:0 5px;
+    border-radius:9px; background:#E24B4A; color:#fff; font-size:12px; font-weight:700;
+    line-height:18px; text-align:center; box-shadow:0 0 0 2px #fff;
+  }
   .map-btn .mi {
     width:26px; height:26px; min-width:26px; border-radius:7px;
     display:flex; align-items:center; justify-content:center; font-size:13px; background:#eef1f6; color:#4a5568;
@@ -166,7 +172,7 @@
       <!-- 产品关系管理（看板导航最下面） -->
       <div class="nav-map">
         <div class="nav-label" style="padding-top:10px">产品关系</div>
-        <button class="map-btn" onclick="openMapping()"><span class="mi">🔗</span>产品关系管理</button>
+        <button class="map-btn" onclick="openMapping()"><span class="mi">🔗</span>产品关系管理<span class="map-alert" id="mapAlert" title=""></span></button>
         <button class="map-btn" onclick="openWoot()"><span class="mi">🛒</span>Woot 数据管理</button>
         <button class="map-btn" onclick="openFinance()"><span class="mi">🧾</span>财务录入（其他渠道/测评费）</button>
         <div class="map-status" id="mapStatus">映射 <b>0</b> ASIN · <b>0</b> 系列</div>
@@ -333,7 +339,7 @@
   window.addEventListener('message', function (e) {
     if (!e.data || typeof e.data !== 'object') return;
     if (e.data.type === 'wb-nav-back') backFromMapping();
-    else if (e.data.type === 'wb-map-changed') refreshMapStatus();
+    else if (e.data.type === 'wb-map-changed') { refreshMapStatus(); refreshUnmappedBadge(); }
   });
 
   // 底部映射状态角标（读取 localStorage 实时统计）
@@ -355,6 +361,42 @@
   }
   window.addEventListener('storage', refreshMapStatus);
   refreshMapStatus();
+
+  // ---- 未维护成本依据：产品关系管理入口的红色感叹号（2026-10-21）----
+  // 数据源 mapping.data.unmapped（每次抓数后由 sync_unmapped.py 写入），
+  // 与页面里同一套判据：映射里没有该 ASIN，或映射到的产品名不在 costTable 里。
+  function refreshUnmappedBadge() {
+    fetch(SUPABASE_URL + '/rest/v1/mapping?select=data&id=eq.1', {
+      headers: {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY},
+      cache: 'no-store'
+    }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rows) {
+      var d = rows && rows[0] && rows[0].data;
+      if (!d) return;
+      var rep = d.unmapped;
+      var el = document.getElementById('mapAlert');
+      if (!el) return;
+      if (!rep || !Array.isArray(rep.items)) { el.style.display = 'none'; return; }
+      var costNames = new Set(Object.keys(((d.costTable || {}).products) || {}));
+      var map = {};
+      (Array.isArray(d.asinMap) ? d.asinMap : []).forEach(function (x) {
+        if (x && x.asin) map[String(x.asin).toUpperCase()] = x;
+      });
+      var left = rep.items.filter(function (it) {
+        var m = map[String(it.asin || '').toUpperCase()];
+        if (!m) return true;
+        return !costNames.has(m.name);
+      });
+      if (left.length) {
+        el.textContent = '!';
+        el.style.display = 'inline-block';   // CSS 默认 none，这里必须显式给值
+        el.title = left.length + ' 个 ASIN 有销量但没维护成本依据（这部分毛利偏高）· 点击进入处理';
+      } else {
+        el.style.display = 'none';
+      }
+    }).catch(function () {});
+  }
+  refreshUnmappedBadge();
+  setInterval(refreshUnmappedBadge, 60000);
 
   // 初始加载：支持 #ad / #product / #daily / #joybuy 直达，默认广告看板（与旧链接行为一致）
   // hash 容错：`#joybuy`、`#joybuy&x=1`、`#joybuy?x=1` 都能识别（取第一段）

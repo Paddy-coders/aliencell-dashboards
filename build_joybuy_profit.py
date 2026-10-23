@@ -49,7 +49,9 @@ def load(name, default=None):
 def main():
     orders_f = load('joybuy_orders.json')
     bills = load('joybuy_bills.json')
-    cost_tbl = load('product_cost_table.json')
+    # 2026-10-21: 成本表已上云(mapping.data.costTable) —— 云端优先, 本地文件兜底
+    from cost_from_table import cost_table_doc
+    cost_tbl = cost_table_doc(verbose=True)
     sku_map = load('joybuy_sku_map.json', {})
     cfg = load('joybuy_cost_config.json')
     fx = load('fx_rates.json')

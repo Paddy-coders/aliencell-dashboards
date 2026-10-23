@@ -236,8 +236,10 @@ def main():
     # 头程成本表嵌入 (2026-10-10): product_cost_table.json 的 headRMB + 月度 CNY/USD 汇率
     # 头程为预估值; 用户给「推移后的实际头程」时只需更新 product_cost_table.json 再重建
     try:
-        tbl = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'product_cost_table.json'),
-                             encoding='utf-8'))
+        # 2026-10-21: 成本表已上云(mapping.data.costTable) —— 统一走 cost_from_table.cost_table_doc()
+        # 云端优先, 本地 product_cost_table.json 兜底(本地比快照新时以本地为准并告警)
+        from cost_from_table import cost_table_doc
+        tbl = cost_table_doc(verbose=True)
         cache_rates = load_fx_cache()['rates']
         hf = {'products': {n: p.get('headRMB') or {} for n, p in (tbl.get('products') or {}).items()},
               'months': {ym: ((cache_rates.get(ym) or {}).get('USD')) for ym in months_needed
@@ -269,6 +271,25 @@ def main():
         f.write(html)
     mapped = sum(1 for x in pmap['asinMap'] if x.get('asin'))
     print(f'OK daily.html ({os.path.getsize(OUT_FILE)} bytes, {len(days)} days, 映射 {mapped} ASIN)')
+
+    # 2026-10-21: 顺手扫描「有销量但没有成本依据」的 ASIN → 写云端 mapping.data.unmapped
+    #   产品关系管理页据此弹窗提醒 + 入口亮红色感叹号。失败不阻断构建(只是少了提醒)。
+    try:
+        import sync_unmapped
+        rep, err = sync_unmapped.build_report(30)
+        if err:
+            print('  ⚠️ 未映射扫描跳过:', err)
+        else:
+            cloud = sync_unmapped.fetch_cloud_data()
+            cloud['unmapped'] = rep
+            sync_unmapped.patch_data(cloud)
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '_unmapped.json'),
+                      'w', encoding='utf-8') as f:
+                json.dump(rep, f, ensure_ascii=False, separators=(',', ':'))
+            print('  未映射提醒已同步云端: %d 个 ASIN (未映射 %d · 成本表缺产品名 %d)'
+                  % (rep['count'], rep['countNoMap'], rep['countNoCost']))
+    except Exception as e:
+        print('  ⚠️ 未映射扫描失败(不影响看板构建):', str(e)[:100])
 
 if __name__ == '__main__':
     main()

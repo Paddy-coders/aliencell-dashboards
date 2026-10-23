@@ -80,6 +80,20 @@
   .grp-row:hover { background:#fafcff; }
   .grp-row .row-main { flex:1; min-width:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .grp-row .row-acts { display:flex; gap:5px; align-items:center; flex-shrink:0; }
+  /* ===== 三层树：系列 › 国家 › 产品名 ===== */
+  .grp-row.lv3 { padding-left:76px; background:#fff; }
+  .grp-sub { border-bottom:1px solid #eef2f7; }
+  .grp-sub:last-child { border-bottom:none; }
+  .sub-head { display:flex; align-items:center; gap:8px; padding:6px 14px 6px 30px; font-size:12.5px; cursor:pointer; background:#fbfcfe; border-bottom:1px solid #f1f5f9; user-select:none; }
+  .sub-head:hover { background:#f4f8ff; }
+  .sub-head.collapsed { border-bottom:none; }
+  .sub-head .caret { color:var(--muted); font-size:10px; width:12px; text-align:center; flex-shrink:0; }
+  .sub-head .sub-name { font-weight:600; flex:1; min-width:0; display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sub-head .sub-count { color:var(--muted); font-size:11px; flex-shrink:0; }
+  .sub-head.lv3 { padding:3px 14px 3px 52px; font-size:12px; background:#fff; }
+  .sub-head.lv3 .sub-name { font-weight:500; color:#334155; }
+  .sub-head.lv3:hover { background:#f8fbff; }
+  .sub-head .sub-note { color:#64748b; font-weight:400; font-size:11.5px; }
   .tag { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; background:var(--primary-soft); color:var(--primary); border:1px solid #dbe7ff; }
   .seg { display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
   .seg button { border:none; background:#fff; padding:4px 12px; font-size:12px; cursor:pointer; color:var(--muted); }
@@ -98,6 +112,78 @@
   .muted { color:var(--muted); }
   .foot-note { text-align:center; color:var(--muted); font-size:11px; margin-top:6px; line-height:1.7; }
   @media (max-width:760px){ .head-actions .btn, .stats .stat { width:100%; } }
+  /* ===== 未维护成本依据提醒 (2026-10-21) ===== */
+  .um-bar{display:none;align-items:center;gap:10px;margin:0 0 14px;padding:10px 14px;border:1px solid #F09595;border-radius:10px;background:#FCEBEB;color:#501313;font-size:13px;cursor:pointer;line-height:1.5;}
+  .um-bar.on{display:flex;}
+  .um-bar .um-ic{width:20px;height:20px;min-width:20px;border-radius:50%;background:#E24B4A;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .um-bar .um-sub{color:#A32D2D;}
+  .um-bar .um-go{margin-left:auto;white-space:nowrap;font-weight:600;color:#A32D2D;}
+  .um-mask{position:fixed;inset:0;background:rgba(20,24,32,.42);display:none;align-items:center;justify-content:center;z-index:2147482000;padding:20px;}
+  .um-mask.on{display:flex;}
+  .um-dlg{background:#fff;border-radius:14px;width:min(960px,96vw);max-height:86vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(16,24,40,.22);overflow:hidden;}
+  .um-dlg h2{font-size:15px;font-weight:600;padding:16px 18px 6px;display:flex;align-items:center;gap:8px;margin:0;}
+  .um-dlg .um-note{font-size:12px;color:var(--muted);padding:0 18px 10px;line-height:1.6;}
+  .um-dlg .um-body{overflow:auto;padding:0 18px 12px;}
+  .um-dlg table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .um-dlg th{position:sticky;top:0;background:#f7f9fc;text-align:left;padding:8px;font-weight:600;color:#4a5568;border-bottom:1px solid var(--border);white-space:nowrap;z-index:1;}
+  .um-dlg td{padding:8px;border-bottom:1px solid #f0f2f6;vertical-align:middle;}
+  .um-dlg td.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;}
+  .um-dlg tr.done{opacity:.42;}
+  .um-dlg .um-foot{display:flex;gap:8px;align-items:center;padding:12px 18px;border-top:1px solid var(--border);background:#fafbfd;font-size:12px;color:var(--muted);}
+  .um-dlg select{padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-size:12px;max-width:230px;background:#fff;}
+  .um-dlg button[disabled]{opacity:.4;cursor:not-allowed;}
+  .um-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .um-tag.no-map{background:#FCEBEB;color:#A32D2D;}
+  .um-tag.no-cost{background:#FAEEDA;color:#854F0B;}
+
+  /* ===== 管理员专属：默认隐藏（防闪烁），由 applyAdminUI() 按 wb_auth.role 决定是否放开 =====
+     ⚠️ tabview 别用这个类：`.tabview.active{display:block}` 是双类选择器，优先级更高会绕过门禁。
+        #viewCost 的显隐完全交给 switchTabView() 里的守卫（非 admin 永不给它 .active）。 */
+  .admin-only { display:none; }
+  .role-badge { display:inline-block; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .role-badge.admin { background:#eef4ff; color:#1d4ed8; border:1px solid #dbe7ff; }
+  .role-badge.viewer { background:#f4f6fa; color:#6b7688; border:1px solid var(--border); }
+
+  /* ===== 产品成本表 ===== */
+  /* 11 列在页面默认 980px 栏宽里放不下（会被截到只看得到 7 列），
+     让这一张卡自己突破栏宽，其它 tab 的排版完全不受影响。 */
+  .cost-wide { position:relative; left:50%; transform:translateX(-50%); width:min(1360px, calc(100vw - 44px)); }
+  .cost-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; background:#fff; }
+  .cost-tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .cost-tbl thead th { background:#f7f9fc; color:#4a5568; font-weight:600; text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .cost-tbl thead tr.grp th { text-align:center; background:#eef2f7; font-size:11px; padding:4px 10px; color:#64748b; border-bottom:1px solid var(--border); }
+  .cost-tbl thead tr.grp th.g1 { border-left:1px solid var(--border); }
+  .cost-tbl tbody td { padding:5px 8px; border-bottom:1px solid #f0f2f6; vertical-align:middle; }
+  .cost-tbl tbody tr:hover { background:#fafbfd; }
+  .cost-tbl tbody tr.bad { background:#fffbf2; }
+  .cost-tbl tbody tr.bad:hover { background:#fef6e6; }
+  .cost-tbl tbody tr.orphan { background:#fdf6f6; }
+  .cost-tbl tbody tr.orphan:hover { background:#fbeaea; }
+  /* 成本常见 6 位数字（如 1238.9386），框窄了会被截断成「1238.93€」→ 必须给够宽度 + 右对齐 */
+  .cost-tbl input[type=number] { width:96px; text-align:right; }
+  .cost-tbl td.num input { width:106px; }
+  .cost-tbl input[type=text], .cost-tbl input[type=number] { padding:4px 7px; border:1px solid var(--border); border-radius:6px; font-size:12.5px; font-family:inherit; outline:none; color:var(--text); background:#fff; }
+  .cost-tbl input:focus { border-color:var(--primary); }
+  .cost-tbl input.miss { border-color:#f0b429; background:#fffdf5; }
+  .cost-tbl input.zero { color:#b91c1c; font-weight:600; }
+  .cost-tbl .cname { font-weight:600; min-width:190px; }
+  .cost-tbl .cname .sub { display:block; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px; }
+  .cost-tbl .cnum { text-align:right; }
+  .cost-tbl .cact { white-space:nowrap; text-align:right; }
+  .cost-stat { display:inline-block; padding:1px 7px; border-radius:4px; font-size:11px; font-weight:600; white-space:nowrap; }
+  .cost-stat.ok { background:#e7f6ef; color:#046c4e; }
+  .cost-stat.warn { background:#fdf0d5; color:#854f0b; }
+  .cost-stat.err { background:#fcebeb; color:#a32d2d; }
+  .cost-stat.orphan { background:#f1f5f9; color:#64748b; }
+  .cost-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .cost-bar .spacer { margin-left:auto; }
+  .cost-note { font-size:11.5px; color:var(--muted); line-height:1.75; }
+  .cost-note b { color:#92400e; }
+  .cost-warn { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:9px 12px; font-size:12px; color:#78350f; line-height:1.7; margin-bottom:12px; }
+  .cost-warn code { background:#fef3c7; padding:1px 5px; border-radius:4px; font-size:11.5px; }
+  .cost-savebar { position:sticky; bottom:0; background:#fff; border-top:1px solid var(--border); padding:10px 0 2px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .cost-dirty { color:#b7791f; font-size:12px; font-weight:600; }
+  .cost-clean { color:var(--ok); font-size:12px; }
 </style>
 <script src="xlsx.full.min.js"></script>
 <style>
@@ -159,6 +245,7 @@
       <div class="sub">维护「产品系列 / 产品名」目录与「ASIN → 产品」匹配关系（匹配可按国家/地区 EU/UK/US/CA/JP/AU 分别维护），保存后看板立即生效（本机浏览器）。<br>匹配后可在每日数据看板按 <b>产品系列 / 产品名</b> 筛选；未匹配的 ASIN 自动归属「无」。</div>
     </div>
     <div class="head-actions">
+      <span class="role-badge viewer" id="roleBadge" style="margin-right:4px"></span>
       <button class="btn" onclick="goBack()">◀ 返回看板</button>
     </div>
   </div>
@@ -170,9 +257,34 @@
     <div class="stat cloud-stat" id="cloudStat" title="映射云端同步状态"><span id="cloudBadge">云端同步中…</span></div>
   </div>
 
+  <!-- 未维护成本依据提醒（2026-10-21）：有销量但没映射 / 映射了但成本表缺这个产品名 -->
+  <div class="um-bar" id="umBar" onclick="openUnmapped()" role="status">
+    <span class="um-ic">!</span>
+    <span><b id="umCount">0</b> 个 ASIN 有销量，但没维护成本依据 <span class="um-sub" id="umSub"></span></span>
+    <span class="um-go">查看并处理 ›</span>
+  </div>
+
+  <div class="um-mask" id="umMask" onclick="if(event.target===this)closeUnmapped()">
+    <div class="um-dlg" role="dialog" aria-modal="true" aria-labelledby="umTitle">
+      <h2 id="umTitle">⚠️ 这些 ASIN 有销量，但成本算不出来</h2>
+      <div class="um-note" id="umNote"></div>
+      <div class="um-body"><table id="umTable"></table></div>
+      <div class="um-foot">
+        <span>给每个 ASIN 选一个产品名 → 点「建立关系」，保存后成本才会按该产品计价（看板下次刷新/构建生效）。</span>
+        <span style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn" onclick="copyUnmapped()">复制 ASIN 清单</button>
+          <button class="btn need-admin" id="umBtnCost" onclick="gotoCostTab()" style="display:none"
+            title="跳到「💰 产品成本」，只看待补的行，给缺的产品名补上成本/头程">💰 去补成本 ›</button>
+          <button class="btn" onclick="closeUnmapped()">关闭</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
   <div class="tabs">
     <button class="tab active" id="tabBtnCatalog" onclick="switchTabView('catalog')">🗂️ 产品名 / 系列</button>
     <button class="tab" id="tabBtnAsin" onclick="switchTabView('asin')">🔗 ASIN 匹配</button>
+    <button class="tab admin-only" id="tabBtnCost" onclick="switchTabView('cost')" title="仅管理员可见">💰 产品成本</button>
   </div>
 
   <!-- ============ 目录管理 ============ -->
@@ -244,11 +356,11 @@
       <div class="card-title">📋 匹配列表 <span class="hint" id="asinCount"></span>
         <span style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
           <span class="seg" id="asinGroupSeg">
-            <button class="active" id="grpBtnSeries" onclick="setAsinGroup('series')">按系列</button>
-            <button id="grpBtnCountry" onclick="setAsinGroup('country')">按国家</button>
+            <button class="active" id="grpBtnSeries" onclick="setAsinGroup('series')" title="三层展示：产品系列 › 国家/地区 › 产品名">按系列</button>
+            <button id="grpBtnCountry" onclick="setAsinGroup('country')" title="三层展示：国家/地区 › 产品系列 › 产品名">按国家</button>
           </span>
-          <select id="asinCountryFilter" onchange="setAsinCountryFilter(this.value)" title="按国家/地区筛选匹配列表（配合「按系列」或「按国家」分组使用）" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;cursor:pointer;"></select>
-          <button class="btn" onclick="toggleAllAsin()" id="btnExpandAsin">🔽 全部展开</button>
+          <select id="asinCountryFilter" onchange="setAsinCountryFilter(this.value)" title="只显示某个国家/地区的匹配记录（配合上面两种分组使用）" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;cursor:pointer;"></select>
+          <button class="btn" onclick="toggleAllAsin()" id="btnExpandAsin" title="展开/收起全部层级（系列 › 国家 › 产品名）">🔽 全部展开</button>
           <button class="btn" onclick="exportAsinCsv(false)" title="导出 ASIN,产品系列,产品名,国家 四列（全部匹配记录，可在 Excel 里批量修改后再导入回来）">⬇️ 导出 CSV</button>
           <button class="btn" onclick="exportAsinCsv(true)" title="只导出系列/产品名为「无」的未匹配 ASIN，方便填好映射后再导入回来">⬇️ 导出未匹配</button>
           <button class="btn" onclick="exportJson()">⬇️ 导出 product_map.json</button>
@@ -256,6 +368,46 @@
         </span>
       </div>
       <div id="asinTable"></div>
+    </div>
+  </div>
+
+  <!-- ============ 产品成本（仅管理员可见） ============ -->
+  <div class="tabview" id="viewCost">
+    <div class="card cost-wide">
+      <div class="card-title">💰 产品成本表 <span class="hint" id="costCount"></span>
+        <span style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <span class="cost-stat" id="costBadgeAdmin" style="background:#eef4ff;color:#1d4ed8;">🔒 仅管理员可见</span>
+        </span>
+      </div>
+
+      <div class="cost-warn">
+        <b>成本怎么被用</b>：商品成本 = 这里的「成本 ¥」× 件数 ÷ 当月汇率；头程 = 「头程 ¥」× 件数 ÷ 汇率，<b>按 ASIN 所属站点选 US / EU / UK 三档</b>。<br>
+        ⚠️ <b>改完必须重跑构建才会体现在毛利里</b> —— 成本是构建期内嵌进看板的（不是打开网页实时算）。
+        保存后跑 <code>python build_profit_metrics.py</code> → 重建看板 → 部署；否则次日 15:00 的定时任务也会带上。<br>
+        ⚠️ <b>产品名必须和「🗂️ 产品名 / 系列」里的名字完全一致</b>（成本是按产品名找的，差一个字就匹配不上 ⇒ 毛利虚高）。
+      </div>
+
+      <div class="cost-bar" style="margin-bottom:10px;">
+        <button class="btn primary" onclick="addCostRow()">➕ 新增产品成本</button>
+        <button class="btn" onclick="toggleCostMissing()" id="btnCostMissing" title="只看缺成本 / 缺头程 / 匹配不上的行">⚠️ 仅看待补 (0)</button>
+        <span class="spacer"></span>
+        <button class="btn" onclick="costPull()" title="放弃本机未保存的改动，重新从云端拉取">🔄 从云端拉取</button>
+        <button class="btn" onclick="exportCostCsv()" title="导出 CSV（UTF-8 BOM，可直接在 Excel 里补全后再用「导入 CSV」批量回填）">⬇️ 导出 CSV</button>
+        <input type="file" id="costFile" accept=".csv,.json" style="display:none">
+        <button class="btn" onclick="document.getElementById('costFile').click()">📤 导入 CSV</button>
+      </div>
+      <div class="cost-note" style="margin-bottom:10px;">
+        「关联」= 有多少条 ASIN 映射指向这个产品名；「—」表示暂时没有 ASIN 用它（可能被改名或拼错）。
+        头程单位是 <b>人民币 ¥</b>（固定额，不随汇率缩放）；尾程是站点本地币种，JoyBuy 毛利在用。
+      </div>
+
+      <div class="cost-wrap"><table class="cost-tbl" id="costTable"></table></div>
+
+      <div class="cost-savebar">
+        <button class="btn primary" onclick="costSave()" id="btnCostSave">💾 保存到云端</button>
+        <span id="costDirtyTip" class="cost-clean">已与云端一致</span>
+        <span class="spacer" style="margin-left:auto;font-size:11.5px;color:var(--muted)" id="costSrc"></span>
+      </div>
     </div>
   </div>
 
@@ -273,9 +425,23 @@ let catalog = [];  // [{series,name}] 唯一组合
 let asinMap = [];  // [{asin,series,name,country}] 唯一键 asin+country
 let editing = null; // {type:'series'|'name'|'addName', s, n} 当前编辑中的目录项
 const openCatalog = new Set();   // 已展开的系列
-const openAsin = new Set();      // 已展开的 ASIN 分组
-let asinGroupBy = 'series';      // 'series' | 'country'
+const collapsedAsin = new Set(); // 匹配列表【已折叠】的树节点（默认全部展开，点一次收一层）
+let asinGroupBy = 'series';      // 'series'（系列›国家›产品） | 'country'（国家›系列›产品）
 let asinCountryFilter = '';      // '' = 全部国家, 否则为 COUNTRIES 之一
+const ASIN_TREE_CH = '\u203a';   // 树 key 连接符 '›'（产品名里不会出现，安全）
+
+// ===== 产品成本表（💰 tab）的状态 =====
+// ⚠️ 必须声明在脚本顶部：applyAdminUI() → isAdmin() 是在初始化流里**同步**调用的，
+//    而这块业务逻辑写在文件末尾 —— 若用 let 声明在末尾，初始化时读它就会踩 TDZ，
+//    整个页面的 script 会直接崩掉（2026-10-21 实测：有了 Guarded G20）。
+var costAdminSet = new Set();     // 管理员邮箱白名单（role 之外的兜底通路）
+var costTable = {};               // {产品名:{costRMB, headRMB:{US,EU,UK}, tailLocal:{...}}}
+var costServ = '';                // 上次已同步的签名，用于判定「有没有未保存的改动」
+var costSrcLabel = '';
+var costPulled = false;           // 是否已从云端拉过（首次进 tab 才拉）
+var costOnlyMissing = false;      // 「仅看待补」筛选
+var costDraft = null;             // 新增行的草稿，未提交前不写进 costTable
+const costSig = () => { try { return JSON.stringify(costTable); } catch (e) { return ''; } };
 
 const K_CAT = 'pc_catalog', K_ASIN = 'pc_asinmap';
 const K_OPEN_CAT = 'pc_open_cat', K_OPEN_ASIN = 'pc_open_asin', K_ASIN_GROUP = 'pc_asin_group', K_ASIN_COUNTRY = 'pc_asin_country';
@@ -295,14 +461,20 @@ function normalizeAsinMap(){
 }
 function loadOpen(){
   try { JSON.parse(localStorage.getItem(K_OPEN_CAT) || '[]').forEach(k => openCatalog.add(k)); } catch(e){}
-  try { JSON.parse(localStorage.getItem(K_OPEN_ASIN) || '[]').forEach(k => openAsin.add(k)); } catch(e){}
+  try { JSON.parse(localStorage.getItem(K_OPEN_ASIN) || '[]').forEach(k => collapsedAsin.add(k)); } catch(e){}
   try { const g = localStorage.getItem(K_ASIN_GROUP); if (g === 'series' || g === 'country') asinGroupBy = g; } catch(e){}
   try { const cf = localStorage.getItem(K_ASIN_COUNTRY); if (cf === '' || COUNTRIES.includes(cf)) asinCountryFilter = cf || ''; } catch(e){}
+  syncAsinGroupBtn();
+}
+function syncAsinGroupBtn(){
+  const bs = document.getElementById('grpBtnSeries'), bc = document.getElementById('grpBtnCountry');
+  if (bs) bs.classList.toggle('active', asinGroupBy === 'series');
+  if (bc) bc.classList.toggle('active', asinGroupBy === 'country');
 }
 function saveOpen(){
   try {
     localStorage.setItem(K_OPEN_CAT, JSON.stringify([...openCatalog]));
-    localStorage.setItem(K_OPEN_ASIN, JSON.stringify([...openAsin]));
+    localStorage.setItem(K_OPEN_ASIN, JSON.stringify([...collapsedAsin]));
     localStorage.setItem(K_ASIN_GROUP, asinGroupBy);
     localStorage.setItem(K_ASIN_COUNTRY, asinCountryFilter);
   } catch(e){}
@@ -474,11 +646,23 @@ function goBack(){
   setTimeout(() => { if (window.parent === window) location.href = './index.html'; }, 100);
 }
 function switchTabView(v){
+  // 门禁：成本 tab 只有管理员能进（防手敲 #cost 深链绕过 UI 隐藏）
+  if (v === 'cost' && !isAdmin()){
+    flash('「💰 产品成本」仅管理员可见（你当前的角色是「' + (((currentAuth() || {}).role) || 'viewer') + '」）');
+    v = 'catalog';
+    try { history.replaceState(null, '', '#catalog'); } catch(e){}
+  }
   const isCat = v === 'catalog';
   document.getElementById('tabBtnCatalog').classList.toggle('active', isCat);
-  document.getElementById('tabBtnAsin').classList.toggle('active', !isCat);
+  document.getElementById('tabBtnAsin').classList.toggle('active', v === 'asin');
+  document.getElementById('tabBtnCost').classList.toggle('active', v === 'cost');
   document.getElementById('viewCatalog').classList.toggle('active', isCat);
-  document.getElementById('viewAsin').classList.toggle('active', !isCat);
+  document.getElementById('viewAsin').classList.toggle('active', v === 'asin');
+  document.getElementById('viewCost').classList.toggle('active', v === 'cost');
+  if (v === 'cost'){
+    if (!costPulled) costPull(true);       // 首次进才拉，别每次切 tab 都打云端
+    else renderCostTable();
+  }
   try { history.replaceState(null, '', '#' + v); } catch(e){}
 }
 function renderAll(){
@@ -619,13 +803,15 @@ function setAsinGroup(g){
 }
 function toggleAsinGroup(el){
   const k = el.dataset.k;
-  openAsin.has(k) ? openAsin.delete(k) : openAsin.add(k);
+  if (!k) return;
+  collapsedAsin.has(k) ? collapsedAsin.delete(k) : collapsedAsin.add(k);
   saveOpen(); renderAsinTable();
 }
+// 折/展全部：任一层被折叠过 → 一键全展开；否则一键全折叠
 function toggleAllAsin(){
-  const keys = [...new Set(filteredAsinMap().map(m => asinGroupBy === 'country' ? countryOf(m) : (m.series || '无')))];
-  const allOpen = keys.length > 0 && keys.every(k => openAsin.has(k));
-  keys.forEach(k => allOpen ? openAsin.delete(k) : openAsin.add(k));
+  const keys = asinTreeKeys(filteredAsinMap());
+  const anyCollapsed = keys.some(k => collapsedAsin.has(k));
+  keys.forEach(k => anyCollapsed ? collapsedAsin.delete(k) : collapsedAsin.add(k));
   saveOpen(); renderAsinTable();
 }
 
@@ -747,54 +933,123 @@ function rowCountryChange(sel){
   row.country = nc;
   saveAll(); renderAsinTable(); flash(`已更新地区：${a} → ${nc}`);
 }
+// ---- 三层树：系列 › 国家 › 产品名（「按国家」时前两层互换）----
+function asinTreeOf(data){
+  const byCountry = asinGroupBy === 'country';
+  const t1 = byCountry ? 'c' : 's', t2 = byCountry ? 's' : 'c';
+  const tree = new Map();
+  data.forEach(m => {
+    const c = countryOf(m), s = m.series || '无', n = m.name || '无';
+    const v1 = byCountry ? c : s, v2 = byCountry ? s : c;
+    const k1 = t1 + ':' + v1;
+    const k2 = k1 + ASIN_TREE_CH + t2 + ':' + v2;
+    const k3 = k2 + ASIN_TREE_CH + 'n:' + n;
+    if (!tree.has(k1)) tree.set(k1, { v: v1, rows: [], kids: new Map() });
+    const n1 = tree.get(k1); n1.rows.push(m);
+    if (!n1.kids.has(k2)) n1.kids.set(k2, { v: v2, rows: [], kids: new Map() });
+    const n2 = n1.kids.get(k2); n2.rows.push(m);
+    if (!n2.kids.has(k3)) n2.kids.set(k3, { v: n, rows: [] });
+    n2.kids.get(k3).rows.push(m);
+  });
+  return tree;
+}
+function asinTreeKeys(data){
+  const out = [];
+  asinTreeOf(data || filteredAsinMap()).forEach((n1, k1) => {
+    out.push(k1);
+    n1.kids.forEach((n2, k2) => {
+      out.push(k2);
+      if (n2.kids.size > 1) n2.kids.forEach((n3, k3) => out.push(k3));   // 单产品国家不渲染 L3
+    });
+  });
+  return out;
+}
+// 节点排序：国家按 COUNTRIES 固定顺序；系列/产品名的「无」沉底，其余按中文拼音
+function cmpAsinNode(t, a, b){
+  if (t === 'c') return COUNTRIES.indexOf(a.v) - COUNTRIES.indexOf(b.v);
+  const w = x => x === '无' ? 1 : 0;
+  return (w(a.v) - w(b.v)) || String(a.v).localeCompare(String(b.v), 'zh');
+}
+function asinRowHtml(m, seriesList){
+  const a = esc(m.asin), c = countryOf(m);
+  let sOpts = '';
+  if (!seriesList.length){ sOpts = '<option value="无">无</option>'; }
+  else {
+    seriesList.forEach(s => { sOpts += `<option value="${esc(s)}"${s === m.series ? ' selected' : ''}>${esc(s)}</option>`; });
+    if (!seriesList.includes(m.series)) sOpts = `<option value="${esc(m.series)}" selected>${esc(m.series)}</option>` + sOpts;
+  }
+  const names = m.series && m.series !== '无' ? namesOfSeries(m.series) : [];
+  let nOpts = `<option value="无"${m.name === '无' || !m.name ? ' selected' : ''}>（无）</option>`;
+  names.forEach(n => { nOpts += `<option value="${esc(n)}"${n === m.name ? ' selected' : ''}>${esc(n)}</option>`; });
+  const cOpts = COUNTRIES.map(cv => `<option value="${cv}"${cv === c ? ' selected' : ''}>${cv}</option>`).join('');
+  return `<div class="grp-row lv3"><span class="row-main">
+    <b>${a}</b>
+    <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowCountryChange(this)" title="国家/地区">${cOpts}</select>
+    <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowSeriesChange(this)">${sOpts}</select>
+    <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowNameChange(this)">${nOpts}</select>
+  </span><span class="row-acts">
+    <button class="mini danger" data-a="${a}" data-c="${c}" onclick="delAsin(this)">删除</button>
+  </span></div>`;
+}
 function renderAsinTable(){
   const box = document.getElementById('asinTable');
   if (!asinMap.length){ box.innerHTML = '<div class="empty">暂无匹配 — 请在上方添加、批量导入，或「从每日数据导入未匹配 ASIN」</div>'; return; }
   const data = filteredAsinMap();
   if (!data.length){ box.innerHTML = `<div class="empty">国家 ${esc(asinCountryFilter)} 下暂无匹配记录 — 可切换回「🌍 全部国家」查看</div>`; return; }
+
   const seriesList = uniqSeries();
-  const groups = {};
-  data.forEach(m => {
-    const key = asinGroupBy === 'country' ? countryOf(m) : (m.series || '无');
-    (groups[key] = groups[key] || []).push(m);
-  });
-  const keys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'zh'));
+  const byCountry = asinGroupBy === 'country';
+  const t1 = byCountry ? 'c' : 's', t2 = byCountry ? 's' : 'c';
+  const tree = asinTreeOf(data);
+
   const btnAll = document.getElementById('btnExpandAsin');
-  if (btnAll) btnAll.textContent = openAsin.size >= keys.length ? '🔼 全部折叠' : '🔽 全部展开';
+  if (btnAll){
+    btnAll.textContent = asinTreeKeys(data).some(k => collapsedAsin.has(k)) ? '🔽 全部展开' : '🔼 全部折叠';
+  }
+  const metaOf = (n, unit) => n.kids.size > 1 ? `${n.rows.length} 条 · ${n.kids.size} 个${unit}` : `${n.rows.length} 条`;
+
   let html = '';
   if (asinCountryFilter) html += `<div style="margin:0 0 8px;font-size:12px;color:#1e40af;background:#f0f7ff;border:1px solid #dbeafe;border-radius:6px;padding:6px 10px;">🌍 当前只显示国家 <b>${esc(asinCountryFilter)}</b> 的匹配（共 ${data.length} 条）· <a href="javascript:void(0)" onclick="setAsinCountryFilter('')" style="color:#1e40af;font-weight:600;">清除筛选</a></div>`;
-  keys.forEach(k => {
-    const open = openAsin.has(k);
-    const rows = groups[k].slice().sort((x,y) => x.asin.localeCompare(y.asin));
+
+  [...tree.entries()].sort((a, b) => cmpAsinNode(t1, a[1], b[1])).forEach(([k1, n1]) => {
+    const open1 = !collapsedAsin.has(k1);
+    const icon1 = t1 === 'c' ? '🌍' : '🏷️';
     html += `<div class="grp">
-      <div class="grp-head${open ? '' : ' collapsed'}">
-        <span class="caret">${open ? '▼' : '▶'}</span>
-        <span class="grp-name" data-k="${esc(k)}" onclick="toggleAsinGroup(this)">
-          ${asinGroupBy === 'country' ? '🌍' : '🏷️'} ${esc(k)}
-        </span>
-        <span class="grp-count">${rows.length} 条</span>
+      <div class="grp-head${open1 ? '' : ' collapsed'}">
+        <span class="caret">${open1 ? '▼' : '▶'}</span>
+        <span class="grp-name" data-k="${esc(k1)}" onclick="toggleAsinGroup(this)">${icon1} ${esc(n1.v)}</span>
+        <span class="grp-count">${metaOf(n1, t1 === 'c' ? '系列' : '国家')}</span>
       </div>`;
-    if (open){
-      rows.forEach(m => {
-        const a = esc(m.asin), c = countryOf(m);
-        let sOpts = '';
-        if (!seriesList.length){ sOpts = '<option value="无">无</option>'; }
-        else {
-          seriesList.forEach(s => { sOpts += `<option value="${esc(s)}"${s === m.series ? ' selected' : ''}>${esc(s)}</option>`; });
-          if (!seriesList.includes(m.series)) sOpts = `<option value="${esc(m.series)}" selected>${esc(m.series)}</option>` + sOpts;
+    if (open1){
+      [...n1.kids.entries()].sort((a, b) => cmpAsinNode(t2, a[1], b[1])).forEach(([k2, n2]) => {
+        const open2 = !collapsedAsin.has(k2);
+        const icon2 = t2 === 'c' ? '🌍' : '🏷️';
+        // 该国家下只有 1 个产品名时不再单开一层，直接把它写在头里并列出 ASIN 行
+        const solo = n2.kids.size === 1 ? [...n2.kids.values()][0] : null;
+        html += `<div class="grp-sub">
+          <div class="sub-head${open2 ? '' : ' collapsed'}" data-k="${esc(k2)}" onclick="toggleAsinGroup(this)">
+            <span class="caret">${open2 ? '▼' : '▶'}</span>
+            <span class="sub-name">${icon2} ${esc(n2.v)}${solo ? `<span class="sub-note">· 📦 ${esc(solo.v)}</span>` : ''}</span>
+            <span class="sub-count">${metaOf(n2, '产品')}</span>
+          </div>`;
+        if (open2 && solo){
+          solo.rows.slice().sort((x, y) => String(x.asin).localeCompare(String(y.asin)))
+            .forEach(m => { html += asinRowHtml(m, seriesList); });
+        } else if (open2){
+          [...n2.kids.entries()].sort((a, b) => cmpAsinNode('n', a[1], b[1])).forEach(([k3, n3]) => {
+            const open3 = !collapsedAsin.has(k3);
+            html += `<div class="sub-head lv3${open3 ? '' : ' collapsed'}" data-k="${esc(k3)}" onclick="toggleAsinGroup(this)">
+              <span class="caret">${open3 ? '▼' : '▶'}</span>
+              <span class="sub-name">📦 ${esc(n3.v)}</span>
+              <span class="sub-count">${n3.rows.length > 1 ? n3.rows.length + ' 条' : ''}</span>
+            </div>`;
+            if (open3){
+              n3.rows.slice().sort((x, y) => String(x.asin).localeCompare(String(y.asin)))
+                .forEach(m => { html += asinRowHtml(m, seriesList); });
+            }
+          });
         }
-        const names = m.series && m.series !== '无' ? namesOfSeries(m.series) : [];
-        let nOpts = `<option value="无"${m.name === '无' || !m.name ? ' selected' : ''}>（无）</option>`;
-        names.forEach(n => { nOpts += `<option value="${esc(n)}"${n === m.name ? ' selected' : ''}>${esc(n)}</option>`; });
-        const cOpts = COUNTRIES.map(cv => `<option value="${cv}"${cv === c ? ' selected' : ''}>${cv}</option>`).join('');
-        html += `<div class="grp-row"><span class="row-main">
-          <b>${a}</b>
-          <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowCountryChange(this)" title="国家/地区">${cOpts}</select>
-          <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowSeriesChange(this)">${sOpts}</select>
-          <select class="mini-sel" data-a="${a}" data-c="${c}" onchange="rowNameChange(this)">${nOpts}</select>
-        </span><span class="row-acts">
-          <button class="mini danger" data-a="${a}" data-c="${c}" onclick="delAsin(this)">删除</button>
-        </span></div>`;
+        html += '</div>';
       });
     }
     html += '</div>';
@@ -1099,7 +1354,13 @@ document.getElementById('aFile').addEventListener('change', function(){
 loadState();
 renderAll();
 const initHash = (location.hash || '').replace('#', '');
-if (initHash === 'asin' || initHash === 'catalog') switchTabView(initHash);
+applyAdminUI();                       // 先放开/隐藏成本 tab，再决定初始落哪个 tab
+if (initHash === 'asin' || initHash === 'catalog' || initHash === 'cost') switchTabView(initHash);
+// 「📤 导入 CSV」：选完文件立刻解析回填
+(function bindCostFile(){
+  const f = document.getElementById('costFile');
+  if (f) f.addEventListener('change', function(){ importCostCsv(this.files && this.files[0]); this.value = ''; });
+})();
 updateCloudBadge();
 // 首次打开：云端优先（权威数据源），云端不可用时本地无数据才用服务器 product_map.json 预填充
 (async function seed(){
@@ -1120,6 +1381,656 @@ updateCloudBadge();
     cloudSave();
   } catch(e){}
 })();
+
+// ================= 未维护成本依据提醒（2026-10-21） =================
+// 数据源：云端 mapping.data.unmapped —— 每次抓完数据由 sync_unmapped.py 写入（挂在 build_daily_dashboard.py 末尾）
+//   no-map  = 云映射里没有这个 ASIN      → 看板归到「无」系列，成本 0
+//   no-cost = 映射到了产品名，但成本表没这个产品名 → 成本仍 0，毛利虚高
+// 显示前实时剔除「已经维护好」的条目 ⇒ 在本页建完关系后立刻消失，不用等下次构建。
+const UM_COUNTRY = {'US':'US','UK':'UK','CA':'CA','JP':'JP','AU':'AU',
+  'DE':'EU','FR':'EU','IT':'EU','ES':'EU','NL':'EU','BE':'EU','IE':'EU','PL':'EU','SE':'EU'};
+let umData = null, umCostNames = new Set(), umRows = [];
+
+function umMoney(v, cur){
+  return (cur ? cur + ' ' : '') + (Number(v) || 0).toLocaleString('en-US',
+    {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+async function loadUnmapped(){
+  let data = null;
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data&id=eq.1', {
+      headers: {'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY},
+      cache: 'no-store', signal: ctl.signal});
+    clearTimeout(t);
+    if (r.ok) { const rows = await r.json(); data = rows && rows[0] && rows[0].data; }
+  } catch (e) {}
+  if (!data) {   // 离线兜底：构建时落盘的本地快照
+    try { const r2 = await fetch('./_unmapped.json', {cache: 'no-store'}); if (r2.ok) data = {unmapped: await r2.json()}; } catch (e) {}
+  }
+  if (data && data.costTable && data.costTable.products) {
+    umCostNames = new Set(Object.keys(data.costTable.products));
+  }
+  if (data) applyAdminUI(data);   // 白名单要等云端到货才知道，这里是第一个能拿到 data 的点
+  umData = (data && data.unmapped) || null;
+  refreshUnmappedUI();
+  if (umRows.length && !sessionStorage.getItem('umAutoShown')) {
+    sessionStorage.setItem('umAutoShown', '1');   // 同一会话只自动弹一次，别每次刷新都拦人
+    openUnmapped();
+  }
+}
+
+function refreshUnmappedUI(){
+  const bar = document.getElementById('umBar');
+  if (!bar) return;
+  const items = (umData && Array.isArray(umData.items)) ? umData.items : [];
+  umRows = items.filter(function(it){
+    const a = String(it.asin || '').toUpperCase();
+    const m = asinMap.find(x => String(x.asin || '').toUpperCase() === a);
+    if (!m) return true;                      // 还没映射
+    return !umCostNames.has(m.name);           // 映射了但成本表没这个产品名 → 成本仍 0
+  });
+  const n = umRows.length;
+  bar.classList.toggle('on', n > 0);
+  if (!n) {
+    if (document.getElementById('umMask').classList.contains('on')) closeUnmapped();
+    return;
+  }
+  const qty = umRows.reduce((s, x) => s + (Number(x.qty) || 0), 0);
+  const curs = [...new Set(umRows.map(x => x.cur).filter(Boolean))];
+  const sales = umRows.reduce((s, x) => s + (Number(x.sales) || 0), 0);
+  document.getElementById('umCount').textContent = n;
+  document.getElementById('umSub').textContent = '（' + qty + ' 台 / '
+    + (curs.length === 1 ? umMoney(sales, curs[0]) : '多币种 ' + umMoney(sales, ''))
+    + '，这部分毛利偏高）';
+}
+
+function openUnmapped(){
+  renderUnmappedTable();
+  document.getElementById('umNote').textContent = umData
+    ? ('扫描窗口 ' + (umData.windowStart || '-') + ' ~ ' + (umData.through || '-')
+       + '（' + (umData.windowDays || 30) + ' 天）· 生成于 ' + (umData.generatedAt || '-')
+       + '。未映射的 ASIN 在看板里归到「无」系列、成本按 0 算；映射了但成本表缺产品名的，成本同样按 0 算。')
+    : '';
+  document.getElementById('umMask').classList.add('on');
+}
+function closeUnmapped(){
+  const m = document.getElementById('umMask');
+  if (m) m.classList.remove('on');
+}
+// 未映射弹窗 → 直接跳到成本页补全（只看待补的行）
+function gotoCostTab(){
+  if (!isAdmin()){ alert('「💰 产品成本」仅管理员可见。'); return; }
+  closeUnmapped();
+  costOnlyMissing = true;
+  switchTabView('cost');
+}
+
+function renderUnmappedTable(){
+  const tb = document.getElementById('umTable');
+  if (!umRows.length) {
+    tb.innerHTML = '<tbody><tr><td style="padding:18px;color:#6b7688">没有待处理的 ASIN。</td></tr></tbody>';
+    return;
+  }
+  const opts = ['<option value="">— 选择产品名 —</option>'];
+  uniqSeries().forEach(function(s){
+    const ns = namesOfSeries(s);
+    if (!ns.length) return;
+    opts.push('<optgroup label="' + esc(s) + '">'
+      + ns.map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('')
+      + '</optgroup>');
+  });
+  const optHtml = opts.join('');
+  let h = '<thead><tr><th>ASIN</th><th>站点</th><th>问题</th><th>件数</th><th>销售额</th>'
+        + '<th>最近</th><th>指定产品名</th><th></th></tr></thead><tbody>';
+  umRows.forEach(function(x){
+    const key = x.asin + '_' + x.site;
+    const tag = x.reason === 'no-cost'
+      ? '<span class="um-tag no-cost">成本表缺产品名</span>'
+      : '<span class="um-tag no-map">未映射</span>';
+    h += '<tr>'
+      + '<td class="mono">' + esc(x.asin) + '</td>'
+      + '<td>' + esc(x.site) + '</td>'
+      + '<td>' + tag + (x.reason === 'no-cost'
+          ? '<br><span style="color:#854F0B;font-size:11px">' + esc(x.note || '') + '</span>' : '')
+      + '</td>'
+      + '<td>' + (Number(x.qty) || 0) + '</td>'
+      + '<td>' + umMoney(x.sales, x.cur) + '</td>'
+      + '<td>' + esc(x.lastDate || '') + '</td>'
+      + '<td><select id="umSel_' + esc(key) + '" onchange="umPick(this)">' + optHtml + '</select></td>'
+      + '<td><button class="btn primary" id="umBtn_' + esc(key) + '" disabled '
+      + 'onclick="umAssign(\'' + esc(x.asin) + '\',\'' + esc(x.site) + '\')">建立</button></td>'
+      + '</tr>';
+  });
+  tb.innerHTML = h + '</tbody>';
+}
+
+function umPick(sel){
+  const row = sel.closest('tr');
+  if (!row) return;
+  const btn = row.querySelector('button');
+  if (btn) btn.disabled = !sel.value;
+}
+
+function umAssign(asin, site){
+  const sel = document.getElementById('umSel_' + asin + '_' + site);
+  const name = sel && sel.value;
+  if (!name) { flash('请先选择产品名'); return; }
+  const c = catalog.find(p => p.name === name);
+  const country = UM_COUNTRY[site] || 'EU';
+  const a = String(asin || '').toUpperCase();
+  const exist = asinMap.find(x => String(x.asin || '').toUpperCase() === a && countryOf(x) === country);
+  if (exist) {
+    exist.name = name;
+    exist.series = c ? c.series : (exist.series || '无');
+  } else {
+    asinMap.push({asin: asin, series: c ? c.series : '无', name: name, country: country});
+  }
+  saveAll(true);          // 本机 + 云端（cloudSave 400ms 防抖）
+  renderAll();
+  refreshUnmappedUI();    // 已维护 → 立即从清单剔除
+  flash(asin + ' → ' + name + '（' + country + '）已建立关系，正在同步云端…');
+  if (!umRows.length) closeUnmapped();
+}
+
+function copyUnmapped(){
+  const txt = umRows.map(x => x.asin).join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(
+      () => flash('已复制 ' + umRows.length + ' 个 ASIN'),
+      () => flash('复制失败，请手动选择'));
+  } else {
+    flash('当前浏览器不支持自动复制');
+  }
+}
+
+// 启动：等映射云同步落定后再拉（避免和 cloudLoad 抢着改 asinMap）
+setTimeout(function(){ try { loadUnmapped(); } catch (e) {} }, 900);
+
+/* ==========================================================================
+   产品成本表（💰 tab）· 仅管理员可见
+   ---------------------------------------------------------------------------
+   数据源：云端 mapping.data.costTable = {products:{产品名:{costRMB, headRMB:{US,EU,UK}, tailLocal:{US,EU,UK}}}, ...}
+   和 Python 侧 cost_from_table.cost_table_doc() 取的是同一份，构建时读它算商品成本/头程。
+   ⚠️ 这里保存只影响云端；看板里的成本数字是构建期内嵌的，必须重跑构建才会变。
+   ⚠️ 保存是显式按钮，绝不自动推 —— 本表是敏感数据 + id=1 单行共用，误推代价很大。
+   ========================================================================== */
+const K_COST = 'pc_cost_table';
+const COST_REGIONS = ['US', 'EU', 'UK'];
+const K_ADMINS = 'pc_cost_admins';
+
+/* ---------- 权限 ---------- */
+function currentAuth(){
+  try { return JSON.parse(localStorage.getItem('wb_auth') || 'null'); } catch (e) { return null; }
+}
+// 两条通路任一命中即为管理员：
+//   ① 角色：login.html 从 profiles 表拉取后写进 wb_auth.role（'admin' | 'viewer'），index.html 右上角能看到
+//   ② 邮箱白名单：云端 mapping.data.costAdmins = ['a@b.com', ...]，用于角色还没配好时救急
+//      （scripts/set_cost_admin.py 维护；本机缓存一份，云端拉不到时也能进）
+// costAdminSet / costTable … 一律声明在脚本顶部（见文件头注释，TDZ 红线 G20），这里不再重复声明
+function isAdmin(){
+  const a = currentAuth();
+  if (!a || !a.access_token) return false;
+  if (a.role === 'admin') return true;
+  const email = ((a.user && a.user.email) || '').toLowerCase();
+  return !!email && costAdminSet.has(email);
+}
+function applyAdminUI(cloudData){
+  // 拿到云端 data 时顺手把白名单灌进来再判一次（loadUnmapped / costPull 都会走到这）
+  if (cloudData){
+    try {
+      const list = cloudData.costAdmins;
+      if (Array.isArray(list)){
+        costAdminSet = new Set(list.map(x => String(x || '').toLowerCase()).filter(Boolean));
+        localStorage.setItem(K_ADMINS, JSON.stringify(list));
+      }
+    } catch (e) {}
+  } else if (!costAdminSet.size){
+    try {
+      const cache = JSON.parse(localStorage.getItem(K_ADMINS) || '[]');
+      if (Array.isArray(cache)) costAdminSet = new Set(cache.map(x => String(x || '').toLowerCase()).filter(Boolean));
+    } catch (e) {}
+  }
+  const admin = isAdmin();
+  document.querySelectorAll('.need-admin').forEach(el => { el.style.display = admin ? '' : 'none'; });
+  const btn = document.getElementById('tabBtnCost');
+  if (btn) btn.style.display = admin ? 'block' : 'none';
+  const badge = document.getElementById('roleBadge');
+  if (badge){
+    const a = currentAuth();
+    badge.textContent = admin ? '🔑 管理员' : '👤 访客（看不到「产品成本」）';
+    badge.className = 'role-badge ' + (admin ? 'admin' : 'viewer');
+    badge.title = '登录邮箱：' + ((a && a.user && a.user.email) || '未知')
+      + (admin ? '' : '\n\n要在 index.html 用 administrator 账号登录，或让管理员在「👥 用户管理」把你的角色改成「管理员」');
+  }
+  return admin;
+}
+
+/* ---------- 工具 ---------- */
+// costSig 已声明在脚本顶部（TDZ 红线 G20）
+const numIn = (p, k, raw) => {
+  const v = parseFloat(raw);
+  if (isNaN(v) || v < 0) return;
+  p[k] = raw === '' ? null : v;
+};
+// 每个产品名当前挂了几条 ASIN 映射（= 这个成本行实际能覆盖多少行）
+function nameUsage(){
+  const u = {};
+  asinMap.forEach(m => {
+    const n = m && m.name;
+    if (n && n !== '无') u[n] = (u[n] || 0) + 1;
+  });
+  return u;
+}
+function catalogNames(){
+  const s = new Set();
+  catalog.forEach(c => { const n = c && c.name; if (n && n !== '无') s.add(n); });
+  return s;
+}
+// ★ 表格要列出「目录里有名字、但成本表里还没这一行」的产品 —— 这正是最需要补的那批
+//   （漏掉它们的话，光打开表格是看不到还有哪些产品没成本的）。这类行标 pending=true，
+//   用户填了值才会真正落到 costTable 里；没动过就不写进云端。
+function allCostRows(){
+  const rows = {};
+  Object.keys(costTable).forEach(n => { rows[n] = { p: costTable[n], pending: false }; });
+  catalogNames().forEach(n => {
+    if (!(n in rows)) rows[n] = { p: { costRMB: null, headRMB: {}, tailLocal: {} }, pending: true };
+  });
+  return rows;
+}
+// 行的健康度：err=没成本 / warn=缺头程 / orphan=catalog 里没这个名字（匹配不上）/ ok
+function costHealth(name, p, catSet){
+  const links = nameUsage()[name] || 0;
+  if (!links && !catSet.has(name)) return { k: 'orphan', label: '匹配不上', cls: 'orphan' };
+  const noCost = !(p.costRMB > 0);
+  const missing = COST_REGIONS.filter(r => !((p.headRMB || {})[r] > 0));
+  if (noCost) return { k: 'err', label: '缺成本', cls: 'err' };
+  if (missing.length) return { k: 'warn', label: '缺头程 ' + missing.join('/'), cls: 'warn' };
+  if (!links) return { k: 'nouse', label: '暂未使用', cls: 'orphan' };
+  return { k: 'ok', label: 'OK', cls: 'ok' };
+}
+function isCostMissing(name, p, catSet){
+  const h = costHealth(name, p, catSet);
+  return h.k === 'err' || h.k === 'warn' || h.k === 'orphan';
+}
+
+/* ---------- 渲染 ---------- */
+function renderCostTable(){
+  const tbl = document.getElementById('costTable');
+  if (!tbl) return;
+  const catSet = catalogNames();
+  const usage = nameUsage();
+  const all = allCostRows();                       // 含「目录有名字但成本表还没行」的待补产品
+  let names = Object.keys(all);
+  const total = names.length;
+
+  const isBad = n => isCostMissing(n, all[n] ? all[n].p : {}, catSet);
+  const badAll = names.filter(isBad);
+  if (costOnlyMissing) names = badAll.slice();
+  names.sort((a, b) => String(a).localeCompare(String(b), 'zh'));
+
+  const cnt = document.getElementById('costCount');
+  if (cnt) cnt.textContent = `共 ${total} 个产品 · 待补 ${badAll.length} 个${costOnlyMissing ? '（已只看待补）' : ''}`;
+
+  const mBtn = document.getElementById('btnCostMissing');
+  if (mBtn){
+    mBtn.textContent = `⚠️ 仅看待补 (${badAll.length})`;
+    mBtn.classList.toggle('primary', costOnlyMissing);
+  }
+
+  if (!names.length){
+    tbl.innerHTML = `<tbody><tr><td style="padding:22px;text-align:center;color:var(--muted)">${
+      total ? '🎉 没有待补的行了' : '还没有成本数据 — 点「🔄 从云端拉取」或「➕ 新增产品成本」'}</td></tr></tbody>`;
+    return;
+  }
+
+  let html = `<thead>
+    <tr class="grp">
+      <th></th><th></th>
+      <th class="g1" colspan="3">头程 ¥（按站点取一档）</th>
+      <th class="g1" colspan="3">尾程 · 站点币种（JoyBuy 用）</th>
+      <th class="g1" colspan="3"></th>
+    </tr>
+    <tr>
+      <th>产品名</th><th>成本 ¥</th>
+      <th class="g1">US</th><th>EU</th><th>UK</th>
+      <th class="g1">US</th><th>EU</th><th>UK</th>
+      <th class="g1">关联</th><th>状态</th><th style="text-align:right">操作</th>
+    </tr></thead><tbody>`;
+
+  // 通用的可编辑数字格；n='__DRAFT__' 时写到草稿行
+  const cell = (obj, key, n, sub) => {
+    const val = obj[key];
+    const raw = (val === null || val === undefined || val === '') ? '' : val;
+    const cls = raw === '' ? 'miss' : (Number(raw) === 0 ? 'zero' : '');
+    return `<input type="number" step="0.01" min="0" class="${cls}" value="${esc(raw)}" data-n="${esc(n)}" data-f="${sub}" oninput="costEdit(this)">`;
+  };
+
+  const DR = '__DRAFT__';
+  if (costDraft){
+    const d = costDraft;
+    // 候选 = 目录里的产品名（优先还没成本的），用 datalist 做自动补全，杜绝手打错字
+    const cand = [...catSet].filter(n => !(n in costTable)).sort((a, b) => a.localeCompare(b, 'zh'));
+    const opts = cand.concat([...catSet].filter(n => (n in costTable))).slice(0, 300)
+      .map(n => `<option value="${esc(n)}">`).join('');
+    html += `<tr class="bad">
+      <td class="cname">
+        <input type="text" id="costDraftName" list="costNameList" placeholder="输入或从目录选择产品名…"
+          style="width:100%" value="${esc(d.name)}" oninput="costDraftName(this.value)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();costDraftCommit();}">
+        <datalist id="costNameList">${opts}</datalist>
+        <span class="sub" id="costDraftHint"></span>
+      </td>
+      <td class="num">${cell(d, 'costRMB', DR, 'cost')}</td>
+      <td class="g1">${cell(d.headRMB, 'US', DR, 'h.US')}</td>
+      <td>${cell(d.headRMB, 'EU', DR, 'h.EU')}</td><td>${cell(d.headRMB, 'UK', DR, 'h.UK')}</td>
+      <td class="g1">${cell(d.tailLocal, 'US', DR, 't.US')}</td>
+      <td>${cell(d.tailLocal, 'EU', DR, 't.EU')}</td><td>${cell(d.tailLocal, 'UK', DR, 't.UK')}</td>
+      <td class="g1 cnum">—</td>
+      <td><span class="cost-stat warn">草稿</span></td>
+      <td class="cact">
+        <button class="mini primary" onclick="costDraftCommit()">✔ 加入</button>
+        <button class="mini danger" onclick="costDraftCancel()">取消</button>
+      </td>
+    </tr>`;
+  }
+
+  names.forEach(n => {
+    const pend = all[n] && all[n].pending;
+    const p = all[n] ? all[n].p : {};
+    const h = costHealth(n, p, catSet);
+    const links = usage[n] || 0;
+    const rowCls = h.k === 'orphan' ? 'orphan' : (h.k === 'ok' || h.k === 'nouse') ? '' : 'bad';
+    const head = p.headRMB || {}, tail = p.tailLocal || {};
+    // 待补行还没进 costTable ⇒ 没得删，给个「缺这一行」的说明，填了值才会落地
+    const act = pend
+      ? '<span style="font-size:11px;color:var(--muted)">待补</span>'
+      : `<button class="mini danger" data-n="${esc(n)}" onclick="delCostRow(this)">删除</button>`;
+    html += `<tr class="${rowCls}">
+      <td class="cname">${esc(n)}${catSet.has(n) ? (pend ? '<span class="sub">目录里有，成本表还没这一行</span>' : '')
+        : '<span class="sub">⚠️ 目录里没有这个名字</span>'}</td>
+      <td class="num" title="商品成本（人民币）；毛利 = 销售额 − 成本 − 头程 − …">${cell(p, 'costRMB', n, 'cost')}</td>
+      <td class="g1">${cell(head, 'US', n, 'h.US')}</td>
+      <td>${cell(head, 'EU', n, 'h.EU')}</td><td>${cell(head, 'UK', n, 'h.UK')}</td>
+      <td class="g1">${cell(tail, 'US', n, 't.US')}</td>
+      <td>${cell(tail, 'EU', n, 't.EU')}</td><td>${cell(tail, 'UK', n, 't.UK')}</td>
+      <td class="g1 cnum">${links ? links + ' 条' : '—'}</td>
+      <td><span class="cost-stat ${h.cls}">${h.label}</span></td>
+      <td class="cact">${act}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+  if (costDraft) costDraftName(document.getElementById('costDraftName') ? document.getElementById('costDraftName').value : '');
+  updateCostDirty();
+}
+
+function updateCostDirty(){
+  const dirty = costSig() !== costServ;
+  const tip = document.getElementById('costDirtyTip');
+  if (tip){
+    tip.className = dirty ? 'cost-dirty' : 'cost-clean';
+    tip.textContent = dirty ? '● 有未保存的改动' : '已与云端一致';
+  }
+  const src = document.getElementById('costSrc');
+  if (src) src.textContent = costSrcLabel;
+}
+
+/* ---------- 编辑 ---------- */
+function costEdit(el){
+  const n = el.dataset.n, f = el.dataset.f;
+  if (n === '__DRAFT__'){
+    if (costDraft) costEditInto(costDraft, f, el);
+    updateCostDirty();
+    return;
+  }
+  if (!f) return;
+  // 待补行（目录有名字、成本表还没这一行）：填了值才真正落地，留空就不写进云端
+  const has = el.value.trim() !== '';
+  if (!costTable[n] && !has){ costTable[n] = null; delete costTable[n]; return; }
+  if (!costTable[n]) costTable[n] = { costRMB: null, headRMB: {}, tailLocal: {} };
+  costEditInto(costTable[n], f, el);
+  costLocalSave();
+  updateCostDirty();
+}
+function costEditInto(p, f, el){
+  const setv = (host, key) => {
+    const v = parseFloat(el.value);
+    host[key] = (el.value === '' || isNaN(v) || v < 0) ? null : v;
+  };
+  if (f === 'cost') setv(p, 'costRMB');
+  else {
+    const [grp, reg] = f.split('.');
+    const key = grp === 'h' ? 'headRMB' : 'tailLocal';
+    if (!p[key] || typeof p[key] !== 'object') p[key] = {};
+    setv(p[key], reg);
+  }
+  el.classList.toggle('miss', el.value === '');
+  el.classList.toggle('zero', el.value !== '' && Number(el.value) === 0);
+}
+
+/* ---------- 新增（内联草稿行 + 目录自动补全） ---------- */
+function addCostRow(){
+  if (!isAdmin()){ alert('仅管理员可修改产品成本。'); return; }
+  costDraft = { name: '', costRMB: null, headRMB: {}, tailLocal: {} };
+  costOnlyMissing = false;
+  renderCostTable();
+  const el = document.getElementById('costDraftName');
+  if (el) el.focus();
+}
+function costDraftName(v){
+  if (costDraft) costDraft.name = v;
+  const el = document.getElementById('costDraftHint');
+  if (!el) return;
+  const n = (v || '').trim();
+  if (!n){ el.textContent = '产品名必须和「🗂️ 产品名 / 系列」里的名字完全一致'; el.style.color = '#b7791f'; return; }
+  if (n in costTable){ el.textContent = '⚠️ 已存在「' + n + '」，会用这一行的值覆盖它'; el.style.color = '#a32d2d'; return; }
+  if (!catalogNames().has(n)){ el.textContent = '⚠️ 目录里没有这个名字 —— ASIN 匹配不上它，请先去目录页补'; el.style.color = '#a32d2d'; return; }
+  el.textContent = '✓ 目录里有这个名字'; el.style.color = '#059669';
+}
+function costDraftCancel(){
+  costDraft = null;
+  renderCostTable();
+}
+function costDraftCommit(){
+  if (!costDraft) return;
+  const n = (costDraft.name || '').trim();
+  if (!n){ flash('请先填产品名'); const el = document.getElementById('costDraftName'); if (el) el.focus(); return; }
+  const existed = n in costTable;
+  if (!catalogNames().has(n) && !confirm(`「${n}」不在产品目录里。\n\n成本是按产品名匹配的，目录里没有它 ⇒ 没有 ASIN 能用上这个成本、毛利会虚高。\n\n仍要新增吗？`)) return;
+  costTable[n] = {
+    costRMB: costDraft.costRMB,
+    headRMB: Object.assign({}, costDraft.headRMB),
+    tailLocal: Object.assign({}, costDraft.tailLocal),
+  };
+  costDraft = null;
+  costLocalSave();
+  renderCostTable();
+  flash((existed ? '已覆盖' : '已新增') + '「' + n + '」，记得点「💾 保存到云端」');
+}
+
+// 产品名必须从目录里挑 —— 成本是按名字精确匹配的，拼错就永远对不上（毛利会虚高且没有报错）
+function delCostRow(el){
+  const n = el.dataset.n;
+  if (!n || !costTable[n]) return;
+  const links = (nameUsage()[n] || 0);
+  const msg = links
+    ? `「${n}」正被 ${links} 条 ASIN 映射使用，删掉后这些商品的成本会变成 0（毛利虚高）。\n\n确定删除？`
+    : `确定删除「${n}」？`;
+  if (!confirm(msg)) return;
+  delete costTable[n];
+  costLocalSave();
+  renderCostTable();
+  flash('已删除「' + n + '」，记得点「💾 保存到云端」');
+}
+
+function toggleCostMissing(){
+  costOnlyMissing = !costOnlyMissing;
+  renderCostTable();
+}
+
+function costLocalSave(){
+  try { localStorage.setItem(K_COST, JSON.stringify({ products: costTable, savedAt: new Date().toISOString() })); } catch (e) {}
+}
+
+/* ---------- 云端拉取 / 保存 ---------- */
+async function costPull(silent){
+  const applyProducts = (products, label) => {
+    costTable = JSON.parse(JSON.stringify(products || {}));
+    costServ = costSig();
+    costSrcLabel = label;
+    costPulled = true;
+    costLocalSave();
+    renderCostTable();
+  };
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 10000);
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data,updated_at&id=eq.1', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+      cache: 'no-store', signal: ctl.signal });
+    clearTimeout(t);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    const d = rows && rows[0] && rows[0].data;
+    applyAdminUI(d);
+    const products = d && d.costTable && d.costTable.products;
+    if (!products) throw new Error('云端没有 costTable');
+    const at = (d.costTable && (d.costTable.pushedAt || d.costTable.updatedAt)) || rows[0].updated_at || '';
+    applyProducts(products, '云端 · ' + (at ? fmtTime(at) : '已拉取'));
+    if (!silent) flash('已拉取云端最新成本表（' + Object.keys(products).length + ' 个产品）');
+    return true;
+  } catch (e) {
+    // 离线兜底：上一次本机保存的草稿
+    try {
+      const local = JSON.parse(localStorage.getItem(K_COST) || 'null');
+      if (local && local.products && Object.keys(local.products).length){
+        applyProducts(local.products, '本机草稿（云端不可用）');
+        flash('云端拉取失败，已用本机草稿');
+        return true;
+      }
+    } catch (e2) {}
+    costSrcLabel = '云端不可用';
+    updateCostDirty();
+    if (!silent) flash('云端拉取失败：' + e.message);
+    return false;
+  }
+}
+
+async function costSave(){
+  if (!isAdmin()){ alert('仅管理员可修改产品成本。'); return; }
+  const btn = document.getElementById('btnCostSave');
+  if (btn){ btn.disabled = true; btn.textContent = '💾 保存中…'; }
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 10000);
+    // 防互踩：本表 id=1 单行共用，写回前先取最新，只换 costTable，其余键原样保留
+    let curData = {};
+    try {
+      const gr = await fetch(SUPABASE_URL + '/rest/v1/mapping?select=data&id=eq.1', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, signal: ctl.signal });
+      if (gr.ok) { const rows = await gr.json(); const cur = rows && rows[0] && rows[0].data;
+        if (cur && typeof cur === 'object') curData = cur; }
+    } catch (e) {}
+    const body = {
+      data: Object.assign({}, curData, {
+        costTable: { products: costTable, updatedAt: new Date().toISOString(), pushedAt: new Date().toISOString(), source: 'mapping.html' }
+      }),
+      updated_at: new Date().toISOString()
+    };
+    const r = await fetch(SUPABASE_URL + '/rest/v1/mapping?id=eq.1', {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'x-admin-key': SUPABASE_ADMIN_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(body), signal: ctl.signal
+    });
+    clearTimeout(t);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    costServ = costSig();
+    costSrcLabel = '云端 · 刚刚';
+    costLocalSave();
+    renderCostTable();
+    umCostNames = new Set(Object.keys(costTable));
+    refreshUnmappedUI();
+    flash('✅ 成本表已保存到云端。⚠️ 毛利数字要重跑 python build_profit_metrics.py 才会更新');
+  } catch (e) {
+    flash('保存失败（本机草稿已留着）：' + e.message);
+    costLocalSave();
+  } finally {
+    if (btn){ btn.disabled = false; btn.textContent = '💾 保存到云端'; }
+  }
+}
+
+/* ---------- 导入 / 导出 CSV ---------- */
+function exportCostCsv(){
+  const all = allCostRows();
+  if (!Object.keys(all).length){ flash('成本表为空，没有可导出的内容'); return; }
+  const rows = [['产品名', '成本RMB', '头程US', '头程EU', '头程UK', '尾程US', '尾程EU', '尾程UK']];
+  Object.keys(all).sort((a, b) => String(a).localeCompare(String(b), 'zh')).forEach(n => {
+    const p = all[n].p || {}, h = p.headRMB || {}, t = p.tailLocal || {};
+    rows.push([n, p.costRMB ?? '', h.US ?? '', h.EU ?? '', h.UK ?? '', t.US ?? '', t.EU ?? '', t.UK ?? '']);
+  });
+  downloadText('product_cost_table.csv', toCsvText(rows));
+  flash('已导出 ' + (rows.length - 1) + ' 行（含成本表还没的待补产品；Excel 里补全后可用「📤 导入 CSV」批量回填）');
+}
+
+// 简易 CSV 解析（复用 import 那套的引号处理），够用于导出表头对拷
+function parseCostCsv(text){
+  const rows = [];
+  let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i + 1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ',' || c === '\t'){ row.push(cur); cur = ''; }
+    else if (c === '\n'){ row.push(cur); rows.push(row); row = []; cur = ''; }
+    else if (c !== '\r') cur += c;
+  }
+  if (cur !== '' || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+
+// 导入只认上面那 8 列表头；已有同名产品按列覆盖（单元格留空 = 不改）
+async function importCostCsv(file){
+  if (!file) return;
+  if (!isAdmin()){ alert('仅管理员可修改产品成本。'); return; }
+  let rows;
+  try {
+    rows = parseCostCsv(await file.text());
+  } catch (e) { flash('解析失败：' + e.message); return; }
+  if (!rows.length){ flash('文件是空的'); return; }
+  const idx = {};
+  const head = rows[0].map(h => String(h).trim());
+  const map = { '产品名': 'n', '成本RMB': 'c', '成本': 'c', '头程US': 'hUS', '头程EU': 'hEU', '头程UK': 'hUK',
+                '尾程US': 'tUS', '尾程EU': 'tEU', '尾程UK': 'tUK' };
+  head.forEach((h, i) => { const k = map[h]; if (k) idx[k] = i; });
+  if (idx.n === undefined) { flash('缺少「产品名」列，表头应为：产品名,成本RMB,头程US,头程EU,头程UK,尾程US,尾程EU,尾程UK'); return; }
+  let add = 0, upd = 0;
+  rows.slice(1).forEach(r => {
+    const n = String(r[idx.n] ?? '').trim();
+    if (!n) return;
+    const ex = costTable[n];
+    const p = ex || { costRMB: null, headRMB: {}, tailLocal: {} };
+    const set = (i, fn) => { const v = String(r[i] ?? '').trim(); if (v === '') return; const num = parseFloat(v); if (isNaN(num)) return; fn(num); };
+    if (idx.c !== undefined) set(idx.c, v => p.costRMB = v);
+    p.headRMB = p.headRMB || {}; p.tailLocal = p.tailLocal || {};
+    if (idx.hUS !== undefined) set(idx.hUS, v => p.headRMB.US = v);
+    if (idx.hEU !== undefined) set(idx.hEU, v => p.headRMB.EU = v);
+    if (idx.hUK !== undefined) set(idx.hUK, v => p.headRMB.UK = v);
+    if (idx.tUS !== undefined) set(idx.tUS, v => p.tailLocal.US = v);
+    if (idx.tEU !== undefined) set(idx.tEU, v => p.tailLocal.EU = v);
+    if (idx.tUK !== undefined) set(idx.tUK, v => p.tailLocal.UK = v);
+    costTable[n] = p;
+    ex ? upd++ : add++;
+  });
+  costLocalSave();
+  renderCostTable();
+  flash(`导入完成：新增 ${add} 行、更新 ${upd} 行。记得点「💾 保存到云端」`);
+}
 </script>
 
 </body>

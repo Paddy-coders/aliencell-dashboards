@@ -535,8 +535,9 @@ def main():
 
     # ---------- 头程成本表 (2026-10-10): 产品名 → {US/EU/UK: 头程RMB/台} ----------
     try:
-        _tbl = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'product_cost_table.json'),
-                              encoding='utf-8'))
+        # 2026-10-21: 成本表已上云(mapping.data.costTable) —— 统一走 cost_from_table.cost_table_doc()
+        from cost_from_table import cost_table_doc
+        _tbl = cost_table_doc(verbose=True)
         hf_json = json.dumps({n: (p.get('headRMB') or {}) for n, p in (_tbl.get('products') or {}).items()},
                              ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
         # Woot 成本表 (2026-10-13): {产品名: 采购成本RMB/台} —— 仅月度看板用(Woot 成本回退)

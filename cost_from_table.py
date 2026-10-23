@@ -35,6 +35,7 @@ import urllib.request
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 COST_FILE = os.path.join(BASE_DIR, 'product_cost_table.json')
+COST_CACHE = os.path.join(BASE_DIR, '_cost_cache.json')   # 云端 costTable 本地快照
 MAP_FILE = os.path.join(BASE_DIR, 'product_map.json')       # 构建期内嵌用 (catalog + asinMap)
 CACHE_FILE = os.path.join(BASE_DIR, '_map_cache.json')      # 云端映射本地快照
 
@@ -50,22 +51,112 @@ def _read_json(path):
         return None
 
 
-def load_cost_table():
-    """产品成本表: {产品名: {costRMB, headRMB:{US,EU,UK}, tailLocal:{...}}}"""
-    d = _read_json(COST_FILE) or {}
-    return d.get('products') or {}
-
-
-def fetch_cloud_map(timeout=12):
-    """拉云端「产品关系管理」映射; 失败抛异常(调用方回退本地)"""
+def _fetch_cloud_data(timeout=12):
+    """拉云端 mapping 表 id=1 的 data(整份); 失败抛异常"""
     req = urllib.request.Request(SB_URL, headers={
         'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         rows = json.loads(resp.read().decode('utf-8'))
     data = (rows[0] or {}).get('data') if rows else None
-    if not isinstance(data, dict) or not isinstance(data.get('asinMap'), list):
+    if not isinstance(data, dict):
+        raise ValueError('云端 mapping 结构异常')
+    return data
+
+
+def fetch_cloud_map(timeout=12):
+    """拉云端「产品关系管理」映射; 失败抛异常(调用方回退本地)"""
+    data = _fetch_cloud_data(timeout)
+    if not isinstance(data.get('asinMap'), list):
         raise ValueError('云端映射结构异常')
     return data
+
+
+def fetch_cloud_cost_table(timeout=12):
+    """拉云端 mapping.data.costTable → {products, source, updatedAt}; 无该键返回 None"""
+    ct = _fetch_cloud_data(timeout).get('costTable') or {}
+    prods = ct.get('products')
+    if not isinstance(prods, dict) or not prods:
+        return None
+    return {'products': prods, 'source': ct.get('source', ''), 'updatedAt': ct.get('updatedAt', '')}
+
+
+_MEMO = {'doc': None, 'ts': 0.0}
+
+
+def cost_table_doc(refresh=True, max_age_hours=6, verbose=False):
+    """产品成本表整份文档 —— **云端 mapping.data.costTable 优先**, 本地文件兜底
+
+    2026-10-21 起成本表上云: 所有应用(看板构建 / 运营工具 / 运费推演 …)读同一份,
+    再靠「本地文件 mtime 比缓存新 ⇒ 用本地」防止「本地改了但忘了上传」导致的静默不生效。
+
+    → {products:{产品名:{costRMB, headRMB, tailLocal}}, source, updatedAt, from}
+      from ∈ cloud / cache / local / local-newer
+    """
+    local_doc = _read_json(COST_FILE) or {}
+    local = local_doc.get('products') or {}
+    out_local = {'products': local, 'source': local_doc.get('source', ''),
+                 'updatedAt': local_doc.get('updatedAt', ''), 'from': 'local'}
+    if not refresh:
+        return out_local
+
+    now = time.time()
+    if _MEMO['doc'] and now - _MEMO['ts'] < 60:
+        return _MEMO['doc']
+
+    cache = _read_json(COST_CACHE) or {}
+    try:
+        local_mtime = os.path.getmtime(COST_FILE) if local else 0
+        cache_mtime = os.path.getmtime(COST_CACHE) if cache.get('products') else 0
+    except OSError:
+        local_mtime = cache_mtime = 0
+
+    # ① 本地文件比云端快照新 ⇒ 本地刚改过还没上传, 以本地为准(否则改了不生效且无提示)
+    if local and cache.get('products') and local_mtime > cache_mtime + 1:
+        if verbose:
+            print('  ⚠️ 成本表: 本地文件比云端快照新 → 用本地；记得 python upload_cost_table.py 同步上云')
+        _MEMO.update(doc=out_local, ts=now)
+        return out_local
+
+    # ② 快照新鲜 ⇒ 直接用(避免每次构建都等一次 HTTP)
+    if cache.get('products') and max_age_hours > 0 and cache_mtime:
+        age = (now - cache_mtime) / 3600.0
+        if age < max_age_hours:
+            doc = {'products': cache['products'], 'source': cache.get('source', ''),
+                   'updatedAt': cache.get('updatedAt', ''), 'from': 'cache'}
+            _MEMO.update(doc=doc, ts=now)
+            return doc
+
+    # ③ 拉云端
+    try:
+        doc = fetch_cloud_cost_table()
+        if doc:
+            doc['from'] = 'cloud'
+            _write_cost_cache(doc)
+            if verbose:
+                print('  成本表已从云端同步: %d 个产品' % len(doc['products']))
+            _MEMO.update(doc=doc, ts=now)
+            return doc
+    except Exception as e:
+        if verbose:
+            print('  ⚠️ 成本表云端拉取失败(%s), 用本地文件' % str(e)[:60])
+    _MEMO.update(doc=out_local, ts=now)
+    return out_local
+
+
+def _write_cost_cache(doc):
+    try:
+        io.open(COST_CACHE, 'w', encoding='utf-8', newline='\n').write(json.dumps(
+            {'products': doc.get('products') or {}, 'source': doc.get('source', ''),
+             'updatedAt': doc.get('updatedAt', ''),
+             'fetchedAt': time.strftime('%Y-%m-%d %H:%M:%S')},
+            ensure_ascii=False, separators=(',', ':')))
+    except Exception:
+        pass
+
+
+def load_cost_table():
+    """产品成本表: {产品名: {costRMB, headRMB:{US,EU,UK}, tailLocal:{...}}}（云端优先）"""
+    return cost_table_doc()['products']
 
 
 def _effective_map_path():

@@ -102,6 +102,19 @@
 .noteFold>summary::after{content:'展开';margin-left:auto;font-weight:400;opacity:.6;}
 .noteFold[open]>summary::after{content:'收起';}
 .noteFold>.note,.noteFold>.foot-note{margin:0;padding:8px 10px 10px;border-top:1px dashed var(--border);text-align:left;line-height:1.7;}
+
+/* ===== 销售趋势曲线（2026-10-23 新增）：三张折线 · 随筛选联动 · 暂不含 JoyBuy ===== */
+.charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+@media(max-width:960px){.charts{grid-template-columns:1fr;}}
+.chart-box{border:1px solid var(--border);border-radius:10px;padding:10px 12px 8px;background:#fff;min-width:0;}
+.chart-box .ch-head{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;flex-wrap:wrap;}
+.chart-box .ch-title{font-size:13px;font-weight:600;color:var(--text);}
+.chart-box .ch-sub{font-size:11px;color:var(--muted);}
+.chart-box .ch-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin:0 0 4px 2px;}
+.chart-box .ch-legend i{display:inline-block;width:12px;height:2px;border-radius:1px;vertical-align:middle;margin-right:5px;}
+.chart-box svg{display:block;width:100%;height:auto;overflow:visible;}
+.chart-box .ch-empty{height:186px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;padding:0 12px;line-height:1.6;}
+.chart-box .ch-foot{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.5;min-height:15px;}
 </style>
 <script>
 /* note-fold: 空内容折叠块自动隐藏 (2026-10-12) */
@@ -279,6 +292,13 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="card">
+  <div class="toolbar">
+    <div class="card-title" style="margin:0">📈 销售趋势 <span style="font-weight:400;color:var(--muted);font-size:12px;">（自然月 · 随上方筛选联动 · 仅 Amazon 口径，暂不含 JoyBuy）</span></div>
+  </div>
+  <div class="charts" id="chartRow"></div>
 </div>
 
 <div class="card card-table">
@@ -1430,6 +1450,140 @@ function refreshMapStat() {
   const mapped = asinList.filter(a => { const m = asinMetaOf(a); return m.series !== '无' || m.name !== '无'; }).length;
   el.textContent = `${mapped}/${asinList.length}`;
 }
+/* ===== 销售趋势曲线（2026-10-23 新增）=====
+   三张图：总计 / 主机(X1·X1 Lite·E1) / 配件
+   两条线：销售额（业务报告 sales）/ 营收额（= 销售额 − 促销折扣）
+   ⚠️ pPromo 在易仓利润报表里是**负数** ⇒ 营收 = sales + pPromo，不是减
+   ⚠️ 暂不含 JoyBuy（用户 2026-10-23：JoyBuy 还没做产品映射）
+   ⚠️ 未映射行（series='无'）与 Woot 行**不进主机/配件** —— 否则未映射的套机
+     会被错算成「配件」，把配件趋势抬起来；
+     它们只计入「总计」。
+   ⚠️ 主机判定按**产品系列**，不按产品名。真实系列名是「X1系列 / X1 Lite系列 / E1系列」，
+     **配件是「X1系列配件」** —— 名字里也含 "X1"，所以绝不能按前缀/包含判断，
+     必须先把结尾的「系列」去掉再做精确匹配（去掉后 'X1系列配件' 仍是原样 ⇒ 自然落到配件）。 */
+const HOST_SERIES = new Set(['X1', 'X1 Lite', 'E1']);
+const chHostKey = s => String(s || '').trim().replace(/系列$/, '');
+const CH_C_SALES = '#2563eb';   // 销售额：蓝实线
+const CH_C_REV = '#f59e0b';     // 营收额：橙虚线
+
+function chartRows() {
+  // filteredRows() 不含月份维度（月份是 renderTable 单独筛的），这里补上，
+  // 否则「表格合计只算所选月份、图却是全期」⇒ 两者对不上，用户会以为算错。
+  return filteredRows().filter(r =>
+    platOf(r) !== 'joybuy' && (selMonth.size === 0 || selMonth.has(r.ym)));
+}
+// 系列查询带缓存：rowMeta 每次都读 localStorage + JSON.parse，492 行逐行调会明显卡
+function chSeriesMap(rows) {
+  const m = new Map();
+  for (const r of rows) {
+    const k = (r.asin || '') + '|' + (r.cc || '');
+    if (!m.has(k)) m.set(k, (rowMeta(r) || {}).series || '无');
+  }
+  return m;
+}
+function chBucket(series) {
+  if (!series || series === '无' || series === 'Woot') return 'none';
+  return HOST_SERIES.has(chHostKey(series)) ? 'host' : 'acc';
+}
+function chShort(v) {
+  const a = Math.abs(v);
+  if (a >= 1e6) return (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (a >= 1e3) return (v / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K';
+  return String(Math.round(v));
+}
+// ⚠️ 纵轴固定以 20K 为一格（用户 2026-10-23 要求），不再走 1/2/5「好看步长」。
+//    只在网格线会挤爆（>9 条）时才翻倍，且**必须是 20K 的整数倍**（20K→40K→80K…），
+//    否则纵轴会出现 25K 这种「不是整 20K」的刻度，跟用户要求打架。
+const CH_STEP0 = 20000;
+// 基准 = 20K 美元，按当前显示币种折算（CNY 下 20K USD ≈ 140K）；
+// 再对齐到 20K 的整数倍，避免出现「142K」这种碎刻度。
+function chStepBase() {
+  const to = targetCur();
+  if (to === 'USD') return CH_STEP0;
+  const ym = (MONTHS[MONTHS.length - 1] || {}).ym;
+  const v = fxv(CH_STEP0, 'US', ym);
+  if (!v || !isFinite(v) || v <= 0) return CH_STEP0;
+  return Math.max(CH_STEP0, Math.round(v / CH_STEP0) * CH_STEP0);
+}
+function chNiceStep(maxV) {
+  let s = chStepBase();
+  const lines = () => Math.ceil((maxV || 0) / s) + 1;
+  while (lines() > 9) s *= 2;
+  return s;
+}
+// data = [{label, short, sales, rev}]
+function chSvg(data, sym) {
+  if (!data.length) return '<div class="ch-empty">暂无月份数据</div>';
+  const maxV = Math.max(0, ...data.map(d => Math.max(d.sales, d.rev)));
+  if (maxV <= 0) return '<div class="ch-empty">当前筛选下没有销量<br>（可放宽筛选条件再试）</div>';
+  const W = 380, H = 214, L = 46, R = 10, T = 12, B = 28;
+  const iw = W - L - R, ih = H - T - B;
+  const step = chNiceStep(maxV);            // 固定 20K 一格
+  const top = Math.max(step, Math.ceil(maxV / step) * step);
+  const yOf = v => T + ih - (Math.max(0, v) / top) * ih;
+  const xOf = i => data.length === 1 ? L + iw / 2 : L + (iw * i) / (data.length - 1);
+  let g = '';
+  for (let v = 0; v <= top + 1e-9; v += step) {
+    const y = yOf(v);
+    g += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${W - R}" y2="${y.toFixed(1)}" stroke="#eef1f6" stroke-width="1"/>`
+      + `<text x="${L - 6}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#98a2b3">${chShort(v)}</text>`;
+  }
+  const xLabels = data.map((d, i) =>
+    `<text x="${xOf(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" font-size="10" fill="#98a2b3">${d.short}</text>`).join('');
+  const pathOf = key => data.map((d, i) => `${i ? 'L' : 'M'}${xOf(i).toFixed(1)},${yOf(d[key]).toFixed(1)}`).join(' ');
+  const dots = (key, name) => data.map((d, i) =>
+    `<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(d[key]).toFixed(1)}" r="3.2" fill="#fff" stroke="${key === 'sales' ? CH_C_SALES : CH_C_REV}" stroke-width="2">`
+    + `<title>${d.label} · ${name} ${sym}${Math.round(d[key]).toLocaleString()}</title></circle>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}${xLabels}`
+    + `<path d="${pathOf('sales')}" fill="none" stroke="${CH_C_SALES}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`
+    + `<path d="${pathOf('rev')}" fill="none" stroke="${CH_C_REV}" stroke-width="2" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round"/>`
+    + dots('sales', '销售额') + dots('rev', '营收额') + `</svg>`;
+}
+function renderCharts() {
+  const box = document.getElementById('chartRow');
+  if (!box) return;
+  if (selPlatform.size > 0 && !selPlatform.has('amazon')) {
+    box.innerHTML = '<div class="chart-box"><div class="ch-head"><span class="ch-title">暂不支持</span></div>'
+      + '<div class="ch-empty">当前平台筛选只含 JoyBuy<br>趋势图暂只统计 Amazon（JoyBuy 尚未做产品映射）</div></div>';
+    return;
+  }
+  const all = chartRows();
+  const sm = chSeriesMap(all);
+  const seriesOf = r => sm.get((r.asin || '') + '|' + (r.cc || ''));
+  const host = all.filter(r => chBucket(seriesOf(r)) === 'host');
+  const acc = all.filter(r => chBucket(seriesOf(r)) === 'acc');
+  const none = all.filter(r => chBucket(seriesOf(r)) === 'none');
+  const sym = curSym();
+  // 用 aggMonth 聚合，保证币种折算口径与表格完全一致；X 轴跟随月份筛选
+  const ms = MONTHS.filter(m => selMonth.size === 0 || selMonth.has(m.ym));
+  const agg = rows => ms.map(m => {
+    const a = aggMonth(m.ym, rows);
+    return {
+      label: m.label,
+      short: m.ym.slice(5).replace(/^0/, '') + '月',
+      sales: a.sales || 0,
+      rev: (a.sales || 0) + (a.pPromo || 0),
+    };
+  });
+  const cards = [
+    { t: '总计', s: '全部 Amazon 产品', data: agg(all),
+      foot: none.length ? `未映射 / Woot 共 ${none.length} 行只计入总计，不归入主机或配件` : '' },
+    { t: '主机', s: 'X1 · X1 Lite · E1 系列', data: agg(host),
+      foot: host.length ? '' : '当前筛选下没有主机产品' },
+    { t: '配件', s: '主机系列以外的已映射产品', data: agg(acc),
+      foot: '含 Air Purifier 系列（主机与滤芯）· Laser Module · Honeycomb Table · Starter Kit · Vacuum' },
+  ];
+  box.innerHTML = cards.map(c => `
+    <div class="chart-box">
+      <div class="ch-head"><span class="ch-title">${c.t}</span><span class="ch-sub">${c.s}</span></div>
+      <div class="ch-legend">
+        <span><i style="background:${CH_C_SALES}"></i>销售额</span>
+        <span><i style="background:${CH_C_REV}"></i>营收额（销售额 − 促销）</span>
+      </div>
+      ${chSvg(c.data, sym)}
+      <div class="ch-foot">${c.foot}</div>
+    </div>`).join('');
+}
 function renderAll() {
   pruneSelections();
   buildPlatformOptions();
@@ -1441,6 +1595,7 @@ function renderAll() {
   buildSeriesOptions();
   buildNameOptions();
   renderKpis();
+  renderCharts();
   renderTable();
   refreshMapStat();
 }
