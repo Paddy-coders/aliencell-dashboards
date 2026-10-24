@@ -38,6 +38,11 @@ const t = (name, ok, extra) => {
 
   await p.goto(URL, { waitUntil: 'load', timeout: 60000 });
   await p.waitForTimeout(2500);
+  // 页面自带「拉云端 → 写本机 → reload」同步段；若 reload 恰好在首个 evaluate 时发生，
+  // playwright 会抛「Execution context was destroyed」（实测偶发）。这里等它自愈再往下跑。
+  for (let i = 0; i < 8; i++) {
+    try { await p.evaluate(() => 1); break; } catch (e) { await p.waitForTimeout(600); }
+  }
 
   /* ================= 1. 结构 ================= */
   console.log('\n【1】结构');
@@ -112,6 +117,34 @@ const t = (name, ok, extra) => {
   t('纵轴标签格式正确（0 / 20K / 40K…）', charts.every(x => x.labels.every(l => /^(0|\d+(\.\d)?[KM])$/.test(l))), charts.map(x => x.labels));
   t('纵轴顶格 ≥ 数据最大值', charts.every(x => x.top >= x.maxV - 1e-6), charts.map(x => [x.top, x.maxV]));
   t('纵轴不空转（顶格 = 最大值向上取整到格）', charts.every(x => x.top - x.maxV < x.step), charts.map(x => [x.top, x.maxV, x.step]));
+
+  /* ===== 1c. 布局：图在数据表下方，且不挤扁表格（用户 2026-10-24 要求）===== */
+  const s1c = await p.evaluate(() => {
+    const tw = document.querySelector('#tableWrap');
+    const ch = document.querySelector('#chartRow');
+    return {
+      hasBoth: !!(tw && ch),
+      after: !!(tw && ch && (tw.compareDocumentPosition(ch) & Node.DOCUMENT_POSITION_FOLLOWING)),
+    };
+  });
+  t('图表在数据表下方（先看数据、再看趋势）', s1c.hasBoth && s1c.after === true, s1c);
+
+  // 用最苛刻的笔记本视口复测：图在表格下方时，若 body 不可滚动会把表格压到 2px
+  const p2 = await b.newPage({ viewport: { width: 1280, height: 800 } });
+  await p2.route('**/rest/v1/mapping*', r => r.request().method() === 'PATCH' ? r.fulfill({ status: 204 }) : r.continue());
+  await p2.goto(URL, { waitUntil: 'load', timeout: 60000 });
+  await p2.waitForTimeout(2000);
+  for (let i = 0; i < 8; i++) {
+    try { await p2.evaluate(() => 1); break; } catch (e) { await p2.waitForTimeout(600); }
+  }
+  const s1d = await p2.evaluate(() => ({
+    twH: Math.round(document.querySelector('#tableWrap').getBoundingClientRect().height),
+    scrollable: document.documentElement.scrollHeight > innerHeight,
+    overflowY: getComputedStyle(document.body).overflowY,
+  }));
+  await p2.close();
+  t('1280×800 下表格区高度 ≥ 300px（不被图卡压扁）', s1d.twH >= 300, s1d);
+  t('1280×800 下页面可纵向滚动（图在下方靠滚动查看）', s1d.scrollable && s1d.overflowY === 'auto', s1d);
 
   /* ================= 2. 数据口径 ================= */
   console.log('\n【2】数据口径');

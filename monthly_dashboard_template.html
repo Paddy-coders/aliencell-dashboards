@@ -10,7 +10,9 @@
     --up:#dc2626; --down:#059669; }
   * { box-sizing:border-box; margin:0; padding:0; }
   html, body { height:100%; }
-  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:14px 20px 10px; overflow:hidden; display:flex; flex-direction:column; }
+  /* 2026-10-24：销售趋势图移到数据表下方后，页面允许纵向滚动 —— 否则图卡会挤掉表格高度
+     （实测 1280×800 下 #tableWrap 只剩 2px）。表格仍占主视区，图在下方滚动查看。 */
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); padding:14px 20px 10px; overflow-y:auto; display:flex; flex-direction:column; }
   .header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:12px; flex:none; }
   .header h1 { font-size:18px; font-weight:700; }
   .header .sub { color:var(--muted); font-size:12px; margin-top:6px; line-height:1.5; }
@@ -20,7 +22,8 @@
   .note-warn { color:#b26a00; background:#fff7e6; border:1px solid #ffe0a3; border-radius:6px; padding:2px 8px; font-weight:600; }
   .badge { display:inline-block; background:#eef4ff; color:var(--primary); border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600; }
   .card { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:12px 16px; margin-bottom:10px; flex:none; }
-  .card-table { flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:6px; }
+  /* flex:1 0 auto + min-height：表格优先占主视区，但绝不会被下方的图卡压扁 */
+  .card-table { flex:1 0 auto; display:flex; flex-direction:column; min-height:56vh; margin-bottom:6px; }
   .card-table .toolbar { flex:none; }
   .card-table .table-wrap { flex:1; min-height:0; }
   .card-table .note { flex:none; margin-top:6px; }
@@ -294,13 +297,6 @@
   </div>
 </div>
 
-<div class="card">
-  <div class="toolbar">
-    <div class="card-title" style="margin:0">📈 销售趋势 <span style="font-weight:400;color:var(--muted);font-size:12px;">（自然月 · 随上方筛选联动 · 仅 Amazon 口径，暂不含 JoyBuy）</span></div>
-  </div>
-  <div class="charts" id="chartRow"></div>
-</div>
-
 <div class="card card-table">
   <div class="toolbar">
     <div class="card-title" style="margin:0">📊 月度指标 <span style="font-weight:400;color:var(--muted);font-size:12px;">（自然月 1日~月末 · 与周度汇总看板同口径）</span></div>
@@ -311,6 +307,14 @@
   <div class="note">指标口径与周度汇总看板一致：转化率=订单量÷Sessions · 广告转化率=广告订单÷广告点击 · 广告点击率=广告点击÷广告曝光 · 广告占比=广告花费÷销售额 · ROAS=广告销售额÷广告花费 · ACOS=广告花费÷广告销售额 · BuyBox=日均值。<b>地区</b>=NA(US/CA/MX)·EU(欧盟9国)·UK·JP·AU，与国家筛选叠加生效（选地区收窄国家，选国家联动地区）。<b>部分月</b>=数据未覆盖整月（月初或月末缺数），<b>进行中</b>=当月数据尚未完结，合计行仅含所选月份。销售额/花费按所选国家币种显示（多国混合时按 $）。<br><b>毛利</b> = 报表销售额+促销折扣+销售佣金+配送费+商品成本+仓储费分摊+其他费用分摊 − <b>VAT</b>(仅欧洲与英国) − <b>头程</b>(成本表预估) − <b>测评费</b> + <b>其他渠道剔除加回</b> − 本看板广告花费。<b>「商品成本」自 2026-10-13 起改由「产品关系管理」映射到产品成本表的 costRMB × 件数（亚马逊销量 + 多渠道销量）÷ 当月汇率折算，<u>不再取易仓 productCostTotal</u>（易仓原值仅留作审计）；未匹配到成本表的产品名时该行成本按 0 计并计入「成本缺失」。</b>其余各项数据来自易仓「财务-利润报表-ASIN」，按<b>亚马逊结算日期</b>归属（与业务报告的下单口径天然存在差异）；其他费用（推广服务费+服务费）按「日期×国家」产品行数均摊，FBA月仓储费按「月×ASIN×站点×店铺」的<b>日行数</b>均摊（列合计 = ERP 月度值）。利润报表无数据的站点与 2026-07 之前显示 —；成本解析不到的 Woot 行同样显示 —（不按 0 成本算，避免毛利率虚高）。<b>广告费归属</b>：优先取条目自带 ASIN，其次活动名里的 ASIN；品牌推广（SB）报表不含 ASIN，按活动名的「系列+瓦数」兜底，且<b>按站点区分</b>（同一 SKU 在北美与欧洲是不同 ASIN）。若归属到的 ASIN 在该站点没有利润报表行（如某国未上架），该笔广告费仍计入「广告花费」列与合计行的毛利扣减，但该行自身的「毛利」显示 —（没有利润报表行可挂）。<b>销售店铺</b>：默认合并看（Aliencell官方店铺 = 本看板原有亚马逊数据 + Woot店铺 = 由「Woot 数据管理」页注入的行），可单独筛；Woot 行只有订单/销售额/广告，在易仓利润报表里没有对应行，因此其毛利不走易仓口径，改按下方 Woot 毛利公式单独计算。Woot 毛利口径（采购价 × Woot订单量 − 产品成本 − 头程 − Woot广告费）；成本与头程优先取「Woot 数据管理 → 💵 Woot 成本设置」里逐 ASIN 的手工配置，<b>未配置时自动回退「产品关系管理」</b>——按 ASIN 匹配到的产品名取产品成本表的采购成本与 US 头程，÷ 当月 CNY/USD 折成 USD/台；两处都取不到则该 ASIN 不入毛利（显示 —，避免按 0 成本算虚高）。<b>费用占比列</b>（2026-10-10 新增）：成本%=商品成本÷报表销售额；FBA / FBA% =配送费；promotion / promotion% =促销折扣；仓储 / 仓储% =FBA 仓储费；头程 / 头程% =头程费用；其他费用 / 其他费用% =推广服务费+服务费；VAT / VAT% =增值税（仅欧洲与英国）。占比分母统一为<b>利润报表销售额</b>，除成本外其他费用同时列出绝对值（取正数显示）。<b>VAT</b>（2026-10-10 新增）：易仓利润报表的「产品税」与「亚马逊代扣代缴税款」正好互相抵消（净额 0）⇒ 报表没把 VAT 从毛利里扣掉，看板按 <b>(报表销售额 − 促销折扣) × 税率</b> 手动扣减（基数即「销售价 − 优惠价」）；税率见 `vat_rates.json`（UK 20%、DE 19%、FR 20%、IT 22%、ES 21%、NL/BE 21%、IE/PL 23%、SE 25%），非欧洲站点为 0。若确认报表销售额已是不含税口径而无需再扣，把该文件税率置 0 重跑构建即可。<b>头程</b>取产品成本表「头程费用/RMB × 利润报表销量 ÷ 当月 CNY 汇率」，目前为<b>预估值</b>，后续以实际推移头程替换；成本表未覆盖的 ASIN/站点头程按 0 计。<b>尾程</b>（海外仓尾程配送）仅 FBM 订单计入，FBA 订单不计——本看板店铺均走 FBA，故不入成本口径。<b>入境货运费 / 多渠道 / 测评费 / 其他渠道剔除（2026-10-12 新增）</b>：①「入境货运费」= 易仓「FBA库存与入境服务费汇总」里的「<b>FBA物流国际货运费</b>」，ERP 里挂在<b>站点级（无 ASIN）月度行</b>上，看板按「站点 × 当月销量占比」摊到各 SKU；<b>仅列示、不入毛利</b> —— 毛利的头程扣的是成本表「预估头程」，两者是同一笔成本的两个来源，同时计入会重复。②「多渠道销量 / 多渠道损失」= 多渠道（MCF）订单的销量与损失，损失 = 产品成本 + 头程 + 多渠道配送费；这三项<b>本来就含在商品成本与配送费里</b>（ERP 公式：fbaFeesTotal 含多渠道配送费、productCostTotal 含多渠道订单采购成本与头程），故单独列示而<b>不重复扣减</b>（三项明细见每日看板的列设置）。③「测评费」由「财务数据录入」页按月导入（月份+站点+ASIN+金额+币种），按销量占比摊到行并<b>计入毛利</b>。④「其他渠道已剔除」= 你在录入页导入的其他渠道订单（月份+ASIN+数量）所对应的多渠道成本，已按数量比例<b>从亚马逊毛利中移出</b>（作为加回项）。</div>
 <div class="note" style="margin-top:10px;border-top:1px dashed #e2e8f0;padding-top:8px"><b>🌐 平台筛选</b>（2026-10-13 新增）：<b>🅰️ Amazon</b> = 亚马逊 13 国（易仓业务报告 + 广告报表 + 利润报表）；<b>🛒 JoyBuy</b> = 京东欧洲四站（UK / DE / NL / FR，由 Data Compass 按自然月聚合，含站点流量、GMV、订单/件数）。默认「全部平台」= 两平台之和；«看全部平台» 按钮清空选择。<br>⚠️ <b>JoyBuy 没有广告数据</b> ⇒ 「广告指标」组列只反映 Amazon（单看 JoyBuy 时显示 —）。<b>毛利</b>（2026-10-13 起支持）：JoyBuy 走<b>账单口径</b>，<b>平台毛利 = 货款 + 佣金 + 交易服务费 + 广告返点 + VAT + 退款 + 退回佣金 + 退货服务费 + 海外物流仓储 + 其他</b>（账单里费用自带负号，直接相加），<b>完整毛利 = 平台毛利 − 物流费（承运商是 Amazon Logistics 时按亚马逊 MCF 官方费率卡按包装尺寸匹配分段、含燃油，否则按成本表「海外仓尾程配送」）− 产品成本（成本表 costRMB ÷ 当月汇率）− 头程（成本表 headRMB ÷ 当月汇率）</b>；毛利额逐行相加 = 该站点的账单真值。⚠️ 账单<b>只能到「站点 × 月」</b>（看板行是「月 × 站点 × 产品」）⇒ 行级数字按该(站点,月)的<b>行 GMV 占比</b>摊分，属近似值；<b>UK / NL / FR 目前没有已结算账单 ⇒ 其毛利显示 —</b>（不按 0 算）。<b>费用占比列</b>在 JoyBuy 行的含义：<b>成本%</b> = 产品成本 ÷ <b>账单货款</b>；<b>FBA / FBA%</b> = <b>物流费</b>（MCF 或海外仓尾程）；<b>仓储</b> = 海外物流仓储服务费；<b>其他费用</b> = 交易服务费 + 广告返点 + 其他。⚠️ JoyBuy 的毛利率分母是账单<b>货款</b>（Product Payment），与「销售额」列（Data Compass GMV）口径不同（DE 2026-09：货款 €1,803.89 vs GMV €1,619.70）。「全部平台」= 两平台<b>毛利相加</b>；<b>销售额 / 流量 / 订单 / 转化率</b>同样为两平台之和。另：JoyBuy 的「Sessions」口径是<b>商品页 UV（PDP UV）</b>，与 Amazon 的 Sessions 不完全等价，跨平台比转化率请留意；JoyBuy 产品行按「周与自然月重叠天数」等比分摊并校准到站点月合计 ⇒ 订单/件数可能带小数。<br>⚠️ <b>产品系列 / 产品名</b> 筛选：JoyBuy 行没有 ASIN，用的是其自带系列与品名（如 X1 / Laser Module / Air Purifier）；同名系列（如 X1）会与 Amazon 自动合并，因此选「X1」时两平台该系列的月份会一起汇总。选任一个 <b>ASIN</b> 时 JoyBuy 行会被排除（它没有 ASIN）。</div>
 </details>
+</div>
+
+<!-- 销售趋势三图（2026-10-24 移到数据表下方：先进数据表，图只做趋势参考，不挡数据） -->
+<div class="card">
+  <div class="toolbar">
+    <div class="card-title" style="margin:0">📈 销售趋势 <span style="font-weight:400;color:var(--muted);font-size:12px;">（自然月 · 随上方筛选联动 · 仅 Amazon 口径，暂不含 JoyBuy）</span></div>
+  </div>
+  <div class="charts" id="chartRow"></div>
 </div>
 
 <div class="footer">Aliencell 月度数据看板 · 随每日数据自动刷新 · 产品映射 <b id="mapStat">0/0</b>（未匹配归「无」，可在左侧导航「产品关系」中维护）</div>
